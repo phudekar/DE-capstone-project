@@ -1,0 +1,25 @@
+[project]
+name = "flink-processor"
+version = "0.1.0"
+description = "Apache Flink stream processing for DE-Stock market events"
+requires-python = ">=3.11"
+
+dependencies = [
+    "apache-flink>=1.18,<1.19",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.3",
+]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

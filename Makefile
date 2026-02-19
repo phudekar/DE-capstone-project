@@ -6,6 +6,7 @@ COMPOSE_ALL := $(COMPOSE_INFRA) -f $(COMPOSE_DIR)/docker-compose.services.yml
 .PHONY: help up down up-infra down-infra up-services down-services \
         up-kafka down-kafka up-storage down-storage up-flink down-flink \
         up-bridge down-bridge build-bridge logs-bridge register-schemas \
+        build-flink submit-sql-pipeline submit-python-pipeline submit-all-flink \
         logs health ps \
         teardown teardown-destroy build-de-stock
 
@@ -50,12 +51,23 @@ down-storage: ## Stop storage services
 	$(COMPOSE_INFRA) stop iceberg-rest minio
 	$(COMPOSE_INFRA) rm -f iceberg-rest minio-init minio
 
-up-flink: ## Start Flink cluster (requires >= 4GB Docker memory)
+up-flink: build-flink ## Start Flink cluster (requires >= 4GB Docker memory)
 	$(COMPOSE_INFRA) --profile flink up -d flink-jobmanager flink-taskmanager
 
 down-flink: ## Stop Flink cluster
 	$(COMPOSE_INFRA) --profile flink stop flink-taskmanager flink-jobmanager
 	$(COMPOSE_INFRA) --profile flink rm -f flink-taskmanager flink-jobmanager
+
+build-flink: ## Build Flink processor Docker image
+	$(COMPOSE_INFRA) --profile flink build flink-jobmanager flink-taskmanager
+
+submit-sql-pipeline: ## Submit Flink Job A (SQL trade aggregation + enrichment)
+	docker exec flink-jobmanager python3 -m flink_processor.submit_sql_pipeline
+
+submit-python-pipeline: ## Submit Flink Job B (price alerts + orderbook analytics)
+	docker exec flink-jobmanager python3 -m flink_processor.submit_python_pipeline
+
+submit-all-flink: submit-sql-pipeline submit-python-pipeline ## Submit all Flink jobs
 
 # === Services ===
 

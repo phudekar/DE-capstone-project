@@ -100,6 +100,12 @@ services:
         kafka-topics --bootstrap-server kafka-broker-1:29092 --create --if-not-exists --topic raw.trading-halts --partitions 1 --replication-factor 1
         kafka-topics --bootstrap-server kafka-broker-1:29092 --create --if-not-exists --topic raw.agent-actions --partitions 3 --replication-factor 1
         kafka-topics --bootstrap-server kafka-broker-1:29092 --create --if-not-exists --topic dlq.raw.failed --partitions 1 --replication-factor 1
+        echo '=== Creating Flink output topics ==='
+        kafka-topics --bootstrap-server kafka-broker-1:29092 --create --if-not-exists --topic analytics.trade-aggregates --partitions 3 --replication-factor 1
+        kafka-topics --bootstrap-server kafka-broker-1:29092 --create --if-not-exists --topic analytics.orderbook-metrics --partitions 3 --replication-factor 1
+        kafka-topics --bootstrap-server kafka-broker-1:29092 --create --if-not-exists --topic alerts.price-movement --partitions 1 --replication-factor 1
+        kafka-topics --bootstrap-server kafka-broker-1:29092 --create --if-not-exists --topic enriched.trades --partitions 3 --replication-factor 1
+        kafka-topics --bootstrap-server kafka-broker-1:29092 --create --if-not-exists --topic dlq.processing-errors --partitions 1 --replication-factor 1
         echo '=== Topics created ==='
         kafka-topics --bootstrap-server kafka-broker-1:29092 --list
     networks:

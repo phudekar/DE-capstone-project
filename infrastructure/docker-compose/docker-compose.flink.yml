@@ -1,6 +1,8 @@
 services:
   flink-jobmanager:
-    image: flink:1.18-scala_2.12-java11
+    build:
+      context: ../../services/flink-processor
+      dockerfile: Dockerfile
     hostname: flink-jobmanager
     container_name: flink-jobmanager
     ports:
@@ -10,9 +12,16 @@ services:
         jobmanager.rpc.address: flink-jobmanager
         jobmanager.memory.process.size: 1024m
         state.backend: hashmap
+        execution.checkpointing.interval: 60000ms
+        execution.checkpointing.mode: AT_LEAST_ONCE
+      KAFKA_BOOTSTRAP_SERVERS: "kafka-broker-1:29092"
+      REFERENCE_DATA_PATH: "/opt/flink-processor/data/reference/symbols.json"
     command: jobmanager
     networks:
       - de-network
+    depends_on:
+      kafka-broker-1:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/overview"]
       interval: 10s
@@ -23,7 +32,9 @@ services:
       - flink
 
   flink-taskmanager:
-    image: flink:1.18-scala_2.12-java11
+    build:
+      context: ../../services/flink-processor
+      dockerfile: Dockerfile
     hostname: flink-taskmanager
     container_name: flink-taskmanager
     environment:
@@ -32,6 +43,8 @@ services:
         taskmanager.numberOfTaskSlots: 2
         taskmanager.memory.process.size: 1024m
         state.backend: hashmap
+      KAFKA_BOOTSTRAP_SERVERS: "kafka-broker-1:29092"
+      REFERENCE_DATA_PATH: "/opt/flink-processor/data/reference/symbols.json"
     command: taskmanager
     depends_on:
       flink-jobmanager:

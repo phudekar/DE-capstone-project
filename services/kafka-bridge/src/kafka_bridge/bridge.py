@@ -10,12 +10,10 @@ from kafka_bridge.kafka_producer import KafkaProducer
 from kafka_bridge.message_router import route_event
 from kafka_bridge.metrics.prometheus import (
     BRIDGE_LATENCY,
-    SERIALIZATION_FAILURES,
     VALIDATION_FAILURES,
     WS_MESSAGES_RECEIVED,
     start_metrics_server,
 )
-from kafka_bridge.serialization.avro_serializer import AvroEventSerializer
 from kafka_bridge.validation.message_validator import validate_message
 from kafka_bridge.websocket_client import WebSocketClient
 
@@ -23,13 +21,12 @@ logger = logging.getLogger(__name__)
 
 
 class Bridge:
-    """Connects DE-Stock WebSocket to Kafka topics via Avro serialization."""
+    """Connects DE-Stock WebSocket to Kafka topics via JSON serialization."""
 
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
         self._ws_client = WebSocketClient(settings)
         self._producer = KafkaProducer(settings)
-        self._serializer = AvroEventSerializer(settings.schema_registry_url)
         self._dlq = DLQProducer(settings)
 
     def request_shutdown(self) -> None:
@@ -65,18 +62,14 @@ class Bridge:
             # Route to topic
             route = route_event(event_type, data)
 
-            # Flatten: merge envelope fields into data for Avro
+            # Flatten: merge envelope fields into data
             flat = {"event_type": event_type, "timestamp": raw["timestamp"], **data}
 
-            # Serialize to Avro
-            avro_bytes = self._serializer.serialize(event_type, route.topic, flat)
-            if avro_bytes is None:
-                SERIALIZATION_FAILURES.inc()
-                self._dlq.send(raw_text, f"serialization_error: unknown event_type={event_type}")
-                continue
+            # Serialize to JSON
+            json_bytes = json.dumps(flat).encode("utf-8")
 
             # Produce to Kafka
-            self._producer.produce(route.topic, avro_bytes, key=route.key)
+            self._producer.produce(route.topic, json_bytes, key=route.key)
             self._producer.poll(0)
 
             BRIDGE_LATENCY.observe(time.monotonic() - start)
