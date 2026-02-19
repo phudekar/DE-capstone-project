@@ -1,0 +1,18 @@
+{
+  "type": "record",
+  "name": "TradeExecuted",
+  "namespace": "com.deproject.raw.trades",
+  "fields": [
+    {"name": "event_type", "type": "string"},
+    {"name": "timestamp", "type": "string"},
+    {"name": "trade_id", "type": "string"},
+    {"name": "symbol", "type": "string"},
+    {"name": "price", "type": "double"},
+    {"name": "quantity", "type": "int"},
+    {"name": "buyer_order_id", "type": "string"},
+    {"name": "seller_order_id", "type": "string"},
+    {"name": "buyer_agent_id", "type": "string"},
+    {"name": "seller_agent_id", "type": "string"},
+    {"name": "aggressor_side", "type": {"type": "enum", "name": "Side", "symbols": ["Buy", "Sell"]}}
+  ]
+}

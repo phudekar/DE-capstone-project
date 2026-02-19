@@ -1,0 +1,16 @@
+{
+  "type": "record",
+  "name": "OrderBookSnapshot",
+  "namespace": "com.deproject.raw.orderbook",
+  "fields": [
+    {"name": "event_type", "type": "string"},
+    {"name": "timestamp", "type": "string"},
+    {"name": "symbol", "type": "string"},
+    {"name": "bids", "type": {"type": "array", "items": {"type": "record", "name": "PriceLevel", "fields": [
+      {"name": "price", "type": "double"},
+      {"name": "quantity", "type": "int"}
+    ]}}},
+    {"name": "asks", "type": {"type": "array", "items": "PriceLevel"}},
+    {"name": "sequence_number", "type": "int"}
+  ]
+}

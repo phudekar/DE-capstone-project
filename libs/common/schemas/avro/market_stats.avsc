@@ -1,0 +1,18 @@
+{
+  "type": "record",
+  "name": "MarketStats",
+  "namespace": "com.deproject.raw.marketstats",
+  "fields": [
+    {"name": "event_type", "type": "string"},
+    {"name": "timestamp", "type": "string"},
+    {"name": "symbol", "type": "string"},
+    {"name": "open", "type": "double"},
+    {"name": "high", "type": "double"},
+    {"name": "low", "type": "double"},
+    {"name": "last", "type": "double"},
+    {"name": "volume", "type": "int"},
+    {"name": "trade_count", "type": "int"},
+    {"name": "vwap", "type": "double"},
+    {"name": "turnover", "type": "double"}
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "AgentAction",
+  "namespace": "com.deproject.raw.agentactions",
+  "fields": [
+    {"name": "event_type", "type": "string"},
+    {"name": "timestamp", "type": "string"},
+    {"name": "agent_id", "type": "string"},
+    {"name": "agent_type", "type": {"type": "enum", "name": "AgentType", "symbols": ["Retail", "Institutional", "MarketMaker", "HFT", "Noise", "Informed"]}},
+    {"name": "action", "type": "string"},
+    {"name": "symbol", "type": "string"},
+    {"name": "details", "type": {"type": "map", "values": "string"}}
+  ]
+}

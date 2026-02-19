@@ -17,3 +17,33 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+  kafka-bridge:
+    build:
+      context: ../..
+      dockerfile: services/kafka-bridge/Dockerfile
+    hostname: kafka-bridge
+    container_name: kafka-bridge
+    environment:
+      KAFKA_BRIDGE_WS_URI: ws://de-stock:8765
+      KAFKA_BRIDGE_KAFKA_BOOTSTRAP_SERVERS: kafka-broker-1:29092
+      KAFKA_BRIDGE_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      KAFKA_BRIDGE_LOG_LEVEL: INFO
+    ports:
+      - "9090:9090"
+    networks:
+      - de-network
+    depends_on:
+      de-stock:
+        condition: service_healthy
+      kafka-broker-1:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:9090\")'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped

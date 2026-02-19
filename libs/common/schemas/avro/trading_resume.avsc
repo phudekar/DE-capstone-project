@@ -1,0 +1,13 @@
+{
+  "type": "record",
+  "name": "TradingResume",
+  "namespace": "com.deproject.raw.tradinghalt",
+  "fields": [
+    {"name": "event_type", "type": "string"},
+    {"name": "timestamp", "type": "string"},
+    {"name": "symbol", "type": "string"},
+    {"name": "halted_at", "type": "string"},
+    {"name": "halt_duration_secs", "type": "int"},
+    {"name": "level", "type": "int"}
+  ]
+}

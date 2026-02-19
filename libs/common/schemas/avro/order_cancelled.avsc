@@ -1,0 +1,16 @@
+{
+  "type": "record",
+  "name": "OrderCancelled",
+  "namespace": "com.deproject.raw.orders",
+  "fields": [
+    {"name": "event_type", "type": "string"},
+    {"name": "timestamp", "type": "string"},
+    {"name": "order_id", "type": "string"},
+    {"name": "symbol", "type": "string"},
+    {"name": "side", "type": {"type": "enum", "name": "Side", "symbols": ["Buy", "Sell"]}},
+    {"name": "price", "type": "double"},
+    {"name": "remaining_quantity", "type": "int"},
+    {"name": "agent_id", "type": "string"},
+    {"name": "reason", "type": "string"}
+  ]
+}

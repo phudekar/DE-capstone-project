@@ -5,6 +5,7 @@ COMPOSE_ALL := $(COMPOSE_INFRA) -f $(COMPOSE_DIR)/docker-compose.services.yml
 
 .PHONY: help up down up-infra down-infra up-services down-services \
         up-kafka down-kafka up-storage down-storage up-flink down-flink \
+        up-bridge down-bridge build-bridge logs-bridge register-schemas \
         logs health ps \
         teardown teardown-destroy build-de-stock
 
@@ -68,6 +69,19 @@ down-services: ## Stop DE-Stock simulator
 build-de-stock: ## Build DE-Stock Docker image
 	$(COMPOSE_ALL) build de-stock
 
+build-bridge: ## Build Kafka Bridge Docker image
+	$(COMPOSE_ALL) build kafka-bridge
+
+up-bridge: build-bridge ## Start Kafka Bridge (requires infra + de-stock)
+	$(COMPOSE_ALL) up -d kafka-bridge
+
+down-bridge: ## Stop Kafka Bridge
+	$(COMPOSE_ALL) stop kafka-bridge
+	$(COMPOSE_ALL) rm -f kafka-bridge
+
+register-schemas: ## Register Avro schemas with Schema Registry
+	@bash infrastructure/scripts/register-schemas.sh
+
 # === Health & Monitoring ===
 
 health: ## Run health checks for all services
@@ -89,6 +103,9 @@ logs-kafka: ## Tail Kafka broker logs
 
 logs-de-stock: ## Tail DE-Stock simulator logs
 	$(COMPOSE_ALL) logs -f --tail=50 de-stock
+
+logs-bridge: ## Tail Kafka Bridge logs
+	$(COMPOSE_ALL) logs -f --tail=50 kafka-bridge
 
 logs-flink: ## Tail Flink logs
 	$(COMPOSE_INFRA) --profile flink logs -f --tail=50 flink-jobmanager flink-taskmanager

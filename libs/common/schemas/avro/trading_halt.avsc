@@ -1,0 +1,16 @@
+{
+  "type": "record",
+  "name": "TradingHalt",
+  "namespace": "com.deproject.raw.tradinghalt",
+  "fields": [
+    {"name": "event_type", "type": "string"},
+    {"name": "timestamp", "type": "string"},
+    {"name": "symbol", "type": "string"},
+    {"name": "reason", "type": "string"},
+    {"name": "level", "type": "int"},
+    {"name": "trigger_price", "type": "double"},
+    {"name": "reference_price", "type": "double"},
+    {"name": "decline_pct", "type": "double"},
+    {"name": "halt_duration_secs", "type": "int"}
+  ]
+}
