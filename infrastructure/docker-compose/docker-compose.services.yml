@@ -47,3 +47,27 @@ services:
       retries: 5
       start_period: 15s
     restart: unless-stopped
+
+  lakehouse:
+    build:
+      context: ../..
+      dockerfile: services/lakehouse/Dockerfile
+    hostname: lakehouse
+    container_name: lakehouse
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka-broker-1:29092
+      ICEBERG_CATALOG_URI: http://iceberg-rest:8181
+      S3_ENDPOINT: http://minio:9000
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_REGION: us-east-1
+    networks:
+      - de-network
+    depends_on:
+      kafka-broker-1:
+        condition: service_healthy
+      iceberg-rest:
+        condition: service_started
+      minio:
+        condition: service_started
+    restart: unless-stopped

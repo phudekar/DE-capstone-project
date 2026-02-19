@@ -7,6 +7,7 @@ COMPOSE_ALL := $(COMPOSE_INFRA) -f $(COMPOSE_DIR)/docker-compose.services.yml
         up-kafka down-kafka up-storage down-storage up-flink down-flink \
         up-bridge down-bridge build-bridge logs-bridge register-schemas \
         build-flink submit-sql-pipeline submit-python-pipeline submit-all-flink \
+        build-lakehouse init-lakehouse up-lakehouse down-lakehouse run-silver run-gold logs-lakehouse \
         logs health ps \
         teardown teardown-destroy build-de-stock
 
@@ -94,6 +95,28 @@ down-bridge: ## Stop Kafka Bridge
 register-schemas: ## Register Avro schemas with Schema Registry
 	@bash infrastructure/scripts/register-schemas.sh
 
+# === Lakehouse ===
+
+build-lakehouse: ## Build lakehouse Docker image
+	$(COMPOSE_ALL) build lakehouse
+
+init-lakehouse: build-lakehouse ## Create Iceberg tables + seed dimensions
+	$(COMPOSE_ALL) run --rm lakehouse python -m lakehouse.catalog
+	$(COMPOSE_ALL) run --rm lakehouse python -m lakehouse.seed.seed_dimensions
+
+up-lakehouse: build-lakehouse ## Start lakehouse Bronze writer (long-running)
+	$(COMPOSE_ALL) up -d lakehouse
+
+down-lakehouse: ## Stop lakehouse service
+	$(COMPOSE_ALL) stop lakehouse
+	$(COMPOSE_ALL) rm -f lakehouse
+
+run-silver: ## Run Bronze → Silver processor
+	$(COMPOSE_ALL) run --rm lakehouse python -m lakehouse.processors.silver_processor
+
+run-gold: ## Run Silver → Gold aggregator
+	$(COMPOSE_ALL) run --rm lakehouse python -m lakehouse.processors.gold_aggregator
+
 # === Health & Monitoring ===
 
 health: ## Run health checks for all services
@@ -121,3 +144,6 @@ logs-bridge: ## Tail Kafka Bridge logs
 
 logs-flink: ## Tail Flink logs
 	$(COMPOSE_INFRA) --profile flink logs -f --tail=50 flink-jobmanager flink-taskmanager
+
+logs-lakehouse: ## Tail lakehouse logs
+	$(COMPOSE_ALL) logs -f --tail=50 lakehouse
