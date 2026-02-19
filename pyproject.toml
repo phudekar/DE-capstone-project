@@ -1,0 +1,19 @@
+[project]
+name = "de-capstone-project"
+version = "0.1.0"
+description = "Data Engineering Capstone Project — Real-time stock market data pipeline"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
+    "load: marks tests as load tests",
+]

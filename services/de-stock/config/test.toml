@@ -1,0 +1,39 @@
+# DE-Stock Exchange Simulator Configuration (Testing)
+# Minimal config: 2 symbols, fewer agents, faster ticks
+
+[server]
+websocket_addr = "0.0.0.0"
+websocket_port = 8765
+
+[simulation]
+tick_interval_ms = 50
+snapshot_interval_ticks = 20
+stats_interval_ticks = 20
+
+[agents]
+retail_traders = 20
+institutional_investors = 1
+market_makers = 2
+hft_traders = 3
+noise_traders = 5
+informed_traders = 2
+
+[data_quality]
+enabled = false
+duplicate_rate = 0.0
+out_of_order_rate = 0.0
+missing_data_rate = 0.0
+
+[[symbols]]
+ticker = "AAPL"
+name = "Apple Inc."
+initial_price = 185.0
+volatility = 0.25
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "TSLA"
+name = "Tesla Inc."
+initial_price = 250.0
+volatility = 0.45
+market_cap_category = "large"

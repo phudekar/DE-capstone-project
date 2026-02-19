@@ -1,0 +1,19 @@
+services:
+  de-stock:
+    build:
+      context: ../../services/de-stock
+      dockerfile: Dockerfile
+    hostname: de-stock
+    container_name: de-stock
+    ports:
+      - "8765:8765"
+    volumes:
+      - ../../services/de-stock/config/default.toml:/etc/de-stock/default.toml:ro
+    networks:
+      - de-network
+    healthcheck:
+      test: ["CMD-SHELL", "echo | nc -w1 localhost 8765 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s

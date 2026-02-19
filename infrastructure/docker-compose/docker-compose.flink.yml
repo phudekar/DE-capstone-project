@@ -1,0 +1,42 @@
+services:
+  flink-jobmanager:
+    image: flink:1.18-scala_2.12-java11
+    hostname: flink-jobmanager
+    container_name: flink-jobmanager
+    ports:
+      - "8082:8081"
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        jobmanager.memory.process.size: 1024m
+        state.backend: hashmap
+    command: jobmanager
+    networks:
+      - de-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/overview"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    profiles:
+      - flink
+
+  flink-taskmanager:
+    image: flink:1.18-scala_2.12-java11
+    hostname: flink-taskmanager
+    container_name: flink-taskmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        taskmanager.memory.process.size: 1024m
+        state.backend: hashmap
+    command: taskmanager
+    depends_on:
+      flink-jobmanager:
+        condition: service_healthy
+    networks:
+      - de-network
+    profiles:
+      - flink

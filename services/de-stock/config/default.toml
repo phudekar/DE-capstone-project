@@ -1,0 +1,204 @@
+# DE-Stock Exchange Simulator Configuration (Production)
+
+[server]
+websocket_addr = "0.0.0.0"
+websocket_port = 8765
+
+[simulation]
+tick_interval_ms = 100
+snapshot_interval_ticks = 100
+stats_interval_ticks = 100
+
+[agents]
+retail_traders = 200
+institutional_investors = 5
+market_makers = 10
+hft_traders = 15
+noise_traders = 20
+informed_traders = 8
+
+[data_quality]
+enabled = false
+duplicate_rate = 0.0
+out_of_order_rate = 0.0
+missing_data_rate = 0.0
+
+# === Technology Sector ===
+
+[[symbols]]
+ticker = "AAPL"
+name = "Apple Inc."
+initial_price = 185.0
+volatility = 0.25
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "GOOGL"
+name = "Alphabet Inc."
+initial_price = 142.0
+volatility = 0.28
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "MSFT"
+name = "Microsoft Corp."
+initial_price = 415.0
+volatility = 0.20
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "NVDA"
+name = "NVIDIA Corporation"
+initial_price = 450.0
+volatility = 0.35
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "META"
+name = "Meta Platforms Inc."
+initial_price = 380.0
+volatility = 0.32
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "TSLA"
+name = "Tesla Inc."
+initial_price = 250.0
+volatility = 0.45
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "AMZN"
+name = "Amazon.com Inc."
+initial_price = 178.0
+volatility = 0.28
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "CRM"
+name = "Salesforce Inc."
+initial_price = 270.0
+volatility = 0.30
+market_cap_category = "large"
+
+# === Finance Sector ===
+
+[[symbols]]
+ticker = "JPM"
+name = "JPMorgan Chase & Co."
+initial_price = 195.0
+volatility = 0.22
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "BAC"
+name = "Bank of America Corp."
+initial_price = 35.0
+volatility = 0.28
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "GS"
+name = "Goldman Sachs Group"
+initial_price = 385.0
+volatility = 0.25
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "V"
+name = "Visa Inc."
+initial_price = 275.0
+volatility = 0.18
+market_cap_category = "large"
+
+# === Healthcare Sector ===
+
+[[symbols]]
+ticker = "JNJ"
+name = "Johnson & Johnson"
+initial_price = 155.0
+volatility = 0.15
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "UNH"
+name = "UnitedHealth Group"
+initial_price = 520.0
+volatility = 0.22
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "PFE"
+name = "Pfizer Inc."
+initial_price = 28.0
+volatility = 0.30
+market_cap_category = "large"
+
+# === Consumer Sector ===
+
+[[symbols]]
+ticker = "WMT"
+name = "Walmart Inc."
+initial_price = 165.0
+volatility = 0.15
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "KO"
+name = "Coca-Cola Company"
+initial_price = 60.0
+volatility = 0.12
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "MCD"
+name = "McDonald's Corp."
+initial_price = 290.0
+volatility = 0.18
+market_cap_category = "large"
+
+# === Energy Sector ===
+
+[[symbols]]
+ticker = "XOM"
+name = "Exxon Mobil Corp."
+initial_price = 105.0
+volatility = 0.25
+market_cap_category = "large"
+
+[[symbols]]
+ticker = "CVX"
+name = "Chevron Corp."
+initial_price = 150.0
+volatility = 0.22
+market_cap_category = "large"
+
+# === Mid-Cap / High Volatility ===
+
+[[symbols]]
+ticker = "SMCI"
+name = "Super Micro Computer"
+initial_price = 50.0
+volatility = 0.60
+market_cap_category = "mid"
+
+[[symbols]]
+ticker = "MSTR"
+name = "MicroStrategy Inc."
+initial_price = 180.0
+volatility = 0.55
+market_cap_category = "mid"
+
+[[symbols]]
+ticker = "PLTR"
+name = "Palantir Technologies"
+initial_price = 22.0
+volatility = 0.50
+market_cap_category = "mid"
+
+[[symbols]]
+ticker = "RIVN"
+name = "Rivian Automotive"
+initial_price = 18.0
+volatility = 0.55
+market_cap_category = "mid"
