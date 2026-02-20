@@ -1,12 +1,11 @@
 """Tests for job definitions."""
 
-from __future__ import annotations
-
 from orchestrator.jobs.data_quality import (
-    check_bronze_quality,
-    check_gold_quality,
-    check_silver_quality,
+    compute_quality_scores,
     data_quality_job,
+    validate_bronze,
+    validate_gold,
+    validate_silver,
 )
 from orchestrator.jobs.export import export_daily_summary_csv, export_job
 from orchestrator.jobs.maintenance import compact_tables, expire_snapshots, maintenance_job
@@ -35,11 +34,12 @@ def test_maintenance_job_has_ops():
 
 
 def test_data_quality_job_has_ops():
-    """Data quality job contains all three check ops."""
+    """Data quality job contains all four GX ops."""
     op_names = {node.name for node in data_quality_job.nodes}
-    assert "check_bronze_quality" in op_names
-    assert "check_silver_quality" in op_names
-    assert "check_gold_quality" in op_names
+    assert "validate_bronze" in op_names
+    assert "validate_silver" in op_names
+    assert "validate_gold" in op_names
+    assert "compute_quality_scores" in op_names
 
 
 def test_export_job_has_ops():
@@ -54,9 +54,9 @@ def test_compact_tables_op_defined():
     assert compact_tables.description is not None
 
 
-def test_check_bronze_quality_op_defined():
-    """check_bronze_quality op is defined."""
-    assert check_bronze_quality.name == "check_bronze_quality"
+def test_validate_bronze_op_defined():
+    """validate_bronze op is defined."""
+    assert validate_bronze.name == "validate_bronze"
 
 
 def test_export_daily_summary_csv_op_defined():

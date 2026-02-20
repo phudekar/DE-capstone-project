@@ -1,120 +1,179 @@
-"""Data quality job — basic checks using DuckDB SQL."""
+"""Data quality job — GX-backed validation across Bronze, Silver, and Gold layers."""
 
 import logging
 
-from dagster import In, Nothing, job, op
+from dagster import In, Out, job, op
 
 from orchestrator.resources.duckdb_resource import DuckDBResource
+from orchestrator.resources.gx_resource import GXResource
 from orchestrator.resources.iceberg import IcebergResource
 
 logger = logging.getLogger(__name__)
 
 
-@op(description="Check Bronze data quality: non-null trade IDs and positive prices.")
-def check_bronze_quality(context, iceberg: IcebergResource, duckdb_resource: DuckDBResource) -> None:
-    """Run basic quality checks on Bronze trade data."""
+def _load_pandas(iceberg: IcebergResource, table_name: str):
+    """Load an Iceberg table and return a Pandas DataFrame, or None if missing/empty."""
     try:
-        table = iceberg.load_table("bronze.raw_trades")
+        table = iceberg.load_table(table_name)
         arrow = table.scan().to_arrow()
-
         if len(arrow) == 0:
-            context.log.info("DQ: bronze.raw_trades is empty — skipping checks.")
-            return
-
-        con = duckdb_resource.get_connection()
-        con.register("bronze_trades", arrow)
-
-        # Check: no null trade_ids
-        result = con.execute(
-            "SELECT count(*) AS cnt FROM bronze_trades WHERE trade_id IS NULL"
-        ).fetchone()
-        null_count = result[0]
-        if null_count > 0:
-            context.log.warning("DQ FAIL: %d null trade_ids in bronze.raw_trades.", null_count)
-        else:
-            context.log.info("DQ PASS: No null trade_ids in bronze.raw_trades.")
-
-        # Check: all prices > 0
-        result = con.execute(
-            "SELECT count(*) AS cnt FROM bronze_trades WHERE price <= 0"
-        ).fetchone()
-        bad_prices = result[0]
-        if bad_prices > 0:
-            context.log.warning("DQ FAIL: %d non-positive prices in bronze.raw_trades.", bad_prices)
-        else:
-            context.log.info("DQ PASS: All prices positive in bronze.raw_trades.")
-
-        con.close()
+            return None
+        return arrow.to_pandas()
     except Exception:
-        context.log.warning("DQ: Could not check bronze.raw_trades — table may not exist.")
+        return None
 
 
-@op(ins={"start": In(Nothing)}, description="Check Silver data quality: dedup and enrichment.")
-def check_silver_quality(context, iceberg: IcebergResource, duckdb_resource: DuckDBResource) -> None:
-    """Run basic quality checks on Silver trade data."""
-    try:
-        table = iceberg.load_table("silver.trades")
-        arrow = table.scan().to_arrow()
+@op(
+    out={"result": Out(str)},
+    description="Validate Bronze raw_trades with GX bronze_trades_suite.",
+)
+def validate_bronze(context, iceberg: IcebergResource, gx: GXResource) -> str:
+    """Run GX bronze_trades_suite and log results."""
+    import data_quality.custom_expectations.expect_ohlcv_consistency  # noqa: F401
+    from data_quality.suites.bronze_suite import build_bronze_trades_suite
 
-        if len(arrow) == 0:
-            context.log.info("DQ: silver.trades is empty — skipping checks.")
-            return
+    df = _load_pandas(iceberg, "bronze.raw_trades")
+    if df is None:
+        context.log.info("DQ bronze: table missing or empty — skipping.")
+        return "skipped"
 
-        con = duckdb_resource.get_connection()
-        con.register("silver_trades", arrow)
-
-        # Check: no duplicate trade_ids
-        result = con.execute(
-            "SELECT count(*) - count(DISTINCT trade_id) AS dups FROM silver_trades"
-        ).fetchone()
-        dup_count = result[0]
-        if dup_count > 0:
-            context.log.warning("DQ FAIL: %d duplicate trade_ids in silver.trades.", dup_count)
-        else:
-            context.log.info("DQ PASS: No duplicate trade_ids in silver.trades.")
-
-        con.close()
-    except Exception:
-        context.log.warning("DQ: Could not check silver.trades — table may not exist.")
+    result = gx.validate(df, build_bronze_trades_suite())
+    stats = result["statistics"]
+    context.log.info(
+        "DQ bronze_trades_suite: %s/%s expectations passed.",
+        stats.get("successful_expectations", 0),
+        stats.get("evaluated_expectations", 0),
+    )
+    if not result["success"]:
+        failed = [r["expectation_type"] for r in result["results"] if not r["success"]]
+        context.log.warning("DQ bronze FAILED expectations: %s", failed)
+    return "passed" if result["success"] else "failed"
 
 
-@op(ins={"start": In(Nothing)}, description="Check Gold data quality: trade counts > 0.")
-def check_gold_quality(context, iceberg: IcebergResource, duckdb_resource: DuckDBResource) -> None:
-    """Run basic quality checks on Gold summary data."""
-    try:
-        table = iceberg.load_table("gold.daily_trading_summary")
-        arrow = table.scan().to_arrow()
+@op(
+    ins={"upstream": In(str)},
+    out={"result": Out(str)},
+    description="Validate Silver trades with GX silver_trades_suite.",
+)
+def validate_silver(context, upstream: str, iceberg: IcebergResource, gx: GXResource) -> str:
+    """Run GX silver_trades_suite and log results."""
+    import data_quality.custom_expectations.expect_ohlcv_consistency  # noqa: F401
+    from data_quality.suites.silver_suite import build_silver_trades_suite
 
-        if len(arrow) == 0:
-            context.log.info("DQ: gold.daily_trading_summary is empty — skipping checks.")
-            return
+    df = _load_pandas(iceberg, "silver.trades")
+    if df is None:
+        context.log.info("DQ silver: table missing or empty — skipping.")
+        return "skipped"
 
-        con = duckdb_resource.get_connection()
-        con.register("gold_summary", arrow)
+    result = gx.validate(df, build_silver_trades_suite())
+    stats = result["statistics"]
+    context.log.info(
+        "DQ silver_trades_suite: %s/%s expectations passed.",
+        stats.get("successful_expectations", 0),
+        stats.get("evaluated_expectations", 0),
+    )
+    if not result["success"]:
+        failed = [r["expectation_type"] for r in result["results"] if not r["success"]]
+        context.log.warning("DQ silver FAILED expectations: %s", failed)
+    return "passed" if result["success"] else "failed"
 
-        # Check: trade_count > 0 for all rows
-        result = con.execute(
-            "SELECT count(*) AS cnt FROM gold_summary WHERE trade_count <= 0"
-        ).fetchone()
-        bad_count = result[0]
-        if bad_count > 0:
-            context.log.warning(
-                "DQ FAIL: %d rows with trade_count <= 0 in gold.daily_trading_summary.",
-                bad_count,
-            )
-        else:
-            context.log.info("DQ PASS: All trade_counts positive in gold.daily_trading_summary.")
 
-        con.close()
-    except Exception:
-        context.log.warning(
-            "DQ: Could not check gold.daily_trading_summary — table may not exist."
+@op(
+    ins={"upstream": In(str)},
+    out={"result": Out(str)},
+    description="Validate Gold daily_trading_summary with GX gold_daily_summary_suite.",
+)
+def validate_gold(context, upstream: str, iceberg: IcebergResource, gx: GXResource) -> str:
+    """Run GX gold_daily_summary_suite and log results."""
+    import data_quality.custom_expectations.expect_ohlcv_consistency  # noqa: F401
+    from data_quality.suites.gold_suite import build_gold_daily_summary_suite
+
+    df = _load_pandas(iceberg, "gold.daily_trading_summary")
+    if df is None:
+        context.log.info("DQ gold: table missing or empty — skipping.")
+        return "skipped"
+
+    result = gx.validate(df, build_gold_daily_summary_suite())
+    stats = result["statistics"]
+    context.log.info(
+        "DQ gold_daily_summary_suite: %s/%s expectations passed.",
+        stats.get("successful_expectations", 0),
+        stats.get("evaluated_expectations", 0),
+    )
+    if not result["success"]:
+        failed = [r["expectation_type"] for r in result["results"] if not r["success"]]
+        context.log.warning("DQ gold FAILED expectations: %s", failed)
+    return "passed" if result["success"] else "failed"
+
+
+@op(
+    ins={"bronze_result": In(str), "silver_result": In(str), "gold_result": In(str)},
+    description="Aggregate quality results and compute overall quality scores.",
+)
+def compute_quality_scores(
+    context,
+    bronze_result: str,
+    silver_result: str,
+    gold_result: str,
+    iceberg: IcebergResource,
+    duckdb_resource: DuckDBResource,
+) -> None:
+    """Compute weighted quality scores for each layer and log summary."""
+    from data_quality.scoring import compute_quality_score
+
+    layer_tables = {
+        "bronze": ("bronze.raw_trades", "trade_id"),
+        "silver": ("silver.trades", "trade_id"),
+        "gold": ("gold.daily_trading_summary", "symbol"),
+    }
+    layer_results = {
+        "bronze": bronze_result,
+        "silver": silver_result,
+        "gold": gold_result,
+    }
+
+    for layer, validation_result in layer_results.items():
+        if validation_result == "skipped":
+            context.log.info("Quality score [%s]: N/A (skipped)", layer)
+            continue
+
+        table_name, id_col = layer_tables[layer]
+        df = _load_pandas(iceberg, table_name)
+        if df is None:
+            context.log.info("Quality score [%s]: N/A (empty)", layer)
+            continue
+
+        total_rows = len(df)
+        null_count = int(df.isnull().any(axis=1).sum())
+        dup_count = int(df.duplicated(subset=[id_col]).sum()) if id_col in df.columns else 0
+
+        score = compute_quality_score(
+            total_rows=total_rows,
+            null_count=null_count,
+            duplicate_count=dup_count,
+            within_freshness_sla=(validation_result != "failed"),
+        )
+        context.log.info(
+            "Quality score [%s]: overall=%.3f grade=%s "
+            "(completeness=%.2f accuracy=%.2f freshness=%.2f uniqueness=%.2f)",
+            layer,
+            score.overall,
+            score.grade,
+            score.completeness,
+            score.accuracy,
+            score.freshness,
+            score.uniqueness,
         )
 
 
-@job(description="Data quality checks across Bronze, Silver, and Gold layers.")
+@job(description="GX-backed data quality validation across Bronze, Silver, and Gold layers.")
 def data_quality_job() -> None:
-    """Run quality checks sequentially through each layer."""
-    bronze_result = check_bronze_quality()
-    silver_result = check_silver_quality(start=bronze_result)
-    check_gold_quality(start=silver_result)
+    """Run GX validation sequentially through each lakehouse layer."""
+    bronze_result = validate_bronze()
+    silver_result = validate_silver(upstream=bronze_result)
+    gold_result = validate_gold(upstream=silver_result)
+    compute_quality_scores(
+        bronze_result=bronze_result,
+        silver_result=silver_result,
+        gold_result=gold_result,
+    )
