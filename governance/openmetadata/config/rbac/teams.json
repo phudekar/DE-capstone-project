@@ -1,0 +1,42 @@
+[
+  {
+    "name": "DataEngineering",
+    "displayName": "Data Engineering",
+    "description": "Team responsible for building and maintaining the lakehouse pipeline.",
+    "teamType": "Department",
+    "defaultRoles": ["DataEngineerRole"],
+    "parents": ["Organization"]
+  },
+  {
+    "name": "DataAnalytics",
+    "displayName": "Data Analytics",
+    "description": "Analysts consuming silver and gold layer data.",
+    "teamType": "Department",
+    "defaultRoles": ["DataAnalystRole"],
+    "parents": ["Organization"]
+  },
+  {
+    "name": "DataScience",
+    "displayName": "Data Science",
+    "description": "Scientists building ML models on raw and processed data.",
+    "teamType": "Department",
+    "defaultRoles": ["DataScientistRole"],
+    "parents": ["Organization"]
+  },
+  {
+    "name": "Business",
+    "displayName": "Business",
+    "description": "Business stakeholders accessing gold-layer dashboards.",
+    "teamType": "Department",
+    "defaultRoles": ["BusinessUserRole"],
+    "parents": ["Organization"]
+  },
+  {
+    "name": "DataGovernance",
+    "displayName": "Data Governance",
+    "description": "Governance team managing classification, tags, and policies.",
+    "teamType": "Department",
+    "defaultRoles": ["DataGovernanceAdminRole"],
+    "parents": ["Organization"]
+  }
+]

@@ -1,0 +1,85 @@
+[
+  {
+    "name": "DataEngineerPolicy",
+    "description": "Full access to all metadata and pipeline operations.",
+    "rules": [
+      {
+        "name": "AllowAll",
+        "resources": ["All"],
+        "operations": ["All"],
+        "effect": "Allow"
+      }
+    ]
+  },
+  {
+    "name": "DataAnalystPolicy",
+    "description": "Read access to silver/gold tables; no PII columns.",
+    "rules": [
+      {
+        "name": "AllowRead",
+        "resources": ["table", "database", "databaseSchema", "glossary", "tag"],
+        "operations": ["ViewAll", "ViewBasic", "ViewSampleData", "ViewQueries"],
+        "effect": "Allow"
+      },
+      {
+        "name": "DenyBronze",
+        "resources": ["table"],
+        "operations": ["ViewAll"],
+        "condition": "matchAnyTag('DataLayer.Bronze')",
+        "effect": "Deny"
+      }
+    ]
+  },
+  {
+    "name": "DataScientistPolicy",
+    "description": "Read access to all layers; PII columns shown as hashed values.",
+    "rules": [
+      {
+        "name": "AllowReadAll",
+        "resources": ["table", "database", "databaseSchema", "glossary", "tag", "topic"],
+        "operations": ["ViewAll", "ViewBasic", "ViewSampleData"],
+        "effect": "Allow"
+      }
+    ]
+  },
+  {
+    "name": "BusinessUserPolicy",
+    "description": "Read-only access to gold aggregates; no sample data; no PII.",
+    "rules": [
+      {
+        "name": "AllowGoldRead",
+        "resources": ["table", "database"],
+        "operations": ["ViewBasic"],
+        "effect": "Allow"
+      },
+      {
+        "name": "DenyBronzeSilver",
+        "resources": ["table"],
+        "operations": ["ViewAll", "ViewSampleData"],
+        "condition": "matchAnyTag('DataLayer.Bronze') || matchAnyTag('DataLayer.Silver')",
+        "effect": "Deny"
+      }
+    ]
+  },
+  {
+    "name": "DataGovernanceAdminPolicy",
+    "description": "Full governance metadata access.",
+    "rules": [
+      {
+        "name": "AllowGovernance",
+        "resources": [
+          "tag", "classification", "glossary", "glossaryTerm",
+          "policy", "role", "team", "dataContract"
+        ],
+        "operations": ["All"],
+        "effect": "Allow"
+      },
+      {
+        "name": "AllowReadMetadata",
+        "resources": ["table", "database", "databaseSchema", "topic", "pipeline"],
+        "operations": ["ViewAll", "ViewBasic"],
+        "effect": "Allow"
+      }
+    ]
+  }
+]

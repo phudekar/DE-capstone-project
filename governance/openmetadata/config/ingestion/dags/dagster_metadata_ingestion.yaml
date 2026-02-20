@@ -1,0 +1,31 @@
+# Dagster pipeline metadata ingestion workflow
+# Discovers assets, jobs, schedules, and sensors from the Dagster webserver
+# and registers them as Pipeline entities in OpenMetadata.
+
+source:
+  type: dagster
+  serviceName: de-capstone-dagster
+  serviceConnection:
+    config:
+      type: Dagster
+      host: "http://dagster-webserver:3000"
+      timeout: 1000
+
+  sourceConfig:
+    config:
+      type: PipelineMetadata
+      includeLineage: true
+      dbServiceNames:
+        - de-capstone-iceberg
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: "http://openmetadata-server:8585/api"
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: "${OM_INGESTION_BOT_TOKEN:-CHANGE_ME_IN_PRODUCTION}"

@@ -1,0 +1,36 @@
+# Automated PII scanner ingestion workflow
+# Scans all Iceberg tables for columns that match PII patterns and applies
+# the appropriate sensitivity classification tags in OpenMetadata.
+
+source:
+  type: datalake
+  serviceName: de-capstone-iceberg
+  serviceConnection:
+    config:
+      type: Datalake
+      configSource:
+        securityConfig: {}
+      databaseName: iceberg
+
+  sourceConfig:
+    config:
+      type: AutoClassification
+      storeSampleData: false
+      enableAutoClassification: true
+      confidence: 80          # minimum confidence % to apply a PII tag
+      classificationFilterPattern:
+        includes:
+          - "PII.*"
+          - "Sensitive.*"
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: "http://openmetadata-server:8585/api"
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: "${OM_INGESTION_BOT_TOKEN:-CHANGE_ME_IN_PRODUCTION}"

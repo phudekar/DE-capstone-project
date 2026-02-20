@@ -15,6 +15,10 @@ from orchestrator.assets import (
     gold_market_overview,
     gold_portfolio_positions,
     gold_trader_performance,
+    masked_gold_summary_public,
+    masked_silver_trades_analyst,
+    masked_silver_trades_business,
+    pii_retention_enforcement,
     silver_market_data,
     silver_orderbook_snapshots,
     silver_trades,
@@ -68,6 +72,11 @@ defs = Definitions(
         dim_trader,
         dim_exchange,
         dim_account,
+        # Governance
+        masked_silver_trades_analyst,
+        masked_silver_trades_business,
+        masked_gold_summary_public,
+        pii_retention_enforcement,
     ],
     asset_checks=[
         bronze_raw_trades_quality_check,

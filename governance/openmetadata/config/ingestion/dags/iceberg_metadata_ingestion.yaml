@@ -1,0 +1,43 @@
+# Iceberg / DuckDB table metadata ingestion workflow
+# Connects to the REST catalog and discovers all tables in the
+# bronze / silver / gold namespaces, registering them in OpenMetadata.
+
+source:
+  type: datalake
+  serviceName: de-capstone-iceberg
+  serviceConnection:
+    config:
+      type: Datalake
+      configSource:
+        securityConfig: {}
+      prefix: ""
+      bucketName: ""
+      # Use DuckDB + PyIceberg via local REST catalog
+      databaseName: iceberg
+
+  sourceConfig:
+    config:
+      type: DatabaseMetadata
+      schemaFilterPattern:
+        includes:
+          - "bronze"
+          - "silver"
+          - "gold"
+      tableFilterPattern:
+        includes: []          # empty = all tables
+      generateSampleData: true
+      sampleDataCount: 50
+      markDeletedTables: true
+      includeTags: true
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: "http://openmetadata-server:8585/api"
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: "${OM_INGESTION_BOT_TOKEN:-CHANGE_ME_IN_PRODUCTION}"

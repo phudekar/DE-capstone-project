@@ -1,0 +1,40 @@
+# Kafka topic metadata ingestion workflow
+# Discovers all topics in the local KRaft broker and registers them in
+# OpenMetadata with schema, owner, and description tags.
+
+source:
+  type: kafka
+  serviceName: de-capstone-kafka
+  serviceConnection:
+    config:
+      type: Kafka
+      bootstrapServers: "kafka:9092"
+      schemaRegistryURL: ""       # no separate registry — schemas inlined
+      saslUsername: ""
+      saslPassword: ""
+      saslMechanism: PLAIN
+      basicAuthUserInfo: ""
+      consumerConfig:
+        auto.offset.reset: "earliest"
+
+  sourceConfig:
+    config:
+      type: MessagingMetadata
+      topicFilterPattern:
+        includes:
+          - "trades.*"
+          - "alerts.*"
+          - "market.*"
+      generateSampleData: true
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: "http://openmetadata-server:8585/api"
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: "${OM_INGESTION_BOT_TOKEN:-CHANGE_ME_IN_PRODUCTION}"

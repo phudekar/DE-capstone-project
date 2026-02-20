@@ -1,0 +1,140 @@
+version: "3.9"
+
+# ─── OpenMetadata Governance Stack ───────────────────────────────────────────
+# Usage: docker-compose up -d
+#
+# Services:
+#   openmetadata-mysql        :3306   Metadata store
+#   openmetadata-elasticsearch:9200   Search index
+#   openmetadata-server       :8585   OpenMetadata API + UI
+#   openmetadata-ingestion    :8080   Ingestion workflows (Airflow-based)
+
+networks:
+  governance-network:
+    name: governance-network
+    driver: bridge
+  pipeline:
+    external: true
+    name: docker-compose_pipeline
+
+volumes:
+  openmetadata-mysql-data: {}
+  openmetadata-es-data: {}
+  openmetadata-ingestion-data: {}
+
+services:
+
+  # ─── MySQL ──────────────────────────────────────────────────────────────────
+  openmetadata-mysql:
+    image: mysql:8.0
+    container_name: openmetadata-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${OM_MYSQL_ROOT_PASSWORD:-openmetadata_root}"
+      MYSQL_DATABASE: openmetadata_db
+      MYSQL_USER: openmetadata_user
+      MYSQL_PASSWORD: "${OM_MYSQL_PASSWORD:-openmetadata_password}"
+    ports:
+      - "3306:3306"
+    volumes:
+      - openmetadata-mysql-data:/var/lib/mysql
+      - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root",
+             "-p${OM_MYSQL_ROOT_PASSWORD:-openmetadata_root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - governance-network
+
+  # ─── Elasticsearch ──────────────────────────────────────────────────────────
+  openmetadata-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.15
+    container_name: openmetadata-elasticsearch
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      xpack.security.enabled: "false"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - openmetadata-es-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - governance-network
+
+  # ─── OpenMetadata Server ────────────────────────────────────────────────────
+  openmetadata-server:
+    image: openmetadata/server:1.3.1
+    container_name: openmetadata-server
+    restart: unless-stopped
+    depends_on:
+      openmetadata-mysql:
+        condition: service_healthy
+      openmetadata-elasticsearch:
+        condition: service_healthy
+    environment:
+      # Database
+      DB_DRIVER_CLASS: com.mysql.cj.jdbc.Driver
+      DB_SCHEME: mysql
+      DB_HOST: openmetadata-mysql
+      DB_PORT: "3306"
+      DB_USER: openmetadata_user
+      DB_USER_PASSWORD: "${OM_MYSQL_PASSWORD:-openmetadata_password}"
+      OM_DATABASE: openmetadata_db
+      # Elasticsearch
+      ELASTICSEARCH_HOST: openmetadata-elasticsearch
+      ELASTICSEARCH_PORT: "9200"
+      ELASTICSEARCH_SCHEME: http
+      # Server
+      SERVER_HOST: "0.0.0.0"
+      SERVER_PORT: "8585"
+      SERVER_ADMIN_PORT: "8586"
+      # Authentication (basic auth for local dev)
+      AUTHENTICATION_PROVIDER: basic
+      AUTHENTICATION_PUBLIC_KEYS: "[http://localhost:8585/api/v1/system/config/jwks]"
+      AUTHENTICATION_AUTHORITY: "https://accounts.google.com"
+      AUTHENTICATION_CALLBACK_URL: "http://localhost:8585/callback"
+      # Authorizer
+      AUTHORIZER_CLASS_NAME: org.openmetadata.service.security.DefaultAuthorizer
+      AUTHORIZER_ADMIN_PRINCIPALS: "[admin]"
+      AUTHORIZER_PRINCIPAL_DOMAIN: "open-metadata.org"
+      # Pipeline / Ingestion
+      PIPELINE_SERVICE_CLIENT_ENABLED: "true"
+      PIPELINE_SERVICE_CLIENT_HOST: "http://openmetadata-ingestion:8080"
+      PIPELINE_SERVICE_CLIENT_CLASS_NAME: org.openmetadata.service.clients.pipeline.airflow.AirflowRESTClient
+      # OpenLineage Consumer
+      OPENLINEAGE_ENABLED: "true"
+    ports:
+      - "8585:8585"
+      - "8586:8586"
+    networks:
+      - governance-network
+      - pipeline
+
+  # ─── OpenMetadata Ingestion (Airflow-based) ─────────────────────────────────
+  openmetadata-ingestion:
+    image: openmetadata/ingestion:1.3.1
+    container_name: openmetadata-ingestion
+    restart: unless-stopped
+    depends_on:
+      openmetadata-server:
+        condition: service_started
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "mysql+pymysql://openmetadata_user:${OM_MYSQL_PASSWORD:-openmetadata_password}@openmetadata-mysql:3306/airflow_db"
+      AIRFLOW__OPENMETADATA__SERVER_HOST: "http://openmetadata-server:8585/api"
+    ports:
+      - "8080:8080"
+    volumes:
+      - openmetadata-ingestion-data:/opt/airflow
+      - ./config/ingestion/dags:/opt/airflow/dags
+    networks:
+      - governance-network

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "DataEngineerRole",
+    "displayName": "Data Engineer",
+    "description": "Full read/write access to all lakehouse layers and pipeline definitions.",
+    "policies": ["DataEngineerPolicy"]
+  },
+  {
+    "name": "DataAnalystRole",
+    "displayName": "Data Analyst",
+    "description": "Read access to silver and gold layers; masked PII fields.",
+    "policies": ["DataAnalystPolicy"]
+  },
+  {
+    "name": "DataScientistRole",
+    "displayName": "Data Scientist",
+    "description": "Read access to all layers including bronze; no write; PII shown as hashes.",
+    "policies": ["DataScientistPolicy"]
+  },
+  {
+    "name": "BusinessUserRole",
+    "displayName": "Business User",
+    "description": "Read-only access to gold layer; highly restricted PII visibility.",
+    "policies": ["BusinessUserPolicy"]
+  },
+  {
+    "name": "DataGovernanceAdminRole",
+    "displayName": "Data Governance Admin",
+    "description": "Full governance access: tags, classifications, glossary, policies.",
+    "policies": ["DataGovernanceAdminPolicy"]
+  }
+]

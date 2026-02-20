@@ -1,5 +1,11 @@
-"""Asset definitions for Bronze, Silver, Gold, and Dimension layers."""
+"""Asset definitions for Bronze, Silver, Gold, Dimension, and Governance layers."""
 
+from orchestrator.assets.governance.masked_tables import (
+    masked_gold_summary_public,
+    masked_silver_trades_analyst,
+    masked_silver_trades_business,
+)
+from orchestrator.assets.governance.pii_retention import pii_retention_enforcement
 from orchestrator.assets.bronze import (
     bronze_raw_marketdata,
     bronze_raw_orderbook,
@@ -27,6 +33,11 @@ from orchestrator.assets.silver import (
 
 __all__ = [
     "bronze_raw_trades",
+    # Governance
+    "masked_silver_trades_analyst",
+    "masked_silver_trades_business",
+    "masked_gold_summary_public",
+    "pii_retention_enforcement",
     "bronze_raw_orderbook",
     "bronze_raw_marketdata",
     "silver_trades",
