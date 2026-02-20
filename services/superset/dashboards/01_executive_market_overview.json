@@ -1,0 +1,13 @@
+{
+  "dashboard_title": "Executive Market Overview",
+  "description": "High-level market activity for executives: total trades, volume, value, top symbols, sector heatmap.",
+  "slug": "executive-market-overview",
+  "position": {},
+  "metadata": {
+    "native_filter_configuration": [],
+    "chart_configuration": {},
+    "color_scheme": "supersetColors",
+    "refresh_frequency": 300
+  },
+  "version": "1.0.0"
+}

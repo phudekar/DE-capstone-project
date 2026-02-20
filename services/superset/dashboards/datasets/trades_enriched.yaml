@@ -1,0 +1,71 @@
+kind: SqlaTable
+version: 1.0.0
+
+table_name: trades_enriched
+sql: "SELECT * FROM trades_enriched"
+description: >
+  Individual trade records from the Silver Iceberg layer, enriched with
+  total_value (price × quantity) and trade_hour.
+
+main_dttm_col: trade_date
+cache_timeout: 60
+
+columns:
+  - column_name: trade_id
+    type: VARCHAR
+    is_dttm: false
+    filterable: true
+    groupby: false
+  - column_name: symbol
+    type: VARCHAR
+    is_dttm: false
+    filterable: true
+    groupby: true
+  - column_name: price
+    type: DOUBLE
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: quantity
+    type: BIGINT
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: trade_type
+    type: VARCHAR
+    is_dttm: false
+    filterable: true
+    groupby: true
+  - column_name: trade_date
+    type: DATE
+    is_dttm: true
+    filterable: true
+    groupby: true
+  - column_name: total_value
+    type: DOUBLE
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: trade_hour
+    type: INTEGER
+    is_dttm: false
+    filterable: true
+    groupby: true
+
+metrics:
+  - metric_name: count
+    expression: COUNT(*)
+    metric_type: count
+    verbose_name: Trade Count
+  - metric_name: total_volume
+    expression: SUM(quantity)
+    metric_type: sum
+    verbose_name: Total Volume
+  - metric_name: total_value
+    expression: SUM(total_value)
+    metric_type: sum
+    verbose_name: Total Value
+  - metric_name: avg_price
+    expression: AVG(price)
+    metric_type: avg
+    verbose_name: Avg Price

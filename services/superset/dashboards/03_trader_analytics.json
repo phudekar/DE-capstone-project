@@ -1,0 +1,13 @@
+{
+  "dashboard_title": "Trader Analytics",
+  "description": "Trader behavior analysis: top traders by volume, activity timeline, W/L distribution, trading time heatmap.",
+  "slug": "trader-analytics",
+  "position": {},
+  "metadata": {
+    "native_filter_configuration": [],
+    "chart_configuration": {},
+    "color_scheme": "supersetColors",
+    "refresh_frequency": 300
+  },
+  "version": "1.0.0"
+}

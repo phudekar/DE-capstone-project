@@ -1,0 +1,100 @@
+kind: SqlaTable
+version: 1.0.0
+databases:
+  - database_name: Trade Lakehouse (DuckDB/Iceberg)
+    sqlalchemy_uri: "duckdb:////tmp/trade_analytics.duckdb"
+
+table_name: daily_trade_summary
+sql: "SELECT * FROM daily_trade_summary"
+description: >
+  Daily OHLCV trading summary per symbol, aggregated from the Iceberg gold layer.
+  Includes VWAP, bid-ask spread, trade count, and computed change_pct.
+
+main_dttm_col: trade_date
+default_endpoint: ""
+offset: 0
+cache_timeout: 300
+
+columns:
+  - column_name: symbol
+    type: VARCHAR
+    is_dttm: false
+    filterable: true
+    groupby: true
+  - column_name: trade_date
+    type: DATE
+    is_dttm: true
+    filterable: true
+    groupby: true
+  - column_name: total_volume
+    type: BIGINT
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: vwap
+    type: DOUBLE
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: open_price
+    type: DOUBLE
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: close
+    type: DOUBLE
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: high
+    type: DOUBLE
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: low
+    type: DOUBLE
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: trade_count
+    type: BIGINT
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: avg_bid_ask_spread
+    type: DOUBLE
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: change_pct
+    type: DOUBLE
+    is_dttm: false
+    filterable: false
+    groupby: false
+  - column_name: total_value_traded
+    type: DOUBLE
+    is_dttm: false
+    filterable: false
+    groupby: false
+
+metrics:
+  - metric_name: total_volume
+    expression: SUM(total_volume)
+    metric_type: sum
+    verbose_name: Total Volume
+  - metric_name: avg_vwap
+    expression: AVG(vwap)
+    metric_type: avg
+    verbose_name: Avg VWAP
+  - metric_name: trade_count
+    expression: SUM(trade_count)
+    metric_type: sum
+    verbose_name: Trade Count
+  - metric_name: total_value
+    expression: SUM(total_value_traded)
+    metric_type: sum
+    verbose_name: Total Value Traded
+  - metric_name: avg_change_pct
+    expression: AVG(change_pct)
+    metric_type: avg
+    verbose_name: Avg Price Change %

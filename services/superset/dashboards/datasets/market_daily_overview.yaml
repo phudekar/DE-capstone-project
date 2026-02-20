@@ -1,0 +1,68 @@
+kind: SqlaTable
+version: 1.0.0
+
+table_name: market_daily_overview
+sql: "SELECT * FROM market_daily_overview"
+description: >
+  Market-wide daily summary: total volume, value, breadth (advancing/declining/unchanged
+  symbol counts), and average bid-ask spread.
+
+main_dttm_col: trade_date
+cache_timeout: 300
+
+columns:
+  - column_name: trade_date
+    type: DATE
+    is_dttm: true
+    filterable: true
+    groupby: true
+  - column_name: symbols_traded
+    type: BIGINT
+    filterable: false
+    groupby: false
+  - column_name: total_volume
+    type: BIGINT
+    filterable: false
+    groupby: false
+  - column_name: total_value_traded
+    type: DOUBLE
+    filterable: false
+    groupby: false
+  - column_name: total_trades
+    type: BIGINT
+    filterable: false
+    groupby: false
+  - column_name: avg_spread
+    type: DOUBLE
+    filterable: false
+    groupby: false
+  - column_name: advancing
+    type: BIGINT
+    filterable: false
+    groupby: false
+  - column_name: declining
+    type: BIGINT
+    filterable: false
+    groupby: false
+  - column_name: unchanged
+    type: BIGINT
+    filterable: false
+    groupby: false
+
+metrics:
+  - metric_name: total_trades
+    expression: SUM(total_trades)
+    metric_type: sum
+    verbose_name: Total Trades
+  - metric_name: total_volume
+    expression: SUM(total_volume)
+    metric_type: sum
+    verbose_name: Total Volume
+  - metric_name: total_value
+    expression: SUM(total_value_traded)
+    metric_type: sum
+    verbose_name: Total Value Traded
+  - metric_name: avg_spread
+    expression: AVG(avg_spread)
+    metric_type: avg
+    verbose_name: Avg Spread

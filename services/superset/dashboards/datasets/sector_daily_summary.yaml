@@ -1,0 +1,46 @@
+kind: SqlaTable
+version: 1.0.0
+
+table_name: sector_daily_summary
+sql: "SELECT * FROM sector_daily_summary"
+description: Sector-level daily aggregates joined with symbol reference data.
+
+main_dttm_col: trade_date
+cache_timeout: 300
+
+columns:
+  - column_name: trade_date
+    type: DATE
+    is_dttm: true
+    filterable: true
+    groupby: true
+  - column_name: sector
+    type: VARCHAR
+    filterable: true
+    groupby: true
+  - column_name: total_volume
+    type: BIGINT
+    filterable: false
+    groupby: false
+  - column_name: avg_change_pct
+    type: DOUBLE
+    filterable: false
+    groupby: false
+  - column_name: total_value
+    type: DOUBLE
+    filterable: false
+    groupby: false
+
+metrics:
+  - metric_name: total_volume
+    expression: SUM(total_volume)
+    metric_type: sum
+    verbose_name: Total Volume
+  - metric_name: avg_change
+    expression: AVG(avg_change_pct)
+    metric_type: avg
+    verbose_name: Avg Change %
+  - metric_name: total_value
+    expression: SUM(total_value)
+    metric_type: sum
+    verbose_name: Total Value

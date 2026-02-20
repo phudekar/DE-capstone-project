@@ -1,0 +1,13 @@
+{
+  "dashboard_title": "Risk & Compliance",
+  "description": "Compliance monitoring: large trade alerts, unusual trading patterns, cross-account activity, concentration risk treemap.",
+  "slug": "risk-compliance",
+  "position": {},
+  "metadata": {
+    "native_filter_configuration": [],
+    "chart_configuration": {},
+    "color_scheme": "supersetColors",
+    "refresh_frequency": 300
+  },
+  "version": "1.0.0"
+}

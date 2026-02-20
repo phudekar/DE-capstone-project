@@ -1,0 +1,28 @@
+{
+  "name": "@trade-platform/plugin-chart-candlestick",
+  "version": "0.1.0",
+  "description": "ECharts-based OHLCV candlestick chart plugin for Apache Superset",
+  "license": "Apache-2.0",
+  "main": "lib/index.js",
+  "module": "esm/index.js",
+  "files": ["esm", "lib", "src"],
+  "scripts": {
+    "build": "superset-frontend-scripts build",
+    "dev": "superset-frontend-scripts watch",
+    "lint": "eslint src --ext .ts,.tsx",
+    "type-check": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@superset-ui/chart-controls": "*",
+    "@superset-ui/core": "*",
+    "react": "^17.0.0 || ^18.0.0"
+  },
+  "dependencies": {
+    "echarts": "^5.4.0",
+    "echarts-for-react": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}

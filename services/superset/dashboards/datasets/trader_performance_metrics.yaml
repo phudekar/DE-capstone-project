@@ -1,0 +1,54 @@
+kind: SqlaTable
+version: 1.0.0
+
+table_name: trader_performance_metrics
+sql: "SELECT * FROM trader_performance_metrics"
+description: Daily per-trader performance aggregates from Silver trades.
+
+main_dttm_col: trade_date
+cache_timeout: 300
+
+columns:
+  - column_name: trade_date
+    type: DATE
+    is_dttm: true
+    filterable: true
+    groupby: true
+  - column_name: total_trades
+    type: BIGINT
+    filterable: false
+    groupby: false
+  - column_name: total_volume
+    type: BIGINT
+    filterable: false
+    groupby: false
+  - column_name: total_value
+    type: DOUBLE
+    filterable: false
+    groupby: false
+  - column_name: unique_symbols
+    type: BIGINT
+    filterable: false
+    groupby: false
+  - column_name: buy_count
+    type: BIGINT
+    filterable: false
+    groupby: false
+  - column_name: sell_count
+    type: BIGINT
+    filterable: false
+    groupby: false
+
+metrics:
+  - metric_name: total_trades
+    expression: SUM(total_trades)
+    metric_type: sum
+    verbose_name: Total Trades
+  - metric_name: total_volume
+    expression: SUM(total_volume)
+    metric_type: sum
+    verbose_name: Total Volume
+  - metric_name: total_value
+    expression: SUM(total_value)
+    metric_type: sum
+    verbose_name: Total Value

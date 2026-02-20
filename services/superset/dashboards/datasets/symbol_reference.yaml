@@ -1,0 +1,26 @@
+kind: SqlaTable
+version: 1.0.0
+
+table_name: symbol_reference
+sql: "SELECT * FROM symbol_reference"
+description: Symbol reference data: unique tickers, company names, and sectors.
+
+columns:
+  - column_name: ticker
+    type: VARCHAR
+    filterable: true
+    groupby: true
+  - column_name: company_name
+    type: VARCHAR
+    filterable: true
+    groupby: true
+  - column_name: sector
+    type: VARCHAR
+    filterable: true
+    groupby: true
+
+metrics:
+  - metric_name: symbol_count
+    expression: COUNT(DISTINCT ticker)
+    metric_type: count_distinct
+    verbose_name: Unique Symbols

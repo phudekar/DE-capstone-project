@@ -1,0 +1,13 @@
+{
+  "dashboard_title": "Data Pipeline Health",
+  "description": "Pipeline operational visibility: data freshness, quality scores, volume anomalies, processing latency, recent runs.",
+  "slug": "pipeline-health",
+  "position": {},
+  "metadata": {
+    "native_filter_configuration": [],
+    "chart_configuration": {},
+    "color_scheme": "supersetColors",
+    "refresh_frequency": 300
+  },
+  "version": "1.0.0"
+}

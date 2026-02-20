@@ -1,0 +1,13 @@
+{
+  "dashboard_title": "Symbol Deep Dive",
+  "description": "Detailed symbol analysis: OHLCV candlestick, intraday price, BUY/SELL distribution, order book depth, peer comparison.",
+  "slug": "symbol-deep-dive",
+  "position": {},
+  "metadata": {
+    "native_filter_configuration": [],
+    "chart_configuration": {},
+    "color_scheme": "supersetColors",
+    "refresh_frequency": 300
+  },
+  "version": "1.0.0"
+}

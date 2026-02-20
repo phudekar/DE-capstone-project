@@ -1,0 +1,141 @@
+version: "3.9"
+
+# ─── Apache Superset Visualization & Reporting Stack ─────────────────────────
+# Usage:  docker-compose up -d
+#
+# Services:
+#   superset         :8088  Web server (gunicorn)
+#   superset-worker  ---    Celery async query / report worker
+#   superset-beat    ---    Celery beat scheduler (scheduled reports)
+#   superset-db      :5433  PostgreSQL (Superset metadata)
+#   superset-redis   :6380  Redis (cache + Celery broker)
+#
+# The service joins 'pipeline' network so it can reach the lakehouse stack.
+
+x-superset-common: &superset-common
+  image: apache/superset:3.1.0
+  env_file: .env
+  volumes:
+    - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+    - superset-data:/app/superset_home
+  depends_on:
+    superset-db:
+      condition: service_healthy
+    superset-redis:
+      condition: service_healthy
+  networks:
+    - superset-network
+    - pipeline
+
+networks:
+  superset-network:
+    name: superset-network
+    driver: bridge
+  pipeline:
+    external: true
+    name: docker-compose_pipeline
+
+volumes:
+  superset-data: {}
+  superset-db-data: {}
+  superset-redis-data: {}
+
+services:
+
+  # ─── Superset Web Server ─────────────────────────────────────────────────────
+  superset:
+    <<: *superset-common
+    container_name: superset-web
+    ports:
+      - "8088:8088"
+    command: >
+      /bin/bash -c "
+        superset db upgrade &&
+        superset fab create-admin
+          --username admin
+          --firstname Admin
+          --lastname User
+          --email admin@example.com
+          --password $${SUPERSET_ADMIN_PASSWORD:-admin} &&
+        superset init &&
+        gunicorn
+          --bind 0.0.0.0:8088
+          --workers 4
+          --worker-class gevent
+          --timeout 120
+          --limit-request-line 8190
+          'superset.app:create_app()'
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8088/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  # ─── Celery Async Worker ──────────────────────────────────────────────────────
+  superset-worker:
+    <<: *superset-common
+    container_name: superset-worker
+    command: >
+      celery
+        --app=superset.tasks.celery_app:app
+        worker
+        --pool=prefork
+        --concurrency=4
+        --max-tasks-per-child=128
+        -Ofair
+        --loglevel=INFO
+    healthcheck:
+      test: ["CMD", "celery", "-A", "superset.tasks.celery_app:app", "inspect", "ping", "-d", "celery@$$HOSTNAME"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ─── Celery Beat (scheduled reports) ─────────────────────────────────────────
+  superset-beat:
+    <<: *superset-common
+    container_name: superset-beat
+    command: >
+      celery
+        --app=superset.tasks.celery_app:app
+        beat
+        --schedule=/tmp/celerybeat-schedule
+        --pidfile=/tmp/celerybeat.pid
+        --loglevel=INFO
+
+  # ─── PostgreSQL (metadata store) ─────────────────────────────────────────────
+  superset-db:
+    image: postgres:16-alpine
+    container_name: superset-db
+    environment:
+      POSTGRES_DB: superset
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: "${SUPERSET_DB_PASSWORD:-superset_password}"
+    ports:
+      - "5433:5432"
+    volumes:
+      - superset-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superset"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - superset-network
+
+  # ─── Redis (cache + Celery broker) ────────────────────────────────────────────
+  superset-redis:
+    image: redis:7-alpine
+    container_name: superset-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - superset-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - superset-network
