@@ -163,10 +163,15 @@ make format
 | `services/dagster-orchestrator` | 70 | Python 3.11 |
 | `services/superset` | 56 | Python 3.11 + duckdb |
 | `tests/e2e` | **206** | Python 3.11, no Docker |
+| `tests/benchmarks` | 8 (+ 4 slow) | Python 3.11, no Docker |
+| `tests/load` | 1 | Python 3.11, no Docker |
 
 > The e2e suite drives raw WebSocket events through every stage (Kafka Bridge →
 > Bronze → Silver → Gold → GraphQL → Superset) using in-memory DuckDB — no live
 > services needed.
+>
+> The benchmark suite asserts VWAP, OHLCV, sector, and top-trades queries against
+> 10k/100k-row DuckDB datasets complete within 0.5s/2s thresholds respectively.
 
 ---
 
@@ -305,7 +310,7 @@ Hooks run on `git commit`:
 | 9 | Governance (OpenMetadata) | ✅ Done |
 | 10 | Visualization (Apache Superset) | ✅ Done |
 | 11 | CI/CD (GitHub Actions + pre-commit) | ✅ Done |
-| 12 | Performance optimization | 🔄 In progress |
+| 12 | Performance optimization | ✅ Done |
 
 ---
 
