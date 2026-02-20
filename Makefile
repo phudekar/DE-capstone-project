@@ -4,6 +4,9 @@ COMPOSE_INFRA := $(COMPOSE_BASE) -f $(COMPOSE_DIR)/docker-compose.kafka.yml -f $
 COMPOSE_ALL := $(COMPOSE_INFRA) -f $(COMPOSE_DIR)/docker-compose.services.yml
 COMPOSE_DAGSTER := $(COMPOSE_BASE) -f $(COMPOSE_DIR)/docker-compose.dagster.yml
 
+PYTHON := python
+PYTEST := $(PYTHON) -m pytest
+
 .PHONY: help up down up-infra down-infra up-services down-services \
         up-kafka down-kafka up-storage down-storage up-flink down-flink \
         up-bridge down-bridge build-bridge logs-bridge register-schemas \
@@ -11,10 +14,45 @@ COMPOSE_DAGSTER := $(COMPOSE_BASE) -f $(COMPOSE_DIR)/docker-compose.dagster.yml
         build-lakehouse init-lakehouse up-lakehouse down-lakehouse run-silver run-gold logs-lakehouse \
         build-dagster up-dagster down-dagster logs-dagster \
         logs health ps \
-        teardown teardown-destroy build-de-stock
+        teardown teardown-destroy build-de-stock \
+        lint format test test-unit test-e2e pre-commit-install pre-commit-run
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
+
+# === Code Quality ===
+
+lint: ## Run ruff linter on all Python files
+	ruff check .
+
+format: ## Auto-format all Python files with ruff
+	ruff format .
+
+format-check: ## Check formatting without modifying files (used in CI)
+	ruff format --check .
+
+test-unit: ## Run all per-service unit tests
+	$(PYTEST) libs/common/tests \
+	          services/kafka-bridge/tests \
+	          services/lakehouse/tests \
+	          services/flink-processor/tests \
+	          services/graphql-api/tests \
+	          services/data-quality/tests \
+	          -v --tb=short
+
+test-e2e: ## Run end-to-end pipeline tests (no Docker required)
+	$(PYTEST) tests/e2e -v --tb=short
+
+test: test-unit test-e2e ## Run all tests (unit + e2e)
+
+test-superset: ## Run Superset analytical query tests
+	$(PYTEST) services/superset/tests -v --tb=short
+
+pre-commit-install: ## Install pre-commit hooks into git
+	pre-commit install
+
+pre-commit-run: ## Run all pre-commit hooks against all files
+	pre-commit run --all-files
 
 # === Full Stack ===
 
