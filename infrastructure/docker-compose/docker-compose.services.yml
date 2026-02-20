@@ -71,3 +71,36 @@ services:
       minio:
         condition: service_started
     restart: unless-stopped
+
+  graphql-api:
+    build:
+      context: ../..
+      dockerfile: services/graphql-api/Dockerfile
+    hostname: graphql-api
+    container_name: graphql-api
+    ports:
+      - "8000:8000"
+    environment:
+      ICEBERG_CATALOG_URI: http://iceberg-rest:8181
+      S3_ENDPOINT: http://minio:9000
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_REGION: us-east-1
+      KAFKA_BOOTSTRAP_SERVERS: kafka-broker-1:29092
+      ENABLE_GRAPHIQL: "true"
+      AUTH_ENABLED: "false"
+      API_KEY: ${GRAPHQL_API_KEY:-dev-api-key}
+    networks:
+      - de-network
+    depends_on:
+      iceberg-rest:
+        condition: service_started
+      minio:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/health\")'"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
