@@ -2,12 +2,14 @@ COMPOSE_DIR := infrastructure/docker-compose
 COMPOSE_BASE := docker-compose --env-file $(COMPOSE_DIR)/.env -f $(COMPOSE_DIR)/docker-compose.base.yml
 COMPOSE_INFRA := $(COMPOSE_BASE) -f $(COMPOSE_DIR)/docker-compose.kafka.yml -f $(COMPOSE_DIR)/docker-compose.storage.yml -f $(COMPOSE_DIR)/docker-compose.flink.yml
 COMPOSE_ALL := $(COMPOSE_INFRA) -f $(COMPOSE_DIR)/docker-compose.services.yml
+COMPOSE_DAGSTER := $(COMPOSE_BASE) -f $(COMPOSE_DIR)/docker-compose.dagster.yml
 
 .PHONY: help up down up-infra down-infra up-services down-services \
         up-kafka down-kafka up-storage down-storage up-flink down-flink \
         up-bridge down-bridge build-bridge logs-bridge register-schemas \
         build-flink submit-sql-pipeline submit-python-pipeline submit-all-flink \
         build-lakehouse init-lakehouse up-lakehouse down-lakehouse run-silver run-gold logs-lakehouse \
+        build-dagster up-dagster down-dagster logs-dagster \
         logs health ps \
         teardown teardown-destroy build-de-stock
 
@@ -116,6 +118,20 @@ run-silver: ## Run Bronze → Silver processor
 
 run-gold: ## Run Silver → Gold aggregator
 	$(COMPOSE_ALL) run --rm lakehouse python -m lakehouse.processors.gold_aggregator
+
+# === Dagster ===
+
+build-dagster: ## Build Dagster orchestrator Docker image
+	$(COMPOSE_DAGSTER) build dagster-webserver dagster-daemon
+
+up-dagster: build-dagster ## Start Dagster webserver + daemon + postgres
+	$(COMPOSE_DAGSTER) up -d
+
+down-dagster: ## Stop Dagster services
+	$(COMPOSE_DAGSTER) down
+
+logs-dagster: ## Tail Dagster logs
+	$(COMPOSE_DAGSTER) logs -f --tail=50
 
 # === Health & Monitoring ===
 

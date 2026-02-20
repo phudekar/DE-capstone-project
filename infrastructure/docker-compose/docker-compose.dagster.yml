@@ -1,0 +1,78 @@
+services:
+  dagster-postgres:
+    image: postgres:16-alpine
+    container_name: dagster-postgres
+    environment:
+      POSTGRES_USER: ${DAGSTER_PG_USER:-dagster}
+      POSTGRES_PASSWORD: ${DAGSTER_PG_PASSWORD:-dagster123}
+      POSTGRES_DB: ${DAGSTER_PG_DB:-dagster}
+    ports:
+      - "5433:5432"
+    volumes:
+      - dagster-pg-data:/var/lib/postgresql/data
+    networks:
+      - de-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dagster"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dagster-webserver:
+    build:
+      context: ../..
+      dockerfile: services/dagster-orchestrator/Dockerfile
+    container_name: dagster-webserver
+    command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000"]
+    ports:
+      - "3000:3000"
+    environment:
+      DAGSTER_HOME: /app
+      DAGSTER_PG_HOST: dagster-postgres
+      DAGSTER_PG_PORT: "5432"
+      DAGSTER_PG_USER: ${DAGSTER_PG_USER:-dagster}
+      DAGSTER_PG_PASSWORD: ${DAGSTER_PG_PASSWORD:-dagster123}
+      DAGSTER_PG_DB: ${DAGSTER_PG_DB:-dagster}
+      ICEBERG_CATALOG_URI: http://iceberg-rest:8181
+      S3_ENDPOINT: http://minio:9000
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_REGION: us-east-1
+      KAFKA_BOOTSTRAP_SERVERS: kafka-broker-1:29092
+    depends_on:
+      dagster-postgres:
+        condition: service_healthy
+    networks:
+      - de-network
+
+  dagster-daemon:
+    build:
+      context: ../..
+      dockerfile: services/dagster-orchestrator/Dockerfile
+    container_name: dagster-daemon
+    command: ["dagster-daemon", "run"]
+    environment:
+      DAGSTER_HOME: /app
+      DAGSTER_PG_HOST: dagster-postgres
+      DAGSTER_PG_PORT: "5432"
+      DAGSTER_PG_USER: ${DAGSTER_PG_USER:-dagster}
+      DAGSTER_PG_PASSWORD: ${DAGSTER_PG_PASSWORD:-dagster123}
+      DAGSTER_PG_DB: ${DAGSTER_PG_DB:-dagster}
+      ICEBERG_CATALOG_URI: http://iceberg-rest:8181
+      S3_ENDPOINT: http://minio:9000
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_REGION: us-east-1
+      KAFKA_BOOTSTRAP_SERVERS: kafka-broker-1:29092
+    depends_on:
+      dagster-postgres:
+        condition: service_healthy
+    networks:
+      - de-network
+
+volumes:
+  dagster-pg-data:
+
+networks:
+  de-network:
+    external: true
