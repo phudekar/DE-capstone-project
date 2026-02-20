@@ -20,6 +20,8 @@ class KafkaProducer:
             "compression.type": settings.kafka_compression_type,
             "linger.ms": settings.kafka_linger_ms,
             "batch.size": settings.kafka_batch_size,
+            "queue.buffering.max.messages": settings.kafka_queue_buffering_max_messages,
+            "socket.send.buffer.bytes": settings.kafka_socket_send_buffer_bytes,
             "enable.idempotence": settings.kafka_enable_idempotence,
             "client.id": "kafka-bridge",
         })

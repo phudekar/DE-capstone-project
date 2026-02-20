@@ -16,4 +16,6 @@ testpaths = ["tests"]
 markers = [
     "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
     "load: marks tests as load tests",
+    "benchmark: marks tests as query performance benchmarks",
+    "slow: marks benchmarks that run on large (1M-row) datasets",
 ]

@@ -41,6 +41,10 @@ def aggregate_daily_trading_summary(
 
     # Use DuckDB to aggregate
     con = duckdb.connect()
+    # Phase 12: performance settings
+    con.execute("SET threads TO 4")
+    con.execute("SET memory_limit = '512MB'")
+    con.execute("SET enable_object_cache = true")
     con.register("silver_trades", silver_arrow)
 
     result = con.execute(

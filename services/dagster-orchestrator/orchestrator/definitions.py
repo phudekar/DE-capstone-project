@@ -3,6 +3,8 @@
 from dagster import Definitions
 
 from orchestrator.assets import (
+    compaction_report,
+    iceberg_table_stats,
     bronze_raw_marketdata,
     bronze_raw_orderbook,
     bronze_raw_trades,
@@ -77,6 +79,9 @@ defs = Definitions(
         masked_silver_trades_business,
         masked_gold_summary_public,
         pii_retention_enforcement,
+        # Maintenance
+        iceberg_table_stats,
+        compaction_report,
     ],
     asset_checks=[
         bronze_raw_trades_quality_check,

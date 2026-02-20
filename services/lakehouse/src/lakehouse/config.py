@@ -44,4 +44,16 @@ DEFAULT_TABLE_PROPERTIES = {
     "write.parquet.dict-encoding.enabled": "true",
     "write.metadata.delete-after-commit.enabled": "true",
     "write.metadata.previous-versions-max": "10",
+    # Phase 12: file-size and read-split tuning
+    "write.target-file-size-bytes": "268435456",
+    "write.parquet.row-group-size-bytes": "134217728",
+    # Bloom filter on the high-cardinality symbol column
+    "write.parquet.bloom-filter-enabled.column.symbol": "true",
+    "write.parquet.bloom-filter-fpp.column.symbol": "0.01",
+    # Retry on catalog commit conflicts
+    "commit.retry.num-retries": "4",
+    "commit.retry.min-wait-ms": "100",
+    "commit.retry.max-wait-ms": "60000",
+    # Scan split size for parallel reads
+    "read.split.target-size": "134217728",
 }

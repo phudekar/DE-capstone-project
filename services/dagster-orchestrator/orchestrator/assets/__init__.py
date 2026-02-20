@@ -1,5 +1,6 @@
-"""Asset definitions for Bronze, Silver, Gold, Dimension, and Governance layers."""
+"""Asset definitions for Bronze, Silver, Gold, Dimension, Governance, and Maintenance layers."""
 
+from orchestrator.assets.maintenance import compaction_report, iceberg_table_stats
 from orchestrator.assets.governance.masked_tables import (
     masked_gold_summary_public,
     masked_silver_trades_analyst,
@@ -32,6 +33,9 @@ from orchestrator.assets.silver import (
 )
 
 __all__ = [
+    # Maintenance
+    "iceberg_table_stats",
+    "compaction_report",
     "bronze_raw_trades",
     # Governance
     "masked_silver_trades_analyst",

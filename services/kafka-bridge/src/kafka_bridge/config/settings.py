@@ -15,11 +15,13 @@ class Settings(BaseSettings):
     kafka_bootstrap_servers: str = "kafka-broker-1:29092"
     schema_registry_url: str = "http://schema-registry:8081"
 
-    # Producer tuning
+    # Producer tuning (Phase 12: increased batch size and linger for throughput)
     kafka_acks: str = "all"
     kafka_compression_type: str = "snappy"
-    kafka_linger_ms: int = 5
-    kafka_batch_size: int = 16384
+    kafka_linger_ms: int = 20
+    kafka_batch_size: int = 65536
+    kafka_queue_buffering_max_messages: int = 100000
+    kafka_socket_send_buffer_bytes: int = 1048576
     kafka_enable_idempotence: bool = True
 
     # Metrics

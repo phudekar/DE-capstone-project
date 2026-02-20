@@ -15,7 +15,8 @@ PYTEST := $(PYTHON) -m pytest
         build-dagster up-dagster down-dagster logs-dagster \
         logs health ps \
         teardown teardown-destroy build-de-stock \
-        lint format test test-unit test-e2e pre-commit-install pre-commit-run
+        lint format test test-unit test-e2e pre-commit-install pre-commit-run \
+        benchmark benchmark-large load-test
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
@@ -53,6 +54,15 @@ pre-commit-install: ## Install pre-commit hooks into git
 
 pre-commit-run: ## Run all pre-commit hooks against all files
 	pre-commit run --all-files
+
+benchmark: ## Run DuckDB query benchmarks (10k + 100k rows, no Docker)
+	$(PYTEST) tests/benchmarks/test_query_performance.py -m "benchmark and not slow" -v --tb=short
+
+benchmark-large: ## Run large 1M-row DuckDB benchmarks (slow)
+	$(PYTEST) tests/benchmarks/test_query_performance.py -m "benchmark" -v --tb=short
+
+load-test: ## Run in-process ingestion load test
+	$(PYTEST) tests/load/ingestion_load_test.py -m load -v --tb=short -s
 
 # === Full Stack ===
 
