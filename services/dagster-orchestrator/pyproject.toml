@@ -17,6 +17,7 @@ dependencies = [
     "great-expectations>=0.18.19,<0.19",
     "lakehouse",
     "data-quality",
+    "prometheus-client>=0.20.0,<1.0",
 ]
 
 [project.optional-dependencies]

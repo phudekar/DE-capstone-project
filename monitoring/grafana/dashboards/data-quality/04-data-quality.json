@@ -1,0 +1,99 @@
+{
+  "uid": "data-quality",
+  "title": "Data Quality",
+  "tags": ["data-quality", "observability"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "time": {"from": "now-3h", "to": "now"},
+  "panels": [
+    {
+      "id": 1,
+      "title": "Data Freshness Heatmap",
+      "type": "heatmap",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "data_freshness_seconds",
+          "legendFormat": "{{layer}}.{{table}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}}
+    },
+    {
+      "id": 2,
+      "title": "Row Counts by Table (Latest Partition)",
+      "type": "bargauge",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "data_row_count{partition_date=\"latest\"}",
+          "legendFormat": "{{layer}}.{{table}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "id": 3,
+      "title": "Volume Deviation from 7-day Average (%)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "targets": [
+        {
+          "expr": "data_volume_deviation_percent",
+          "legendFormat": "{{layer}}.{{table}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 20},
+              {"color": "red", "value": 50}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Schema Changes (last 24h)",
+      "type": "table",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "targets": [
+        {
+          "expr": "increase(schema_changes_total[24h])",
+          "legendFormat": "{{table}} - {{change_type}}",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Volume Anomaly Count (last 24h)",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 16},
+      "targets": [
+        {
+          "expr": "sum(increase(data_volume_anomaly_total[24h]))",
+          "legendFormat": "Anomalies"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 1},
+              {"color": "red", "value": 10}
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+groups:
+  - name: data_freshness
+    interval: 30s
+    rules:
+      - alert: BronzeFreshnessViolation
+        expr: data_freshness_seconds{layer="bronze"} > 120
+        for: 2m
+        labels:
+          severity: warning
+          service: data-quality
+        annotations:
+          summary: "Bronze layer freshness SLA violation"
+          description: >
+            Table {{ $labels.table }} in bronze layer has not received
+            data for {{ $value | humanizeDuration }}.
+            Threshold: 2 minutes.
+
+      - alert: SilverFreshnessViolation
+        expr: data_freshness_seconds{layer="silver"} > 600
+        for: 5m
+        labels:
+          severity: warning
+          service: data-quality
+        annotations:
+          summary: "Silver layer freshness SLA violation"
+          description: >
+            Table {{ $labels.table }} in silver layer has not been
+            updated for {{ $value | humanizeDuration }}.
+            Threshold: 10 minutes.
+
+      - alert: GoldFreshnessViolation
+        expr: data_freshness_seconds{layer="gold"} > 7200
+        for: 15m
+        labels:
+          severity: warning
+          service: data-quality
+        annotations:
+          summary: "Gold layer freshness SLA violation"
+          description: >
+            Table {{ $labels.table }} in gold layer has not been
+            updated for {{ $value | humanizeDuration }}.
+            Threshold: 2 hours.
+
+      - alert: FreshnessCriticalFailure
+        expr: data_freshness_seconds{layer="bronze"} > 900
+        for: 5m
+        labels:
+          severity: critical
+          service: data-quality
+        annotations:
+          summary: "CRITICAL: Bronze data stale for > 15 minutes"
+          description: >
+            No data flowing into {{ $labels.table }} for 15+ minutes.
+            Pipeline may be completely stalled.

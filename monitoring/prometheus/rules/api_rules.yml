@@ -1,0 +1,36 @@
+groups:
+  - name: graphql_api
+    interval: 30s
+    rules:
+      - alert: GraphQLHighErrorRate
+        expr: |
+          rate(graphql_errors_total[5m]) /
+          rate(graphql_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: graphql-api
+        annotations:
+          summary: "GraphQL API error rate above 5%"
+          description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes."
+
+      - alert: GraphQLSlowRequests
+        expr: |
+          histogram_quantile(0.95, rate(graphql_request_duration_seconds_bucket[5m])) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          service: graphql-api
+        annotations:
+          summary: "GraphQL p95 latency above 2s"
+          description: "95th percentile latency is {{ $value | humanizeDuration }}."
+
+      - alert: GraphQLAPIDown
+        expr: up{job="graphql-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: graphql-api
+        annotations:
+          summary: "GraphQL API is down"
+          description: "GraphQL API has been unreachable for > 1 minute."

@@ -40,6 +40,7 @@ from orchestrator.schedules.monthly import monthly_recompute_schedule
 from orchestrator.schedules.weekly import weekly_dimension_schedule, weekly_maintenance_schedule
 from orchestrator.sensors.freshness_sensor import freshness_sla_sensor
 from orchestrator.sensors.kafka_sensor import kafka_orderbook_sensor, kafka_trades_sensor
+from orchestrator.sensors.prometheus_metrics_sensor import prometheus_metrics_sensor
 from orchestrator.sensors.run_status_sensor import (
     bronze_success_trigger_silver,
     run_failure_sensor,
@@ -86,6 +87,7 @@ defs = Definitions(
         bronze_success_trigger_silver,
         run_failure_sensor,
         freshness_sla_sensor,
+        prometheus_metrics_sensor,
     ],
     schedules=[
         silver_micro_batch_schedule,

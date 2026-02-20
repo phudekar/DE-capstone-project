@@ -1,0 +1,27 @@
+groups:
+  - name: data_volume
+    interval: 60s
+    rules:
+      - alert: VolumeAnomalyDetected
+        expr: abs(data_volume_deviation_percent) > 20
+        for: 5m
+        labels:
+          severity: warning
+          service: data-quality
+        annotations:
+          summary: "Volume anomaly detected for {{ $labels.table }}"
+          description: >
+            {{ $labels.layer }}.{{ $labels.table }} row count deviates
+            {{ $value | printf "%.1f" }}% from 7-day average.
+
+      - alert: ZeroRowCount
+        expr: data_row_count == 0
+        for: 10m
+        labels:
+          severity: critical
+          service: data-quality
+        annotations:
+          summary: "Zero rows in {{ $labels.table }}"
+          description: >
+            {{ $labels.layer }}.{{ $labels.table }} has zero rows in
+            the latest partition. Data pipeline may be broken.

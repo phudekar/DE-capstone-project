@@ -1,0 +1,62 @@
+groups:
+  - name: flink_derived
+    interval: 15s
+    rules:
+      - record: flink:watermark_lag_seconds
+        expr: |
+          (time() * 1000 - flink_taskmanager_job_task_currentInputWatermark) / 1000
+        labels:
+          component: "flink"
+
+  - name: flink_health
+    interval: 30s
+    rules:
+      - alert: FlinkJobDown
+        expr: up{job="flink"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: flink
+        annotations:
+          summary: "Flink job manager is down"
+          description: "Flink job manager {{ $labels.instance }} is unreachable."
+
+      - alert: FlinkJobRestarting
+        expr: flink_jobmanager_job_numRestarts > 3
+        for: 5m
+        labels:
+          severity: warning
+          service: flink
+        annotations:
+          summary: "Flink job restarting frequently"
+          description: "Job has restarted {{ $value }} times."
+
+      - alert: FlinkCheckpointFailures
+        expr: increase(flink_jobmanager_job_numberOfFailedCheckpoints[10m]) > 3
+        for: 5m
+        labels:
+          severity: warning
+          service: flink
+        annotations:
+          summary: "Flink checkpoint failures"
+          description: "{{ $value }} checkpoint failures in the last 10 minutes."
+
+      - alert: FlinkWatermarkLagHigh
+        expr: flink:watermark_lag_seconds > 300
+        for: 5m
+        labels:
+          severity: warning
+          service: flink
+        annotations:
+          summary: "Flink watermark lag is high"
+          description: "Watermark lag is {{ $value | humanizeDuration }} behind wall clock."
+
+      - alert: FlinkBackpressure
+        expr: flink_taskmanager_job_task_isBackPressured == 1
+        for: 5m
+        labels:
+          severity: warning
+          service: flink
+        annotations:
+          summary: "Flink task under backpressure"
+          description: "Task {{ $labels.task_name }} is backpressured."

@@ -1,0 +1,91 @@
+startDelaySeconds: 0
+ssl: false
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+
+rules:
+  # Broker-level metrics
+  - pattern: "kafka.server<type=ReplicaManager, name=UnderReplicatedPartitions><>Value"
+    name: "kafka_server_replica_manager_under_replicated_partitions"
+    type: GAUGE
+    help: "Number of under-replicated partitions"
+
+  - pattern: "kafka.server<type=ReplicaManager, name=IsrShrinksPerSec><>Count"
+    name: "kafka_server_replica_manager_isr_shrinks_total"
+    type: COUNTER
+    help: "Total ISR shrink events"
+
+  - pattern: "kafka.server<type=ReplicaManager, name=IsrExpandsPerSec><>Count"
+    name: "kafka_server_replica_manager_isr_expands_total"
+    type: COUNTER
+    help: "Total ISR expand events"
+
+  - pattern: "kafka.controller<type=KafkaController, name=ActiveControllerCount><>Value"
+    name: "kafka_controller_active_controller_count"
+    type: GAUGE
+    help: "Number of active controllers (should be 1)"
+
+  - pattern: "kafka.controller<type=KafkaController, name=OfflinePartitionsCount><>Value"
+    name: "kafka_controller_offline_partitions_count"
+    type: GAUGE
+    help: "Number of offline partitions"
+
+  # Topic-level metrics
+  - pattern: "kafka.server<type=BrokerTopicMetrics, name=MessagesInPerSec, topic=(.+)><>Count"
+    name: "kafka_server_broker_topic_metrics_messages_in_total"
+    type: COUNTER
+    labels:
+      topic: "$1"
+    help: "Total messages received per topic"
+
+  - pattern: "kafka.server<type=BrokerTopicMetrics, name=BytesInPerSec, topic=(.+)><>Count"
+    name: "kafka_server_broker_topic_metrics_bytes_in_total"
+    type: COUNTER
+    labels:
+      topic: "$1"
+    help: "Total bytes received per topic"
+
+  - pattern: "kafka.server<type=BrokerTopicMetrics, name=BytesOutPerSec, topic=(.+)><>Count"
+    name: "kafka_server_broker_topic_metrics_bytes_out_total"
+    type: COUNTER
+    labels:
+      topic: "$1"
+    help: "Total bytes sent per topic"
+
+  # Consumer group lag
+  - pattern: "kafka.consumer<type=consumer-fetch-manager-metrics, client-id=(.+), topic=(.+), partition=(.+)><>records-lag"
+    name: "kafka_consumer_records_lag"
+    type: GAUGE
+    labels:
+      client_id: "$1"
+      topic: "$2"
+      partition: "$3"
+    help: "Consumer records lag per partition"
+
+  # Producer metrics
+  - pattern: "kafka.producer<type=producer-metrics, client-id=(.+)><>request-rate"
+    name: "kafka_producer_request_rate"
+    type: GAUGE
+    labels:
+      client_id: "$1"
+    help: "Producer request rate"
+
+  - pattern: "kafka.producer<type=producer-metrics, client-id=(.+)><>response-rate"
+    name: "kafka_producer_response_rate"
+    type: GAUGE
+    labels:
+      client_id: "$1"
+
+  - pattern: "kafka.producer<type=producer-metrics, client-id=(.+)><>record-error-rate"
+    name: "kafka_producer_record_error_rate"
+    type: GAUGE
+    labels:
+      client_id: "$1"
+    help: "Producer record error rate"
+
+  - pattern: "kafka.producer<type=producer-metrics, client-id=(.+)><>batch-size-avg"
+    name: "kafka_producer_batch_size_avg"
+    type: GAUGE
+    labels:
+      client_id: "$1"
+    help: "Average batch size in bytes"

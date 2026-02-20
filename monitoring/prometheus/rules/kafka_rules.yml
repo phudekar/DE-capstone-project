@@ -1,0 +1,55 @@
+groups:
+  - name: kafka_health
+    interval: 30s
+    rules:
+      - alert: KafkaBrokerDown
+        expr: up{job="kafka"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: kafka
+        annotations:
+          summary: "Kafka broker is down"
+          description: "Kafka broker {{ $labels.instance }} has been down for > 1 minute."
+
+      - alert: KafkaUnderReplicatedPartitions
+        expr: kafka_server_replica_manager_under_replicated_partitions > 0
+        for: 5m
+        labels:
+          severity: critical
+          service: kafka
+        annotations:
+          summary: "Kafka has under-replicated partitions"
+          description: "{{ $value }} partitions are under-replicated on {{ $labels.instance }}."
+
+      - alert: KafkaOfflinePartitions
+        expr: kafka_controller_offline_partitions_count > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: kafka
+        annotations:
+          summary: "Kafka has offline partitions"
+          description: "{{ $value }} partitions are offline."
+
+      - alert: KafkaConsumerLagHigh
+        expr: kafka_consumer_records_lag > 10000
+        for: 5m
+        labels:
+          severity: warning
+          service: kafka
+        annotations:
+          summary: "High consumer lag for {{ $labels.topic }}"
+          description: >
+            Consumer {{ $labels.client_id }} on topic {{ $labels.topic }}
+            partition {{ $labels.partition }} has lag of {{ $value }} records.
+
+      - alert: KafkaNoMessages
+        expr: rate(kafka_server_broker_topic_metrics_messages_in_total[5m]) == 0
+        for: 5m
+        labels:
+          severity: warning
+          service: kafka
+        annotations:
+          summary: "No messages flowing to topic {{ $labels.topic }}"
+          description: "Topic {{ $labels.topic }} has received no messages in the last 5 minutes."

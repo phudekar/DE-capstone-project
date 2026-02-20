@@ -6,6 +6,7 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.responses import Response
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from strawberry.fastapi import GraphQLRouter
 from strawberry.subscriptions import GRAPHQL_TRANSPORT_WS_PROTOCOL, GRAPHQL_WS_PROTOCOL
 
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 graphql_router = GraphQLRouter(
     schema,
     context_getter=get_context,
-    graphiql=settings.enable_graphiql,
+    graphql_ide="graphiql" if settings.enable_graphiql else None,
     subscription_protocols=[
         GRAPHQL_TRANSPORT_WS_PROTOCOL,
         GRAPHQL_WS_PROTOCOL,
@@ -50,6 +51,12 @@ async def health() -> dict:
 async def get_schema_sdl() -> Response:
     """Export the schema in SDL format for external tooling."""
     return Response(content=str(schema), media_type="text/plain")
+
+
+@app.get("/metrics")
+async def metrics() -> Response:
+    """Expose Prometheus metrics for scraping."""
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.on_event("startup")

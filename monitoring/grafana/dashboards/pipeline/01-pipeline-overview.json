@@ -1,0 +1,109 @@
+{
+  "uid": "pipeline-overview",
+  "title": "Pipeline Overview",
+  "tags": ["pipeline", "overview"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "time": {"from": "now-1h", "to": "now"},
+  "panels": [
+    {
+      "id": 1,
+      "title": "Data Freshness by Layer",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 8, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "max by (layer) (data_freshness_seconds)",
+          "legendFormat": "{{layer}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 300},
+              {"color": "red", "value": 900}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Trade Messages per Second",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "targets": [
+        {
+          "expr": "rate(kafka_server_broker_topic_metrics_messages_in_total{topic=~\"trades.*\"}[1m])",
+          "legendFormat": "{{topic}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "ops"}
+      }
+    },
+    {
+      "id": 3,
+      "title": "Pipeline Component Health",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 8, "x": 8, "y": 0},
+      "targets": [
+        {
+          "expr": "up{job=~\"kafka|flink|graphql-api|kafka-bridge\"}",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}
+          ]
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "GraphQL Request Rate",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "targets": [
+        {
+          "expr": "rate(graphql_requests_total[1m])",
+          "legendFormat": "{{operation_type}} {{status}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "reqps"}
+      }
+    },
+    {
+      "id": 5,
+      "title": "Volume Anomalies (last 1h)",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 8, "x": 16, "y": 0},
+      "targets": [
+        {
+          "expr": "sum(increase(data_volume_anomaly_total[1h]))",
+          "legendFormat": "Anomalies"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 1},
+              {"color": "red", "value": 5}
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
