@@ -3,8 +3,6 @@ Configure Superset roles: Viewer, Analyst, DataEngineer, Compliance.
 """
 
 import logging
-import requests
-
 log = logging.getLogger(__name__)
 
 ROLES = [
@@ -60,10 +58,9 @@ ROLES = [
 ]
 
 
-def _get_permission_ids(superset_url: str, headers: dict) -> dict[str, int]:
-    resp = requests.get(
+def _get_permission_ids(superset_url: str, session) -> dict[str, int]:
+    resp = session.get(
         f"{superset_url}/api/v1/security/permissions/",
-        headers=headers,
         params={"page_size": 200},
     )
     if resp.status_code != 200:
@@ -72,14 +69,13 @@ def _get_permission_ids(superset_url: str, headers: dict) -> dict[str, int]:
     return {p["name"]: p["id"] for p in resp.json().get("result", [])}
 
 
-def create_roles(superset_url: str, headers: dict) -> None:
-    perm_map = _get_permission_ids(superset_url, headers)
+def create_roles(superset_url: str, session) -> None:
+    perm_map = _get_permission_ids(superset_url, session)
 
     for role in ROLES:
         # Check if role already exists
-        resp = requests.get(
+        resp = session.get(
             f"{superset_url}/api/v1/security/roles/",
-            headers=headers,
             params={"q": f'{{"filters":[{{"col":"name","opr":"eq","val":"{role["name"]}"}}]}}'},
         )
         existing = resp.json().get("result", []) if resp.status_code == 200 else []
@@ -89,9 +85,8 @@ def create_roles(superset_url: str, headers: dict) -> None:
             continue
 
         # Create role
-        create_resp = requests.post(
+        create_resp = session.post(
             f"{superset_url}/api/v1/security/roles/",
-            headers=headers,
             json={"name": role["name"]},
         )
         if create_resp.status_code not in (200, 201):

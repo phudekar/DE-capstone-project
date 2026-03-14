@@ -4,8 +4,6 @@ Configure Superset threshold-based alerts and scheduled email reports.
 
 import logging
 import os
-import requests
-
 log = logging.getLogger(__name__)
 
 ALERTS = [
@@ -64,11 +62,10 @@ SCHEDULED_REPORTS = [
 ]
 
 
-def create_alerts(superset_url: str, headers: dict) -> None:
+def create_alerts(superset_url: str, session) -> None:
     for alert in ALERTS:
-        resp = requests.post(
+        resp = session.post(
             f"{superset_url}/api/v1/report/",
-            headers=headers,
             json={
                 "type": "Alert",
                 "name": alert["name"],

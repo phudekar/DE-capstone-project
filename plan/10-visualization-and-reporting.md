@@ -1843,6 +1843,34 @@ def test_row_level_security_trader(superset_client_trader):
 
 ---
 
+## Implementation Notes (Post-Phase 10)
+
+### Docker Compose Fixes
+
+Several issues were discovered and fixed during the initial Superset startup:
+
+| Issue | Root Cause | Fix |
+|---|---|---|
+| Port 5433 conflict | Dagster Postgres already on 5433 | Changed `superset-db` to `5434:5432` |
+| External network name | Plan used `docker-compose_pipeline` | Changed to `de-network` (actual network name) |
+| YAML command parsing | `>` folded scalar broke multiline `&&` chains | Rewrote as list format (`- /bin/bash`, `-c`, `\|`) |
+| `AsyncQueryTokenException` | `GLOBAL_ASYNC_QUERIES` feature flag requires JWT ≥32 bytes | Added `GLOBAL_ASYNC_QUERIES_JWT_SECRET` to `superset_config.py` |
+| `gevent worker requires gevent 1.4` | gevent not available in `apache/superset:3.1.0` image | Changed to `gthread --threads 4` worker class |
+| Workers OOM | 4 workers too many for constrained Docker | Reduced to 2 workers |
+
+### superset_config.py Additions
+
+```python
+# Required by GLOBAL_ASYNC_QUERIES feature flag
+GLOBAL_ASYNC_QUERIES_JWT_SECRET = os.environ.get("SUPERSET_SECRET_KEY", "CHANGE_ME_IN_PRODUCTION")
+```
+
+### Credentials
+
+Default local dev: **admin / admin** (set via `SUPERSET_ADMIN_PASSWORD` in `.env`).
+
+---
+
 ## Appendix: Environment Variables
 
 ```bash
@@ -1882,3 +1910,93 @@ SLACK_API_TOKEN=xoxb-change-me
 # ─── Embedding ─────────────────────────────────────
 GUEST_TOKEN_SECRET=change-me-to-a-random-secret
 ```
+
+---
+
+## Implementation Notes (Session 2026-03-14)
+
+### DuckDB Connection Fix
+
+The original plan specified `duckdb:////tmp/trade_analytics.duckdb` as the SQLAlchemy URI. This
+causes file-locking errors when multiple gunicorn workers attempt concurrent access to the same
+DuckDB file. The fix is to use **in-memory mode** (`duckdb:///:memory:`), which gives each worker
+its own isolated DuckDB instance. Iceberg tables are still accessed via `iceberg_scan()` UDFs, so
+no data is lost — the file was only used as a query engine, not persistent storage.
+
+### Docker Compose Build Change
+
+The `docker-compose.yml` was updated to **build from a local Dockerfile** (which installs
+`duckdb-engine` and other Python dependencies) rather than using the upstream `apache/superset:3.1.0`
+image directly. This ensures the DuckDB SQLAlchemy driver is always available without manual
+`pip install` inside a running container.
+
+### Chart Visualization Types
+
+Several chart type discoveries during implementation:
+
+- **Legacy `pie` and `bar`**: These viz types do not work when created via the REST API because
+  they lack a `query_context` and Superset cannot auto-generate one for them. They render as
+  blank charts on dashboards.
+- **`dist_bar`**: Use this instead of `bar` for categorical bar charts (e.g., volume by symbol).
+  It auto-generates `query_context` correctly.
+- **`line`**: Use the legacy `line` type instead of `echarts_timeseries_line` for time-series
+  charts. The ECharts variant requires a pre-saved `query_context` blob to render on dashboards,
+  whereas the legacy `line` type auto-generates it.
+
+### Symbol Analysis Dashboard (NEW)
+
+A new **Symbol Analysis** dashboard was created with 13 charts:
+
+| # | Chart | Viz Type | Description |
+|---|-------|----------|-------------|
+| 1 | Price Movement | `line` | Price over time for selected symbol |
+| 2 | OHLC Summary | `table` | Open/High/Low/Close aggregated by time window |
+| 3 | Bid vs Ask Price | `line` | Bid and ask price trends over time |
+| 4 | Volume Over Time | `line` | Trade volume time series |
+| 5 | Cumulative Volume | `line` | Running total of volume |
+| 6 | VWAP | `line` | Volume-weighted average price |
+| 7 | Bid-Ask Spread | `line` | Spread between best ask and best bid |
+| 8 | Buy/Sell Pressure | `dist_bar` | Relative buy vs sell volume |
+| 9 | Order Flow Imbalance | `line` | Net buy minus sell volume over time |
+| 10 | Trade Size Distribution | `dist_bar` | Histogram of trade size buckets |
+| 11 | Large Trades | `table` | Table of trades exceeding a size threshold |
+| 12 | Price Volatility | `line` | Rolling standard deviation of price |
+| 13 | Live Ticker | `table` | Most recent trades, auto-refreshed |
+
+**Dashboard features:**
+- 3 native filters: Symbol (select), Time Window (time grain: 1min to 1week), Time Range
+- Auto-refresh every 30 seconds
+- Data source: `silver_trades_bid_ask` virtual dataset (uses `iceberg_scan` on the silver/trades
+  table with computed columns for `side` derived from `is_aggressive_buy` and `size_bucket`)
+- Bid/Ask prices are derived from the `is_aggressive_buy` field since no separate orderbook
+  snapshot data is available in the silver layer
+
+### Bootstrap Scripts
+
+Three new/updated bootstrap scripts automate dashboard provisioning:
+
+- **`bootstrap/create_charts.py`** — Creates all 13 Symbol Analysis charts via Superset REST API
+- **`bootstrap/create_symbol_dashboard.py`** — Creates the dashboard with JSON position layout,
+  native filters, cross-filter scoping, and chart linking
+- **`bootstrap/init_superset.py`** — Updated to include Step 6 (create charts) and Step 7
+  (create symbol dashboard) in the initialization sequence
+
+### Live Ticker HTML Page
+
+A standalone HTML page (`services/superset/live_ticker.html`) provides a real-time trade ticker
+outside of Superset:
+
+- Connects to the GraphQL WebSocket subscription endpoint (`ws://localhost:8000/graphql`)
+- Falls back to **demo mode** with simulated data if the WebSocket is unavailable
+- Dark trading terminal theme with ECharts price chart and volume bars
+- Displays session stats (trades count, high/low, total volume)
+
+### Dagster Partition Fix
+
+The `DailyPartitionsDefinition` in `orchestrator/partitions/daily.py` was updated with
+`end_offset=1` so that **today's partition is immediately available**. Without this offset,
+Dagster's default behavior excludes the current (incomplete) day, which prevents intraday
+silver and gold pipelines from processing current-day data.
+
+Additionally, the `silver_micro_batch_schedule` was started (it was STOPPED by default),
+enabling continuous intraday processing.

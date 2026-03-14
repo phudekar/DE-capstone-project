@@ -4,8 +4,6 @@ Import pre-built SQL queries into Superset SQL Lab.
 
 import logging
 import os
-import requests
-
 log = logging.getLogger(__name__)
 
 _QUERIES_DIR = os.path.join(os.path.dirname(__file__), "..", "saved_queries")
@@ -50,21 +48,17 @@ SAVED_QUERIES = [
 ]
 
 
-def _get_database_id(superset_url: str, headers: dict) -> int | None:
-    resp = requests.get(
-        f"{superset_url}/api/v1/database/",
-        headers=headers,
-        params={"q": '{"filters":[{"col":"database_name","opr":"ct","val":"DuckDB"}]}'},
-    )
+def _get_database_id(superset_url: str, session) -> int | None:
+    resp = session.get(f"{superset_url}/api/v1/database/")
     if resp.status_code == 200:
-        results = resp.json().get("result", [])
-        if results:
-            return results[0]["id"]
+        for db in resp.json().get("result", []):
+            if "DuckDB" in db.get("database_name", ""):
+                return db["id"]
     return None
 
 
-def create_saved_queries(superset_url: str, headers: dict) -> None:
-    db_id = _get_database_id(superset_url, headers)
+def create_saved_queries(superset_url: str, session) -> None:
+    db_id = _get_database_id(superset_url, session)
     if not db_id:
         log.error("DuckDB database not found — skipping saved queries.")
         return
@@ -84,9 +78,8 @@ def create_saved_queries(superset_url: str, headers: dict) -> None:
             "sql": sql,
             "db_id": db_id,
         }
-        resp = requests.post(
+        resp = session.post(
             f"{superset_url}/api/v1/saved_query/",
-            headers=headers,
             json=payload,
         )
         if resp.status_code in (200, 201):

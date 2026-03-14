@@ -34,7 +34,7 @@ interactive dashboards.
 ┌─────────────┐    ┌──────────────┐    ┌──────────────┐    ┌────────────────┐
 │   Dagster   │    │    Great     │    │  GraphQL API │    │    Apache      │
 │ 16 assets   │───▶│ Expectations │    │  (Strawberry │───▶│    Superset    │
-│  4 sensors  │    │ 3 suites     │    │   + FastAPI) │    │ 6 dashboards   │
+│  4 sensors  │    │ 3 suites     │    │   + FastAPI) │    │ 7 dashboards   │
 │  5 schedules│    │ custom OHLCV │    │  :8000       │    │ :8088          │
 └─────────────┘    └──────────────┘    └──────────────┘    └────────────────┘
 
@@ -106,7 +106,13 @@ make up
 # 7. Run the Dagster orchestrator separately
 make up-dagster
 
-# 8. (Optional) Start Flink — requires >= 4 GB Docker memory
+# 8. Start Superset (visualization)
+cd services/superset && docker-compose up -d --build
+
+# 9. Bootstrap Superset (DB, datasets, charts, dashboards)
+cd services/superset && python bootstrap/init_superset.py
+
+# 10. (Optional) Start Flink — requires >= 4 GB Docker memory
 make up-flink
 make submit-all-flink
 ```
@@ -116,7 +122,7 @@ make submit-all-flink
 | Service | URL |
 |---|---|
 | DE-Stock WebSocket | ws://localhost:8080/ws |
-| Kafka UI | http://localhost:8081 |
+| Kafka UI | http://localhost:8080 |
 | Flink Web UI | http://localhost:8082 |
 | MinIO Console | http://localhost:9001 (minioadmin / minioadmin) |
 | GraphQL Playground | http://localhost:8000/graphql |
@@ -223,7 +229,7 @@ Dagster (batch, scheduled)
   ├─ silver_processor asset  ──▶ Iceberg silver_trades, silver_orderbook
   │     • dedup by trade_id
   │     • enrich from dim_symbol (company_name, sector)
-  │     • spread / mid_price for orderbook
+  │     • spread / best_bid / best_ask for orderbook
   └─ gold_aggregator asset   ──▶ Iceberg gold_daily_summary
         • OHLCV per symbol per date
         • VWAP = Σ(price×qty) / Σ(qty)
@@ -232,7 +238,7 @@ GraphQL API (FastAPI + Strawberry)
   └─[DuckDB on Iceberg]──▶ trades, dailySummary, orderBook, marketOverview queries
 
 Apache Superset
-  └─[DuckDB connector]──▶ 6 saved queries, 6 dashboards
+  └─[DuckDB connector]──▶ 6 saved queries, 7 dashboards
 ```
 
 ---
@@ -243,12 +249,33 @@ Apache Superset
 |---|---|
 | Executive Market Overview | KPIs, volume by symbol, sector pie, advance/decline |
 | Symbol Deep Dive | OHLCV candlestick, SMA-20/50, RSI-14 |
+| **Symbol Analysis** | 13-chart deep dive: price, OHLC, bid/ask, volume, VWAP, spread, order flow, volatility, live ticker |
 | Trader Analytics | Top traders, buy/sell ratio, activity heatmap |
 | Pipeline Health | Ingest lag, Dagster runs, Iceberg layer row counts |
 | Risk & Compliance | Volume z-scores, wash-trade detection, sector concentration |
 | Order Book Depth | Custom ECharts depth chart plugin |
 
 Dashboard previews are in [services/superset/docs/snapshots/](services/superset/docs/snapshots/).
+
+### Symbol Analysis Dashboard
+
+The Symbol Analysis dashboard provides a comprehensive per-symbol view with 13 charts covering
+price movement, OHLC, bid/ask trends, volume, cumulative volume, VWAP, bid-ask spread,
+buy/sell pressure, order flow imbalance, trade size distribution, large trades, price
+volatility, and a live ticker table. It includes native filters for symbol selection, time
+grain (1min to 1week), and time range, with auto-refresh every 30 seconds.
+
+### Live Ticker
+
+A standalone real-time ticker page is available at `services/superset/live_ticker.html`. Open it
+directly in a browser:
+
+```bash
+open services/superset/live_ticker.html
+```
+
+It connects to the GraphQL WebSocket subscription at `ws://localhost:8000/graphql` for live
+trade data. If the WebSocket is unavailable, it falls back to a demo mode with simulated data.
 
 ---
 
@@ -295,6 +322,27 @@ Hooks run on `git commit`:
 
 ---
 
+## Operational Notes
+
+### Memory Requirements
+
+All Iceberg table reads use `to_arrow_batch_reader()` (streaming) instead of `to_arrow()` (full load) to prevent OOM under constrained Docker memory. Recommended Colima config:
+
+```bash
+colima start --memory 8 --cpu 4
+```
+
+### Dagster Schedules & Sensors
+
+All schedules and sensors start in **STOPPED** state. Enable them manually in the Dagster UI at http://localhost:3000 or via:
+
+```bash
+dagster schedule start <schedule_name>
+dagster sensor start <sensor_name>
+```
+
+---
+
 ## Implementation Phases
 
 | # | Phase | Status |
@@ -314,11 +362,29 @@ Hooks run on `git commit`:
 
 ---
 
-## Teardown
+## Teardown & Data Cleanup
 
 ```bash
 make teardown           # Stop containers, preserve data volumes
 make teardown-destroy   # Stop containers AND destroy all data
+```
+
+To selectively wipe data without destroying containers:
+
+```bash
+make clean-kafka        # Wipe all Kafka topics & consumer offsets
+make clean-lakehouse    # Wipe MinIO/Iceberg data (Parquet, metadata)
+make clean-dagster      # Wipe Dagster run history & schedule state
+make clean-data         # Wipe ALL of the above in one shot
+```
+
+After cleaning, restart the relevant services:
+
+```bash
+make up-kafka                          # Restart Kafka with empty topics
+make up-storage && make init-lakehouse # Restart storage and reinitialise tables
+make up-dagster                        # Restart Dagster fresh
+make up                                # Restart everything
 ```
 
 Per-service teardown scripts are in `scripts/`.

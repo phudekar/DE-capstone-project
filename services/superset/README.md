@@ -106,8 +106,8 @@ Custom `echarts_depth` TypeScript plugin rendering cumulative bid/ask volume as 
 ![Order Book Depth](docs/snapshots/06_order_book_depth.png)
 
 The plugin is registered as chart type `echarts_depth` and accepts:
-- `bid_price`, `bid_quantity`, `ask_price`, `ask_quantity` column mappings
-- Automatic cumulative sum and mid-price line overlay
+- `best_bid`, `best_bid_size`, `best_ask`, `best_ask_size` column mappings
+- Automatic cumulative sum overlay
 
 ---
 

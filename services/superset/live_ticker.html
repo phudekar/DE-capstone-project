@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Stock Ticker</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    background: #16213e;
+    border-bottom: 1px solid #0f3460;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e0e0e0;
+    letter-spacing: 0.5px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .status-badge.live { background: rgba(38,166,154,0.2); color: #26a69a; }
+  .status-badge.demo { background: rgba(255,183,77,0.2); color: #ffb74d; }
+  .status-badge.connecting { background: rgba(144,164,174,0.2); color: #90a4ae; }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block;
+  }
+  .status-badge.live .status-dot { background: #26a69a; animation: pulse 1.5s infinite; }
+  .status-badge.demo .status-dot { background: #ffb74d; }
+  .status-badge.connecting .status-dot { background: #90a4ae; animation: pulse 1s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  select {
+    background: #0f3460;
+    color: #e0e0e0;
+    border: 1px solid #1a4a8a;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+  }
+  select:hover { border-color: #26a69a; }
+  select:focus { border-color: #26a69a; box-shadow: 0 0 0 2px rgba(38,166,154,0.25); }
+
+  .price-display {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 4px 14px;
+    background: #0f3460;
+    border-radius: 8px;
+    min-width: 200px;
+    justify-content: center;
+  }
+  .price-value {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    transition: color 0.15s;
+  }
+  .price-value.up { color: #26a69a; }
+  .price-value.down { color: #ef5350; }
+  .price-value.neutral { color: #90a4ae; }
+
+  .price-change {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .price-change.up { color: #26a69a; }
+  .price-change.down { color: #ef5350; }
+  .price-change.neutral { color: #90a4ae; }
+
+  .chart-container {
+    flex: 1;
+    padding: 16px;
+    min-height: 0;
+  }
+  #chart {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 24px;
+    padding: 10px 24px;
+    background: #16213e;
+    border-top: 1px solid #0f3460;
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stat-label {
+    color: #607d8b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .stat-value {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: #b0bec5;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>LIVE STOCK TICKER</h1>
+    <div id="statusBadge" class="status-badge connecting">
+      <span class="status-dot"></span>
+      <span id="statusText">CONNECTING</span>
+    </div>
+  </div>
+  <div class="controls">
+    <select id="symbolSelect"></select>
+    <div class="price-display">
+      <span id="priceValue" class="price-value neutral">--</span>
+      <span id="priceChange" class="price-change neutral"></span>
+    </div>
+  </div>
+</header>
+
+<div class="chart-container">
+  <div id="chart"></div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><span class="stat-label">High</span><span id="statHigh" class="stat-value">--</span></div>
+  <div class="stat"><span class="stat-label">Low</span><span id="statLow" class="stat-value">--</span></div>
+  <div class="stat"><span class="stat-label">Volume</span><span id="statVolume" class="stat-value">--</span></div>
+  <div class="stat"><span class="stat-label">Ticks</span><span id="statTicks" class="stat-value">0</span></div>
+  <div class="stat"><span class="stat-label">Last Update</span><span id="statTime" class="stat-value">--</span></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // --- Configuration ---
+  var SYMBOLS = [
+    'AAPL','AMZN','MSFT','GOOGL','META','NVDA','TSLA','JPM','GS','BAC',
+    'V','UNH','JNJ','PFE','KO','XOM','MCD','CRM','WMT','CVX',
+    'PLTR','RIVN','SMCI','MSTR'
+  ];
+  var WS_URL = 'ws://localhost:8000/graphql';
+  var MAX_POINTS = 300;
+  var DEMO_INTERVAL_MS = 500;
+
+  // Seed prices for demo mode
+  var SEED_PRICES = {
+    AAPL: 178, AMZN: 185, MSFT: 415, GOOGL: 155, META: 500,
+    NVDA: 880, TSLA: 175, JPM: 195, GS: 410, BAC: 37,
+    V: 280, UNH: 520, JNJ: 158, PFE: 27, KO: 60,
+    XOM: 105, MCD: 290, CRM: 300, WMT: 170, CVX: 155,
+    PLTR: 24, RIVN: 12, SMCI: 900, MSTR: 1500
+  };
+
+  // --- State ---
+  var currentSymbol = SYMBOLS[0];
+  var priceData = [];    // [{time: Date, price: number, quantity: number}]
+  var volumeData = [];   // [{time: Date, volume: number}]
+  var prevPrice = null;
+  var sessionHigh = -Infinity;
+  var sessionLow = Infinity;
+  var sessionVolume = 0;
+  var tickCount = 0;
+  var isLive = false;
+  var ws = null;
+  var demoTimer = null;
+  var demoPrice = 0;
+
+  // --- DOM refs ---
+  var symbolSelect = document.getElementById('symbolSelect');
+  var priceValueEl = document.getElementById('priceValue');
+  var priceChangeEl = document.getElementById('priceChange');
+  var statusBadge = document.getElementById('statusBadge');
+  var statusText = document.getElementById('statusText');
+  var statHigh = document.getElementById('statHigh');
+  var statLow = document.getElementById('statLow');
+  var statVolume = document.getElementById('statVolume');
+  var statTicks = document.getElementById('statTicks');
+  var statTime = document.getElementById('statTime');
+
+  // --- Populate symbol select ---
+  SYMBOLS.forEach(function (s) {
+    var opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    symbolSelect.appendChild(opt);
+  });
+  symbolSelect.value = currentSymbol;
+  symbolSelect.addEventListener('change', function () {
+    currentSymbol = this.value;
+    resetData();
+    reconnect();
+  });
+
+  // --- ECharts setup ---
+  var chart = echarts.init(document.getElementById('chart'), null, { renderer: 'canvas' });
+  var chartOption = {
+    backgroundColor: 'transparent',
+    animation: false,
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#16213e',
+      borderColor: '#0f3460',
+      textStyle: { color: '#e0e0e0', fontFamily: 'SF Mono, Fira Code, Consolas, monospace', fontSize: 12 },
+      formatter: function (params) {
+        var p = params[0];
+        var v = params[1];
+        var t = p ? p.axisValueLabel : '';
+        var lines = '<div style="font-size:11px;color:#607d8b;margin-bottom:4px">' + t + '</div>';
+        if (p && p.value != null) {
+          lines += '<div>Price: <b style="color:#26a69a">$' + p.value[1].toFixed(2) + '</b></div>';
+        }
+        if (v && v.value != null && v.value[1] > 0) {
+          lines += '<div>Vol: <b style="color:#ffb74d">' + v.value[1].toLocaleString() + '</b></div>';
+        }
+        return lines;
+      }
+    },
+    grid: {
+      left: 60, right: 60, top: 24, bottom: 40
+    },
+    xAxis: {
+      type: 'time',
+      axisLine: { lineStyle: { color: '#0f3460' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#607d8b', fontSize: 11, formatter: function(v) {
+        var d = new Date(v);
+        return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+      }},
+      splitLine: { show: true, lineStyle: { color: '#0f3460', type: 'dashed' } }
+    },
+    yAxis: [
+      {
+        type: 'value',
+        position: 'left',
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { color: '#607d8b', fontSize: 11, formatter: '${value}' },
+        splitLine: { lineStyle: { color: '#0f3460', type: 'dashed' } },
+        scale: true
+      },
+      {
+        type: 'value',
+        position: 'right',
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { color: '#455a64', fontSize: 10 },
+        splitLine: { show: false },
+        scale: true,
+        min: 0
+      }
+    ],
+    series: [
+      {
+        name: 'Price',
+        type: 'line',
+        yAxisIndex: 0,
+        symbol: 'none',
+        lineStyle: { color: '#26a69a', width: 2 },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(38,166,154,0.25)' },
+            { offset: 1, color: 'rgba(38,166,154,0.02)' }
+          ])
+        },
+        data: []
+      },
+      {
+        name: 'Volume',
+        type: 'bar',
+        yAxisIndex: 1,
+        barWidth: 3,
+        itemStyle: { color: 'rgba(255,183,77,0.35)' },
+        data: []
+      }
+    ]
+  };
+  chart.setOption(chartOption);
+  window.addEventListener('resize', function () { chart.resize(); });
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  // --- Data management ---
+  function resetData() {
+    priceData = [];
+    volumeData = [];
+    prevPrice = null;
+    sessionHigh = -Infinity;
+    sessionLow = Infinity;
+    sessionVolume = 0;
+    tickCount = 0;
+    demoPrice = SEED_PRICES[currentSymbol] || 100;
+    priceValueEl.textContent = '--';
+    priceValueEl.className = 'price-value neutral';
+    priceChangeEl.textContent = '';
+    priceChangeEl.className = 'price-change neutral';
+    statHigh.textContent = '--';
+    statLow.textContent = '--';
+    statVolume.textContent = '--';
+    statTicks.textContent = '0';
+    statTime.textContent = '--';
+    updateChart();
+  }
+
+  function addTick(price, quantity, timestamp) {
+    var t = timestamp instanceof Date ? timestamp : new Date(timestamp);
+    var now = t.getTime();
+
+    priceData.push([now, price]);
+    volumeData.push([now, quantity || 0]);
+
+    if (priceData.length > MAX_POINTS) {
+      priceData.shift();
+      volumeData.shift();
+    }
+
+    // Update stats
+    tickCount++;
+    if (price > sessionHigh) sessionHigh = price;
+    if (price < sessionLow) sessionLow = price;
+    sessionVolume += (quantity || 0);
+
+    // Update price display
+    var direction = 'neutral';
+    if (prevPrice !== null) {
+      if (price > prevPrice) direction = 'up';
+      else if (price < prevPrice) direction = 'down';
+    }
+    priceValueEl.textContent = '$' + price.toFixed(2);
+    priceValueEl.className = 'price-value ' + direction;
+
+    if (prevPrice !== null) {
+      var diff = price - prevPrice;
+      var pct = ((diff / prevPrice) * 100);
+      var sign = diff >= 0 ? '+' : '';
+      priceChangeEl.textContent = sign + diff.toFixed(2) + ' (' + sign + pct.toFixed(2) + '%)';
+      priceChangeEl.className = 'price-change ' + direction;
+    }
+
+    prevPrice = price;
+
+    // Update stats bar
+    statHigh.textContent = '$' + sessionHigh.toFixed(2);
+    statLow.textContent = '$' + sessionLow.toFixed(2);
+    statVolume.textContent = sessionVolume.toLocaleString();
+    statTicks.textContent = '' + tickCount;
+    statTime.textContent = pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds());
+
+    // Update line color based on overall trend
+    var lineColor = direction === 'down' ? '#ef5350' : '#26a69a';
+    var gradStart = direction === 'down' ? 'rgba(239,83,80,0.25)' : 'rgba(38,166,154,0.25)';
+    var gradEnd = direction === 'down' ? 'rgba(239,83,80,0.02)' : 'rgba(38,166,154,0.02)';
+
+    chart.setOption({
+      series: [
+        {
+          data: priceData,
+          lineStyle: { color: lineColor },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: gradStart },
+              { offset: 1, color: gradEnd }
+            ])
+          }
+        },
+        { data: volumeData }
+      ]
+    });
+  }
+
+  function updateChart() {
+    chart.setOption({ series: [{ data: priceData }, { data: volumeData }] });
+  }
+
+  // --- Status indicator ---
+  function setStatus(mode) {
+    statusBadge.className = 'status-badge ' + mode;
+    statusText.textContent = mode.toUpperCase();
+    isLive = (mode === 'live');
+  }
+
+  // --- WebSocket (graphql-transport-ws protocol) ---
+  function connectLive() {
+    setStatus('connecting');
+    stopDemo();
+
+    try {
+      ws = new WebSocket(WS_URL, 'graphql-transport-ws');
+    } catch (e) {
+      startDemo();
+      return;
+    }
+
+    var initAcked = false;
+    var pingInterval = null;
+
+    ws.onopen = function () {
+      // Send ConnectionInit
+      ws.send(JSON.stringify({ type: 'connection_init', payload: {} }));
+    };
+
+    ws.onmessage = function (event) {
+      var msg;
+      try { msg = JSON.parse(event.data); } catch (e) { return; }
+
+      switch (msg.type) {
+        case 'connection_ack':
+          initAcked = true;
+          setStatus('live');
+          // Subscribe
+          ws.send(JSON.stringify({
+            id: '1',
+            type: 'subscribe',
+            payload: {
+              query: 'subscription OnNewTrade($symbol: String) { onNewTrade(symbol: $symbol) { symbol price quantity timestamp } }',
+              variables: { symbol: currentSymbol }
+            }
+          }));
+          // Keep-alive ping every 25s
+          pingInterval = setInterval(function () {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: 'ping' }));
+            }
+          }, 25000);
+          break;
+
+        case 'next':
+          if (msg.payload && msg.payload.data && msg.payload.data.onNewTrade) {
+            var trade = msg.payload.data.onNewTrade;
+            addTick(
+              parseFloat(trade.price),
+              parseInt(trade.quantity, 10) || 0,
+              trade.timestamp ? new Date(trade.timestamp) : new Date()
+            );
+          }
+          break;
+
+        case 'error':
+          console.warn('GraphQL subscription error:', msg.payload);
+          break;
+
+        case 'complete':
+          // Subscription ended server-side
+          break;
+
+        case 'pong':
+        case 'ka':
+          break;
+      }
+    };
+
+    ws.onerror = function () {
+      cleanup();
+      startDemo();
+    };
+
+    ws.onclose = function () {
+      cleanup();
+      if (!isLive && tickCount === 0) {
+        startDemo();
+      } else {
+        // Attempt reconnect after delay
+        setTimeout(function () { connectLive(); }, 3000);
+      }
+    };
+
+    function cleanup() {
+      if (pingInterval) { clearInterval(pingInterval); pingInterval = null; }
+    }
+
+    // If no ack in 3s, fall back to demo
+    setTimeout(function () {
+      if (!initAcked) {
+        if (ws) { try { ws.close(); } catch (e) {} ws = null; }
+        startDemo();
+      }
+    }, 3000);
+  }
+
+  function disconnectWs() {
+    if (ws) {
+      try {
+        // Unsubscribe and terminate
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ id: '1', type: 'complete' }));
+        }
+        ws.close();
+      } catch (e) {}
+      ws = null;
+    }
+  }
+
+  // --- Demo mode (random walk) ---
+  function startDemo() {
+    disconnectWs();
+    setStatus('demo');
+    demoPrice = SEED_PRICES[currentSymbol] || 100;
+
+    demoTimer = setInterval(function () {
+      // Random walk: drift ~0, vol proportional to price
+      var vol = demoPrice * 0.001;
+      var change = (Math.random() - 0.495) * vol * 2; // slight upward bias
+      demoPrice = Math.max(demoPrice * 0.5, demoPrice + change);
+      var qty = Math.floor(Math.random() * 500) + 10;
+      addTick(demoPrice, qty, new Date());
+    }, DEMO_INTERVAL_MS);
+  }
+
+  function stopDemo() {
+    if (demoTimer) { clearInterval(demoTimer); demoTimer = null; }
+  }
+
+  // --- Reconnect (symbol change) ---
+  function reconnect() {
+    stopDemo();
+    disconnectWs();
+    connectLive();
+  }
+
+  // --- Boot ---
+  resetData();
+  connectLive();
+
+})();
+</script>
+</body>
+</html>

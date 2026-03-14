@@ -16,6 +16,7 @@ from datetime import timedelta
 # ─── General ──────────────────────────────────────────────────────────────────
 
 SECRET_KEY = os.environ.get("SUPERSET_SECRET_KEY", "CHANGE_ME_IN_PRODUCTION")
+GLOBAL_ASYNC_QUERIES_JWT_SECRET = os.environ.get("SUPERSET_SECRET_KEY", "CHANGE_ME_IN_PRODUCTION")
 APP_NAME = "Trade Data Analytics"
 APP_ICON = "/static/assets/images/superset-logo-horiz.png"
 
@@ -62,6 +63,17 @@ FILTER_STATE_CACHE_CONFIG = {
     "CACHE_REDIS_DB": 2,
 }
 
+# ─── Results Backend (for async SQL Lab queries) ──────────────────────────────
+
+from cachelib.redis import RedisCache  # noqa: E402
+
+RESULTS_BACKEND = RedisCache(
+    host=os.environ.get("REDIS_HOST", "superset-redis"),
+    port=int(os.environ.get("REDIS_PORT", 6379)),
+    db=5,
+    key_prefix="superset_results_",
+)
+
 # ─── Celery (async queries + scheduled reports) ───────────────────────────────
 
 
@@ -96,7 +108,7 @@ FEATURE_FLAGS = {
     "ENABLE_TEMPLATE_PROCESSING": True,
     "EMBEDDED_SUPERSET": True,
     "ALERT_REPORTS": True,
-    "GLOBAL_ASYNC_QUERIES": True,
+    "GLOBAL_ASYNC_QUERIES": False,
     "ESTIMATE_QUERY_COST": True,
     "SCHEDULED_QUERIES": True,
     "SQL_VALIDATORS_BY_ENGINE": True,

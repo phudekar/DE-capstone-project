@@ -2,6 +2,6 @@
 
 from dagster import DailyPartitionsDefinition, MonthlyPartitionsDefinition
 
-daily_partitions = DailyPartitionsDefinition(start_date="2024-01-01")
+daily_partitions = DailyPartitionsDefinition(start_date="2024-01-01", end_offset=1)
 
 monthly_partitions = MonthlyPartitionsDefinition(start_date="2024-01-01")
