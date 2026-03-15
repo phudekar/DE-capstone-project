@@ -16,7 +16,7 @@ networks:
     driver: bridge
   pipeline:
     external: true
-    name: docker-compose_pipeline
+    name: de-network
 
 volumes:
   prometheus_data: {}
