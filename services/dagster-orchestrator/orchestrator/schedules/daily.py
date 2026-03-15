@@ -8,15 +8,19 @@ from dagster import (
     AssetKey,
     AssetSelection,
     DefaultScheduleStatus,
+    RunConfig,
     RunRequest,
     ScheduleEvaluationContext,
     define_asset_job,
     schedule,
 )
+from dagster._core.definitions.executor_definition import in_process_executor
 
 from orchestrator.partitions.daily import daily_partitions
 
 # Silver micro-batch: every 5 minutes
+# Uses in_process_executor to avoid OOM from multiprocess spawning
+# 4 Arrow-heavy child processes simultaneously in Docker.
 silver_micro_batch_job = define_asset_job(
     name="silver_micro_batch_job",
     selection=AssetSelection.assets(
@@ -26,6 +30,7 @@ silver_micro_batch_job = define_asset_job(
         AssetKey("silver_trader_activity"),
     ),
     partitions_def=daily_partitions,
+    executor_def=in_process_executor,
     description="Process all Silver assets in a micro-batch.",
 )
 
@@ -51,6 +56,7 @@ gold_daily_job = define_asset_job(
         AssetKey("gold_portfolio_positions"),
     ),
     partitions_def=daily_partitions,
+    executor_def=in_process_executor,
     description="Aggregate all Gold assets for the day.",
 )
 
