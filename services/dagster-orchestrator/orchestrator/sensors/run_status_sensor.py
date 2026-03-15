@@ -26,9 +26,10 @@ logger = logging.getLogger(__name__)
 def bronze_success_trigger_silver(context: RunStatusSensorContext) -> None:
     """When a Bronze asset succeeds, immediately trigger Silver assets."""
     materialized_keys = set()
-    for event in context.dagster_run.get_run_event_records():
-        if hasattr(event, "asset_key") and event.asset_key:
-            materialized_keys.add(event.asset_key.to_user_string())
+    records = context.instance.all_logs(context.dagster_run.run_id)
+    for record in records:
+        if record.asset_key is not None:
+            materialized_keys.add(record.asset_key.to_user_string())
 
     bronze_assets = {"bronze_raw_trades", "bronze_raw_orderbook"}
     if materialized_keys & bronze_assets:
