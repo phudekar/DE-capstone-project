@@ -1,6 +1,7 @@
 """Silver layer assets — cleaned, deduplicated, enriched data."""
 
 import logging
+from datetime import date, datetime, time, timezone
 
 from dagster import AssetExecutionContext, AssetKey, asset
 
@@ -39,7 +40,12 @@ def silver_trades(
         )
         return
 
-    count = process_trades(catalog)
+    since = None
+    if context.has_partition_key:
+        partition_date = date.fromisoformat(context.partition_key)
+        since = datetime.combine(partition_date, time.min, tzinfo=timezone.utc)
+
+    count = process_trades(catalog, since=since)
     context.log.info("Wrote %d records to silver.trades.", count)
     prometheus.push_metric("silver_trades_count", float(count))
 
@@ -73,7 +79,12 @@ def silver_orderbook_snapshots(
         )
         return
 
-    count = process_orderbook(catalog)
+    since = None
+    if context.has_partition_key:
+        partition_date = date.fromisoformat(context.partition_key)
+        since = datetime.combine(partition_date, time.min, tzinfo=timezone.utc)
+
+    count = process_orderbook(catalog, since=since)
     context.log.info("Wrote %d records to silver.orderbook_snapshots.", count)
     prometheus.push_metric("silver_orderbook_count", float(count))
 

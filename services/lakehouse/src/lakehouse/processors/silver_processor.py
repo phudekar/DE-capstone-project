@@ -62,9 +62,16 @@ def _load_dim_symbol(catalog) -> dict[str, dict]:
     return result
 
 
-def _get_existing_trade_ids(silver_table) -> set[str]:
-    """Load existing Silver trade IDs for dedup."""
-    existing_arrow = silver_table.scan(selected_fields=("trade_id",)).to_arrow()
+def _get_existing_trade_ids(silver_table, since: datetime | None = None) -> set[str]:
+    """Load existing Silver trade IDs for dedup.
+
+    When ``since`` is provided, only loads IDs processed after that timestamp
+    to avoid loading millions of historical IDs into memory.
+    """
+    scan_kwargs = {"selected_fields": ("trade_id",)}
+    if since is not None:
+        scan_kwargs["row_filter"] = f"_processed_at >= '{since.isoformat()}'"
+    existing_arrow = silver_table.scan(**scan_kwargs).to_arrow()
     if len(existing_arrow) > 0:
         return set(existing_arrow.column("trade_id").to_pylist())
     return set()
@@ -130,7 +137,8 @@ def process_trades(catalog, since: datetime | None = None) -> int:
         scan = bronze_table.scan(row_filter=f"_ingested_at > '{since.isoformat()}'")
 
     # Load existing IDs and dimension data once
-    existing_ids = _get_existing_trade_ids(silver_table)
+    # When since is set, only load IDs from that window to limit memory usage
+    existing_ids = _get_existing_trade_ids(silver_table, since=since)
     dim_symbols = _load_dim_symbol(catalog)
     now = datetime.now(timezone.utc)
 
