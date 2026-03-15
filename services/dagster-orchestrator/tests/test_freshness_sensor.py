@@ -1,5 +1,7 @@
 """Tests for the freshness SLA sensor."""
 
+from dagster import AssetKey
+
 from orchestrator.sensors.freshness_sensor import (
     _FRESHNESS_SLA_HOURS,
     _MONITORED_ASSETS,
@@ -25,9 +27,9 @@ def test_monitored_assets_non_empty():
 
 def test_monitored_assets_include_key_layers():
     """All three lakehouse layers are monitored."""
-    assert "bronze_raw_trades" in _MONITORED_ASSETS
-    assert "silver_trades" in _MONITORED_ASSETS
-    assert "gold_daily_trading_summary" in _MONITORED_ASSETS
+    assert AssetKey("bronze_raw_trades") in _MONITORED_ASSETS
+    assert AssetKey("silver_trades") in _MONITORED_ASSETS
+    assert AssetKey("gold_daily_trading_summary") in _MONITORED_ASSETS
 
 
 def test_freshness_sla_hours_positive():

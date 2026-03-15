@@ -57,6 +57,7 @@ services:
       AWS_ACCESS_KEY_ID: "${MINIO_ROOT_USER}"
       AWS_SECRET_ACCESS_KEY: "${MINIO_ROOT_PASSWORD}"
       AWS_REGION: "us-east-1"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx512m"
     depends_on:
       minio-init:
         condition: service_completed_successfully

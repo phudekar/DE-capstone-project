@@ -16,6 +16,7 @@ services:
         execution.checkpointing.mode: AT_LEAST_ONCE
       KAFKA_BOOTSTRAP_SERVERS: "kafka-broker-1:29092"
       REFERENCE_DATA_PATH: "/opt/flink-processor/data/reference/symbols.json"
+      JAVA_TOOL_OPTIONS: "-Xms256m -Xmx768m"
     command: jobmanager
     networks:
       - de-network

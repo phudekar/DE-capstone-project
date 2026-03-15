@@ -3,18 +3,18 @@
 import logging
 from datetime import datetime, timedelta, timezone
 
-from dagster import RunRequest, SensorEvaluationContext, SkipReason, sensor
+from dagster import AssetKey, RunRequest, SensorEvaluationContext, SkipReason, sensor
 
 logger = logging.getLogger(__name__)
 
 # SLA: each asset must be materialized at least once within this window
 _FRESHNESS_SLA_HOURS = 24
 
-# Assets to monitor (asset key strings)
+# Assets to monitor
 _MONITORED_ASSETS = [
-    "bronze_raw_trades",
-    "silver_trades",
-    "gold_daily_trading_summary",
+    AssetKey("bronze_raw_trades"),
+    AssetKey("silver_trades"),
+    AssetKey("gold_daily_trading_summary"),
 ]
 
 
@@ -37,17 +37,18 @@ def freshness_sla_sensor(context: SensorEvaluationContext):
             record = context.instance.get_latest_materialization_event(
                 asset_key=asset_key
             )
+            name = asset_key.to_user_string()
             if record is None:
-                stale_assets.append(f"{asset_key} (never materialized)")
+                stale_assets.append(f"{name} (never materialized)")
             else:
                 materialized_at = datetime.fromtimestamp(
                     record.timestamp, tz=timezone.utc
                 )
                 if materialized_at < sla_cutoff:
                     lag_hours = (now - materialized_at).total_seconds() / 3600
-                    stale_assets.append(f"{asset_key} (last: {lag_hours:.1f}h ago)")
+                    stale_assets.append(f"{name} (last: {lag_hours:.1f}h ago)")
         except Exception as exc:
-            logger.warning("Could not check freshness for %s: %s", asset_key, exc)
+            logger.warning("Could not compute freshness for %s: %s", asset_key.to_user_string(), exc)
 
     if stale_assets:
         context.log.warning(
