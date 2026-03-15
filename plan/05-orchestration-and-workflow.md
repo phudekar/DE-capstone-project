@@ -2582,6 +2582,32 @@ dagster-tests:
 
 ---
 
+## Implementation Notes (Post-Phase 5)
+
+### OOM Fixes in Dagster Assets
+
+Several Dagster assets and jobs were OOM-killed when materializing against large Iceberg tables. Fixes applied:
+
+| Asset/Job | Issue | Fix |
+|---|---|---|
+| `bronze_raw_trades` | `table.scan().to_arrow()` to count rows | `sum(batch.num_rows for batch in batch_reader)` |
+| Quality checks (all 3) | Full table load for GX validation | 100K-row cap via `_sample_table_to_pandas()` |
+| `data_quality_job` ops | Full table load in `_load_pandas()` | Same 100K-row batch reader pattern |
+
+### Default Schedule/Sensor State
+
+All schedules and sensors are `DefaultScheduleStatus.STOPPED` / `DefaultSensorStatus.STOPPED`. Nothing auto-runs — users must enable them manually in the Dagster UI or via `dagster schedule start`.
+
+### Partition Availability
+
+`DailyPartitionsDefinition` only includes completed days (up to yesterday). Materializing "today" requires waiting until the day completes or using an unpartitioned run.
+
+### Dagster Decorator Compatibility
+
+`from __future__ import annotations` BREAKS Dagster decorators (`@asset`, `@op`, `@sensor`, `@hook`). Never use it in files containing Dagster decorators.
+
+---
+
 ## Appendix A: Environment Variables Reference
 
 | Variable | Description | Example |

@@ -44,9 +44,9 @@ class TestBronzeSuite:
         failed = [r for r in result["results"] if not r["success"]]
         assert len(failed) > 0
 
-    def test_invalid_aggressor_side_fails(self, valid_bronze_df):
+    def test_invalid_is_aggressive_buy_fails(self, valid_bronze_df):
         df = valid_bronze_df.copy()
-        df.loc[0, "aggressor_side"] = "Invalid"
+        df.loc[0, "is_aggressive_buy"] = "Invalid"
         suite = build_bronze_trades_suite()
         result = validate_dataframe(df, suite)
         failed = [r for r in result["results"] if not r["success"]]
@@ -62,9 +62,9 @@ class TestBronzeSuite:
     def test_empty_table_fails(self):
         df = pd.DataFrame(
             columns=[
-                "trade_id", "symbol", "price", "quantity", "buyer_order_id",
-                "seller_order_id", "buyer_agent_id", "seller_agent_id",
-                "aggressor_side", "event_type", "timestamp",
+                "trade_id", "symbol", "price", "quantity", "buy_order_id",
+                "sell_order_id", "buyer_agent_id", "seller_agent_id",
+                "is_aggressive_buy", "event_type", "timestamp",
                 "_kafka_topic", "_kafka_partition", "_kafka_offset", "_ingested_at",
             ]
         )

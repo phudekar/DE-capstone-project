@@ -14,12 +14,10 @@ class OrderType(str, Enum):
 
 
 class AgentType(str, Enum):
-    RETAIL = "Retail"
-    INSTITUTIONAL = "Institutional"
+    RETAIL = "RetailTrader"
+    INSTITUTIONAL = "InstitutionalInvestor"
     MARKET_MAKER = "MarketMaker"
-    HFT = "HFT"
-    NOISE = "Noise"
-    INFORMED = "Informed"
+    HFT = "HighFrequencyTrader"
 
 
 class CircuitBreakerLevel(int, Enum):

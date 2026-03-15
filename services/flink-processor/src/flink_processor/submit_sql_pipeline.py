@@ -11,7 +11,8 @@ Usage:
 import logging
 import sys
 
-from pyflink.table import EnvironmentSettings, TableEnvironment
+from pyflink.datastream import StreamExecutionEnvironment
+from pyflink.table import StreamTableEnvironment
 
 from flink_processor.config import (
     CHECKPOINT_INTERVAL_MS,
@@ -33,17 +34,12 @@ logger = logging.getLogger(__name__)
 def main() -> None:
     logger.info("Starting Job A: SQL Analytics + Enrichment Pipeline")
 
-    env_settings = EnvironmentSettings.in_streaming_mode()
-    t_env = TableEnvironment.create(env_settings)
+    env = StreamExecutionEnvironment.get_execution_environment()
+    env.set_parallelism(PARALLELISM)
+    env.enable_checkpointing(CHECKPOINT_INTERVAL_MS)
+    env.add_jars("file:///opt/flink/lib/flink-sql-connector-kafka-3.0.2-1.18.jar")
 
-    # Configure execution
-    t_env.get_config().set("parallelism.default", str(PARALLELISM))
-    t_env.get_config().set(
-        "execution.checkpointing.interval", f"{CHECKPOINT_INTERVAL_MS}ms"
-    )
-    t_env.get_config().set(
-        "execution.checkpointing.mode", "AT_LEAST_ONCE"
-    )
+    t_env = StreamTableEnvironment.create(env)
     t_env.get_config().set("state.backend", "hashmap")
     t_env.get_config().set("table.exec.source.idle-timeout", "30000ms")
 
@@ -57,11 +53,11 @@ def main() -> None:
     logger.info("Creating sink table: enriched_trades")
     t_env.execute_sql(enriched_trades_sink_ddl())
 
-    # Create reference view from symbols.json
+    # Build reference lookup expressions from symbols.json
     symbols = load_reference_symbols()
     symbols_list = list(symbols.values())
-    logger.info("Creating reference view with %d symbols", len(symbols_list))
-    t_env.execute_sql(reference_symbols_ddl(symbols_list))
+    logger.info("Building reference lookup for %d symbols", len(symbols_list))
+    lookup_exprs = reference_symbols_ddl(symbols_list)
 
     # Build statement set for all outputs
     stmt_set = t_env.create_statement_set()
@@ -73,7 +69,7 @@ def main() -> None:
 
     # Add enrichment insert
     logger.info("Adding trade enrichment insert")
-    stmt_set.add_insert_sql(enrichment_insert())
+    stmt_set.add_insert_sql(enrichment_insert(lookup_exprs))
 
     # Execute all as a single Flink job
     logger.info("Submitting Job A statement set")

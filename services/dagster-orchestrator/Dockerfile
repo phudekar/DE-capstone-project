@@ -6,9 +6,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install lakehouse dependency first (layer caching)
+# Install local dependencies first (layer caching)
 COPY services/lakehouse /app/services/lakehouse
 RUN pip install --no-cache-dir /app/services/lakehouse
+
+COPY services/data-quality /app/services/data-quality
+RUN pip install --no-cache-dir /app/services/data-quality
 
 # Install dagster orchestrator
 COPY services/dagster-orchestrator /app/services/dagster-orchestrator

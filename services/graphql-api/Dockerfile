@@ -6,10 +6,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml .
-RUN pip install --no-cache-dir -e ".[dev]"
-
-COPY app/ ./app/
+COPY services/graphql-api/ .
+RUN pip install --no-cache-dir ".[dev]"
 
 EXPOSE 8000
 

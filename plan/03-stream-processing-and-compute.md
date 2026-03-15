@@ -752,7 +752,7 @@ class OrderBookAnalyzer(MapFunction):
 
         # Bid-ask spread
         spread = best_ask - best_bid if (best_bid > 0 and best_ask > 0) else 0.0
-        mid_price = (best_bid + best_ask) / 2 if (best_bid > 0 and best_ask > 0) else 0.0
+        mid_price = (best_bid + best_ask) / 2 if (best_bid > 0 and best_ask > 0) else 0.0  # derived, not in source
         spread_bps = (spread / mid_price * 10000) if mid_price > 0 else 0.0
 
         # Depth at levels

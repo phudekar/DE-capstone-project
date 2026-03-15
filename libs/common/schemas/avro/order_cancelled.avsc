@@ -4,6 +4,7 @@
   "namespace": "com.deproject.raw.orders",
   "fields": [
     {"name": "event_type", "type": "string"},
+    {"name": "event_id", "type": "string"},
     {"name": "timestamp", "type": "string"},
     {"name": "order_id", "type": "string"},
     {"name": "symbol", "type": "string"},

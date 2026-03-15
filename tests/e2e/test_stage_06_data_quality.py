@@ -72,7 +72,7 @@ def test_silver_no_duplicate_trade_ids(pipeline_db, populated_pipeline):
 
 def test_silver_required_fields_not_null(pipeline_db, populated_pipeline):
     for col in ("trade_id", "symbol", "price", "quantity",
-                "buyer_order_id", "seller_order_id", "timestamp"):
+                "buy_order_id", "sell_order_id", "timestamp"):
         bad = pipeline_db.conn.execute(
             f"SELECT COUNT(*) FROM silver_trades WHERE {col} IS NULL"
         ).fetchone()[0]

@@ -17,6 +17,38 @@ from lakehouse.catalog import get_catalog
 logger = logging.getLogger(__name__)
 
 
+_TRADES_ARROW_SCHEMA = pa.schema([
+    pa.field("trade_id", pa.string(), nullable=False),
+    pa.field("symbol", pa.string(), nullable=False),
+    pa.field("price", pa.float64(), nullable=False),
+    pa.field("quantity", pa.int32(), nullable=False),
+    pa.field("buy_order_id", pa.string(), nullable=False),
+    pa.field("sell_order_id", pa.string(), nullable=False),
+    pa.field("buyer_agent_id", pa.string(), nullable=False),
+    pa.field("seller_agent_id", pa.string(), nullable=False),
+    pa.field("is_aggressive_buy", pa.bool_(), nullable=False),
+    pa.field("event_type", pa.string(), nullable=False),
+    pa.field("timestamp", pa.timestamp("us", tz="UTC"), nullable=False),
+    pa.field("_kafka_topic", pa.string(), nullable=False),
+    pa.field("_kafka_partition", pa.int32(), nullable=False),
+    pa.field("_kafka_offset", pa.int64(), nullable=False),
+    pa.field("_ingested_at", pa.timestamp("us", tz="UTC"), nullable=False),
+])
+
+_ORDERBOOK_ARROW_SCHEMA = pa.schema([
+    pa.field("symbol", pa.string(), nullable=False),
+    pa.field("bids_json", pa.string(), nullable=False),
+    pa.field("asks_json", pa.string(), nullable=False),
+    pa.field("sequence_number", pa.int32(), nullable=False),
+    pa.field("event_type", pa.string(), nullable=False),
+    pa.field("timestamp", pa.timestamp("us", tz="UTC"), nullable=False),
+    pa.field("_kafka_topic", pa.string(), nullable=False),
+    pa.field("_kafka_partition", pa.int32(), nullable=False),
+    pa.field("_kafka_offset", pa.int64(), nullable=False),
+    pa.field("_ingested_at", pa.timestamp("us", tz="UTC"), nullable=False),
+])
+
+
 class BronzeWriter:
     """Micro-batch Kafka consumer that writes to Bronze Iceberg tables."""
 
@@ -43,11 +75,11 @@ class BronzeWriter:
             "symbol": value["symbol"],
             "price": float(value["price"]),
             "quantity": int(value["quantity"]),
-            "buyer_order_id": value["buyer_order_id"],
-            "seller_order_id": value["seller_order_id"],
+            "buy_order_id": value["buy_order_id"],
+            "sell_order_id": value["sell_order_id"],
             "buyer_agent_id": value["buyer_agent_id"],
             "seller_agent_id": value["seller_agent_id"],
-            "aggressor_side": str(value["aggressor_side"]),
+            "is_aggressive_buy": bool(value["is_aggressive_buy"]),
             "event_type": value["event_type"],
             "timestamp": ts,
             "_kafka_topic": topic,
@@ -76,13 +108,17 @@ class BronzeWriter:
     def _flush_batch(self, trade_rows: list[dict], orderbook_rows: list[dict]) -> None:
         """Write accumulated rows to their respective Bronze tables."""
         if trade_rows:
-            arrow_table = pa.table({k: [r[k] for r in trade_rows] for k in trade_rows[0]})
+            arrow_table = pa.table(
+                {k: [r[k] for r in trade_rows] for k in trade_rows[0]},
+                schema=_TRADES_ARROW_SCHEMA,
+            )
             self._trades_table.append(arrow_table)
             logger.info("Flushed %d trade rows to bronze.raw_trades.", len(trade_rows))
 
         if orderbook_rows:
             arrow_table = pa.table(
-                {k: [r[k] for r in orderbook_rows] for k in orderbook_rows[0]}
+                {k: [r[k] for r in orderbook_rows] for k in orderbook_rows[0]},
+                schema=_ORDERBOOK_ARROW_SCHEMA,
             )
             self._orderbook_table.append(arrow_table)
             logger.info("Flushed %d orderbook rows to bronze.raw_orderbook.", len(orderbook_rows))

@@ -16,9 +16,11 @@ class Trade:
     symbol: str
     price: float
     quantity: int
+    buy_order_id: str
+    sell_order_id: str
     buyer_agent_id: str
     seller_agent_id: str
-    aggressor_side: str  # "BUY" or "SELL"
+    is_aggressive_buy: bool
     timestamp: datetime
     company_name: Optional[str] = None
     sector: Optional[str] = None

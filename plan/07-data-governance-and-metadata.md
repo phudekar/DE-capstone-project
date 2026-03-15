@@ -2189,15 +2189,15 @@ The data glossary provides a shared vocabulary for the trade data domain. Each t
 | **Symbol** | A unique ticker identifier for a financial instrument on an exchange (e.g., AAPL, MSFT, GOOGL). | `*.symbol` columns |
 | **Exchange** | A marketplace where financial instruments are traded. Examples: NYSE, NASDAQ, LSE. | `*.exchange` columns |
 | **Side** | The direction of a trade or order: BUY (acquiring) or SELL (disposing). | `*.side` columns |
-| **Bid** | The highest price a buyer is willing to pay for an instrument at a given time. | `silver.orders.bid_price` |
-| **Ask** | The lowest price a seller is willing to accept for an instrument at a given time. | `silver.orders.ask_price` |
+| **Bid** | The highest price a buyer is willing to pay for an instrument at a given time. | `silver.orders.best_bid` |
+| **Ask** | The lowest price a seller is willing to accept for an instrument at a given time. | `silver.orders.best_ask` |
 
 #### Analytics Terms
 
 | Term | Definition | Formula | Related Columns |
 |---|---|---|---|
 | **VWAP** | Volume-Weighted Average Price. The average price weighted by trade volume over a period. Used as a benchmark for trade execution quality. | `SUM(price * quantity) / SUM(quantity)` | `gold.daily_trade_summary.vwap`, `gold.vwap_analysis.*` |
-| **Bid-Ask Spread** | The difference between the best ask and best bid price. Indicates market liquidity; narrow spreads suggest high liquidity. | `ask_price - bid_price` | `gold.market_depth.spread` |
+| **Bid-Ask Spread** | The difference between the best ask and best bid price. Indicates market liquidity; narrow spreads suggest high liquidity. | `best_ask - best_bid` | `gold.market_depth.spread` |
 | **Market Depth** | The volume of buy and sell orders at various price levels. Shows the supply and demand structure of an instrument. | Aggregation of order book levels | `gold.market_depth.*` |
 | **Total Value** | The monetary value of all trades: sum of individual trade values (price times quantity). | `SUM(price * quantity)` | `gold.daily_trade_summary.total_value` |
 | **Trade Count** | The total number of individual trades executed in a period. | `COUNT(*)` | `gold.daily_trade_summary.trade_count` |

@@ -15,6 +15,20 @@ logger = logging.getLogger(__name__)
 
 TRACKED_COLUMNS = ("company_name", "sector", "market_cap_category")
 
+# Explicit Arrow schema matching Iceberg dim_symbol (all required)
+_DIM_SYMBOL_ARROW_SCHEMA = pa.schema([
+    pa.field("symbol_key", pa.int32(), nullable=False),
+    pa.field("symbol", pa.string(), nullable=False),
+    pa.field("company_name", pa.string(), nullable=False),
+    pa.field("sector", pa.string(), nullable=False),
+    pa.field("market_cap_category", pa.string(), nullable=False),
+    pa.field("effective_date", pa.date32(), nullable=False),
+    pa.field("expiry_date", pa.date32(), nullable=False),
+    pa.field("is_current", pa.bool_(), nullable=False),
+    pa.field("row_hash", pa.string(), nullable=False),
+    pa.field("_updated_at", pa.timestamp("us", tz="UTC"), nullable=False),
+])
+
 
 def _hash_row(symbol: str, company_name: str, sector: str, market_cap: str) -> str:
     """Deterministic hash for change detection on tracked columns."""
@@ -125,14 +139,18 @@ def apply_scd2(incoming_records: list[dict]) -> tuple[int, int]:
         table.delete(delete_filter)
         # Re-insert the expired versions
         expired_table = pa.table(
-            {k: [r[k] for r in expired_rows] for k in expired_rows[0]}
+            {k: [r[k] for r in expired_rows] for k in expired_rows[0]},
+            schema=_DIM_SYMBOL_ARROW_SCHEMA,
         )
         table.append(expired_table)
         expired_count = len(expired_rows)
         logger.info("Expired %d rows in dim_symbol.", expired_count)
 
     if new_rows:
-        new_table = pa.table({k: [r[k] for r in new_rows] for k in new_rows[0]})
+        new_table = pa.table(
+            {k: [r[k] for r in new_rows] for k in new_rows[0]},
+            schema=_DIM_SYMBOL_ARROW_SCHEMA,
+        )
         table.append(new_table)
         inserted_count = len(new_rows)
         logger.info("Inserted %d new rows in dim_symbol.", inserted_count)

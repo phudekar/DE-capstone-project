@@ -46,33 +46,32 @@ def test_trade_event_parses():
     assert event.data.quantity == 100
 
 
-def test_trade_event_aggressor_side_buy():
-    raw = make_trade_event(aggressor_side="Buy")
+def test_trade_event_is_aggressive_buy_true():
+    raw = make_trade_event(is_aggressive_buy=True)
     event = _parse(raw)
-    assert event.data.aggressor_side == Side.BUY
+    assert event.data.is_aggressive_buy is True
 
 
-def test_trade_event_aggressor_side_sell():
-    raw = make_trade_event(aggressor_side="Sell")
+def test_trade_event_is_aggressive_buy_false():
+    raw = make_trade_event(is_aggressive_buy=False)
     event = _parse(raw)
-    assert event.data.aggressor_side == Side.SELL
+    assert event.data.is_aggressive_buy is False
 
 
 def test_trade_event_has_all_required_ids():
     raw = make_trade_event()
     event = _parse(raw)
     assert event.data.trade_id
-    assert event.data.buyer_order_id
-    assert event.data.seller_order_id
+    assert event.data.buy_order_id
+    assert event.data.sell_order_id
     assert event.data.buyer_agent_id
     assert event.data.seller_agent_id
 
 
 def test_trade_event_timestamp_parsed():
-    from datetime import datetime
     raw = make_trade_event()
     event = _parse(raw)
-    assert isinstance(event.timestamp, datetime)
+    assert event.data.timestamp  # timestamp is now in the data payload
 
 
 # ── OrderBookSnapshot ──────────────────────────────────────────────────────────
@@ -113,7 +112,7 @@ def test_quote_event_parses():
     event = _parse(raw)
     assert event.event_type == "QuoteUpdate"
     assert event.data.symbol == "GOOG"
-    assert event.data.bid_price < event.data.ask_price
+    assert event.data.best_bid < event.data.best_ask
 
 
 def test_quote_spread_positive():
@@ -125,7 +124,8 @@ def test_quote_spread_positive():
 def test_quote_mid_price_between_bid_ask():
     raw = make_quote_event(mid_price=150.0)
     event = _parse(raw)
-    assert event.data.bid_price < event.data.mid_price < event.data.ask_price
+    mid = (event.data.best_bid + event.data.best_ask) / 2
+    assert event.data.best_bid < mid < event.data.best_ask
 
 
 # ── OrderPlaced ────────────────────────────────────────────────────────────────

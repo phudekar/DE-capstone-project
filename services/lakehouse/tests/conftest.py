@@ -35,11 +35,11 @@ def sample_trade_message():
         "symbol": "AAPL",
         "price": 185.50,
         "quantity": 100,
-        "buyer_order_id": "BO-001",
-        "seller_order_id": "SO-001",
+        "buy_order_id": "BO-001",
+        "sell_order_id": "SO-001",
         "buyer_agent_id": "BA-001",
         "seller_agent_id": "SA-001",
-        "aggressor_side": "Buy",
+        "is_aggressive_buy": True,
     }
 
 

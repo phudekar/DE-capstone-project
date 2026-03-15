@@ -23,7 +23,7 @@ class TestBronzeSchemas:
         assert "symbol" in field_names
         assert "price" in field_names
         assert "quantity" in field_names
-        assert "aggressor_side" in field_names
+        assert "is_aggressive_buy" in field_names
 
     def test_raw_orderbook_has_bids_asks_json(self):
         field_names = {f.name for f in RAW_ORDERBOOK_SCHEMA.fields}

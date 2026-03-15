@@ -44,7 +44,7 @@ def test_row_to_trade_basic():
     assert trade.symbol == "AAPL"
     assert trade.price == 150.25
     assert trade.quantity == 100
-    assert trade.aggressor_side == "BUY"
+    assert trade.is_aggressive_buy is True
     assert trade.company_name == "Apple Inc."
 
 
@@ -84,11 +84,11 @@ def test_build_where_price_range():
     assert 200.0 in params
 
 
-def test_build_where_aggressor_side():
-    f = TradeFilterInput(aggressor_side="SELL")
+def test_build_where_is_aggressive_buy():
+    f = TradeFilterInput(is_aggressive_buy=True)
     clause, params = _build_where(f)
-    assert "aggressor_side = ?" in clause
-    assert "SELL" in params
+    assert "is_aggressive_buy = ?" in clause
+    assert True in params
 
 
 def test_build_where_date_range():

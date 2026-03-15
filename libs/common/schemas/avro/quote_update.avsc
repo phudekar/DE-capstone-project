@@ -4,13 +4,13 @@
   "namespace": "com.deproject.raw.quotes",
   "fields": [
     {"name": "event_type", "type": "string"},
+    {"name": "event_id", "type": "string"},
     {"name": "timestamp", "type": "string"},
     {"name": "symbol", "type": "string"},
-    {"name": "bid_price", "type": "double"},
-    {"name": "bid_size", "type": "int"},
-    {"name": "ask_price", "type": "double"},
-    {"name": "ask_size", "type": "int"},
-    {"name": "spread", "type": "double"},
-    {"name": "mid_price", "type": "double"}
+    {"name": "best_bid", "type": "double"},
+    {"name": "best_bid_size", "type": "int"},
+    {"name": "best_ask", "type": "double"},
+    {"name": "best_ask_size", "type": "int"},
+    {"name": "spread", "type": "double"}
   ]
 }

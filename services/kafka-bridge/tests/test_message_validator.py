@@ -7,8 +7,9 @@ class TestValidateMessage:
     def test_valid_order_placed(self):
         raw = {
             "event_type": "OrderPlaced",
-            "timestamp": "2024-01-01T00:00:00Z",
             "data": {
+                "event_id": "evt-1",
+                "timestamp": "2024-01-01T00:00:00Z",
                 "order_id": "ord-1",
                 "symbol": "AAPL",
                 "side": "Buy",
@@ -16,7 +17,7 @@ class TestValidateMessage:
                 "price": 150.0,
                 "quantity": 100,
                 "agent_id": "agent-1",
-                "agent_type": "Retail",
+                "agent_type": "RetailTrader",
             },
         }
         event = validate_message(raw)
@@ -27,17 +28,18 @@ class TestValidateMessage:
     def test_valid_trade_executed(self):
         raw = {
             "event_type": "TradeExecuted",
-            "timestamp": "2024-01-01T00:00:00Z",
             "data": {
+                "event_id": "evt-2",
+                "timestamp": "2024-01-01T00:00:00Z",
                 "trade_id": "trade-1",
                 "symbol": "TSLA",
                 "price": 200.0,
                 "quantity": 50,
-                "buyer_order_id": "ord-1",
-                "seller_order_id": "ord-2",
+                "buy_order_id": "ord-1",
+                "sell_order_id": "ord-2",
                 "buyer_agent_id": "agent-1",
                 "seller_agent_id": "agent-2",
-                "aggressor_side": "Buy",
+                "is_aggressive_buy": True,
             },
         }
         event = validate_message(raw)
@@ -47,15 +49,15 @@ class TestValidateMessage:
     def test_valid_quote_update(self):
         raw = {
             "event_type": "QuoteUpdate",
-            "timestamp": "2024-01-01T00:00:00Z",
             "data": {
+                "event_id": "evt-3",
+                "timestamp": "2024-01-01T00:00:00Z",
                 "symbol": "GOOG",
-                "bid_price": 100.0,
-                "bid_size": 10,
-                "ask_price": 101.0,
-                "ask_size": 15,
+                "best_bid": 100.0,
+                "best_bid_size": 10,
+                "best_ask": 101.0,
+                "best_ask_size": 15,
                 "spread": 1.0,
-                "mid_price": 100.5,
             },
         }
         event = validate_message(raw)
@@ -65,7 +67,6 @@ class TestValidateMessage:
     def test_invalid_event_type_returns_none(self):
         raw = {
             "event_type": "UnknownEvent",
-            "timestamp": "2024-01-01T00:00:00Z",
             "data": {},
         }
         event = validate_message(raw)
@@ -74,10 +75,9 @@ class TestValidateMessage:
     def test_missing_required_field_returns_none(self):
         raw = {
             "event_type": "OrderPlaced",
-            "timestamp": "2024-01-01T00:00:00Z",
             "data": {
                 "order_id": "ord-1",
-                # missing symbol, side, etc.
+                # missing symbol, side, event_id, timestamp, etc.
             },
         }
         event = validate_message(raw)
@@ -86,8 +86,9 @@ class TestValidateMessage:
     def test_invalid_enum_value_returns_none(self):
         raw = {
             "event_type": "OrderPlaced",
-            "timestamp": "2024-01-01T00:00:00Z",
             "data": {
+                "event_id": "evt-4",
+                "timestamp": "2024-01-01T00:00:00Z",
                 "order_id": "ord-1",
                 "symbol": "AAPL",
                 "side": "InvalidSide",
@@ -95,7 +96,7 @@ class TestValidateMessage:
                 "price": 150.0,
                 "quantity": 100,
                 "agent_id": "agent-1",
-                "agent_type": "Retail",
+                "agent_type": "RetailTrader",
             },
         }
         event = validate_message(raw)

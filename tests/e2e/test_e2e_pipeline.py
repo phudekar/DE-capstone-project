@@ -384,10 +384,10 @@ class TestStage6DataQuality:
         ).fetchone()[0]
         assert bad == 0
 
-    def test_aggressor_side_values_valid(self, e2e_db):
+    def test_is_aggressive_buy_values_valid(self, e2e_db):
         bad = e2e_db.conn.execute("""
             SELECT COUNT(*) FROM silver_trades
-            WHERE aggressor_side NOT IN ('Buy', 'Sell')
+            WHERE is_aggressive_buy NOT IN (TRUE, FALSE)
         """).fetchone()[0]
         assert bad == 0
 

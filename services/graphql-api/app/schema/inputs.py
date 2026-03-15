@@ -17,7 +17,7 @@ class DateRangeInput:
 class TradeFilterInput:
     symbol: Optional[str] = None
     symbols: Optional[list[str]] = None
-    aggressor_side: Optional[str] = None  # "BUY" or "SELL"
+    is_aggressive_buy: Optional[bool] = None
     min_price: Optional[float] = None
     max_price: Optional[float] = None
     min_quantity: Optional[int] = None

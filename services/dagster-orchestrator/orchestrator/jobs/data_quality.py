@@ -11,14 +11,31 @@ from orchestrator.resources.iceberg import IcebergResource
 logger = logging.getLogger(__name__)
 
 
+_MAX_VALIDATION_ROWS = 100_000
+
+
 def _load_pandas(iceberg: IcebergResource, table_name: str):
-    """Load an Iceberg table and return a Pandas DataFrame, or None if missing/empty."""
+    """Load up to _MAX_VALIDATION_ROWS from an Iceberg table via streaming batch reader."""
+    import pyarrow as pa
+
     try:
         table = iceberg.load_table(table_name)
-        arrow = table.scan().to_arrow()
-        if len(arrow) == 0:
+        reader = table.scan().to_arrow_batch_reader()
+        batches = []
+        total = 0
+        for batch in reader:
+            if batch.num_rows == 0:
+                continue
+            remaining = _MAX_VALIDATION_ROWS - total
+            if remaining <= 0:
+                break
+            if batch.num_rows > remaining:
+                batch = batch.slice(0, remaining)
+            batches.append(batch)
+            total += batch.num_rows
+        if not batches:
             return None
-        return arrow.to_pandas()
+        return pa.Table.from_batches(batches).to_pandas()
     except Exception:
         return None
 

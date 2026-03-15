@@ -20,9 +20,9 @@ class TestBronzeWriterParsing:
         assert row["symbol"] == "AAPL"
         assert row["price"] == 185.50
         assert row["quantity"] == 100
-        assert row["buyer_order_id"] == "BO-001"
-        assert row["seller_order_id"] == "SO-001"
-        assert row["aggressor_side"] == "Buy"
+        assert row["buy_order_id"] == "BO-001"
+        assert row["sell_order_id"] == "SO-001"
+        assert row["is_aggressive_buy"] is True
         assert row["event_type"] == "TradeExecuted"
         assert row["_kafka_topic"] == "raw.trades"
         assert row["_kafka_partition"] == 0

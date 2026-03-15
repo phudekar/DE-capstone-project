@@ -12,7 +12,7 @@ services:
     networks:
       - de-network
     healthcheck:
-      test: ["CMD-SHELL", "echo | nc -w1 localhost 8765 || exit 1"]
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/8765' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -131,7 +131,8 @@ def test_validate_empty_dict_returns_none():
 # ── Flatten logic (envelope merge) ────────────────────────────────────────────
 
 def _flatten(raw: dict) -> dict:
-    return {"event_type": raw["event_type"], "timestamp": raw["timestamp"], **raw["data"]}
+    ts = raw["data"].get("timestamp") or raw.get("timestamp")
+    return {"event_type": raw["event_type"], "timestamp": ts, **raw["data"]}
 
 
 def test_flatten_trade_includes_trade_id():

@@ -19,17 +19,17 @@ dagster = pytest.importorskip("dagster", reason="dagster not installed in this v
 # ── Bronze ─────────────────────────────────────────────────────────────────────
 
 def test_bronze_trades_asset_defined():
-    from orchestrator.assets.bronze.bronze_trades import bronze_raw_trades
+    from orchestrator.assets.bronze import bronze_raw_trades
     assert isinstance(bronze_raw_trades, dagster.AssetsDefinition)
 
 
 def test_bronze_orderbook_asset_defined():
-    from orchestrator.assets.bronze.bronze_orderbook import bronze_raw_orderbook
+    from orchestrator.assets.bronze import bronze_raw_orderbook
     assert isinstance(bronze_raw_orderbook, dagster.AssetsDefinition)
 
 
 def test_bronze_assets_in_bronze_group():
-    from orchestrator.assets.bronze.bronze_trades import bronze_raw_trades
+    from orchestrator.assets.bronze import bronze_raw_trades
     spec = list(bronze_raw_trades.specs)[0]
     assert spec.group_name == "bronze"
 
@@ -37,12 +37,12 @@ def test_bronze_assets_in_bronze_group():
 # ── Silver ─────────────────────────────────────────────────────────────────────
 
 def test_silver_trades_asset_defined():
-    from orchestrator.assets.silver.silver_trades import silver_trades
+    from orchestrator.assets.silver import silver_trades
     assert isinstance(silver_trades, dagster.AssetsDefinition)
 
 
 def test_silver_depends_on_bronze_trades():
-    from orchestrator.assets.silver.silver_trades import silver_trades
+    from orchestrator.assets.silver import silver_trades
     from dagster import AssetKey
     all_deps = set()
     for dep_set in silver_trades.asset_deps.values():
@@ -51,7 +51,7 @@ def test_silver_depends_on_bronze_trades():
 
 
 def test_silver_assets_in_silver_group():
-    from orchestrator.assets.silver.silver_trades import silver_trades
+    from orchestrator.assets.silver import silver_trades
     spec = list(silver_trades.specs)[0]
     assert spec.group_name == "silver"
 
@@ -59,12 +59,12 @@ def test_silver_assets_in_silver_group():
 # ── Gold ───────────────────────────────────────────────────────────────────────
 
 def test_gold_daily_summary_asset_defined():
-    from orchestrator.assets.gold.gold_daily_summary import gold_daily_trading_summary
+    from orchestrator.assets.gold import gold_daily_trading_summary
     assert isinstance(gold_daily_trading_summary, dagster.AssetsDefinition)
 
 
 def test_gold_depends_on_silver():
-    from orchestrator.assets.gold.gold_daily_summary import gold_daily_trading_summary
+    from orchestrator.assets.gold import gold_daily_trading_summary
     from dagster import AssetKey
     all_deps = set()
     for dep_set in gold_daily_trading_summary.asset_deps.values():
@@ -73,7 +73,7 @@ def test_gold_depends_on_silver():
 
 
 def test_gold_assets_in_gold_group():
-    from orchestrator.assets.gold.gold_daily_summary import gold_daily_trading_summary
+    from orchestrator.assets.gold import gold_daily_trading_summary
     spec = list(gold_daily_trading_summary.specs)[0]
     assert spec.group_name == "gold"
 
@@ -117,9 +117,9 @@ def test_governance_assets_in_definitions():
 
 def test_bronze_silver_gold_dep_chain():
     """Verify the full Bronze → Silver → Gold dependency chain exists."""
-    from orchestrator.assets.bronze.bronze_trades import bronze_raw_trades
-    from orchestrator.assets.silver.silver_trades import silver_trades
-    from orchestrator.assets.gold.gold_daily_summary import gold_daily_trading_summary
+    from orchestrator.assets.bronze import bronze_raw_trades
+    from orchestrator.assets.silver import silver_trades
+    from orchestrator.assets.gold import gold_daily_trading_summary
     from dagster import AssetKey
 
     bronze_key = list(bronze_raw_trades.specs)[0].key

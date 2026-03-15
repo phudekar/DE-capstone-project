@@ -1992,6 +1992,52 @@ if __name__ == "__main__":
 
 ---
 
+## Implementation Notes (Post-Phase 12)
+
+### OOM Prevention — Streaming Batch Reader Pattern
+
+The single most impactful performance fix was replacing `scan().to_arrow()` with `scan().to_arrow_batch_reader()` across all components that read Iceberg tables. This prevents loading entire tables into memory — critical under Docker memory constraints (Colima default 2 GB, recommended 8 GB).
+
+**Affected components:**
+
+| Component | File | Fix |
+|---|---|---|
+| Silver processor | `services/lakehouse/.../silver_processor.py` | 50K-row batch accumulation via `to_arrow_batch_reader()` |
+| Gold aggregator | `services/lakehouse/.../gold_aggregator.py` | Date-filtered scan to limit data to single trading day |
+| Dagster bronze assets | `orchestrator/assets/bronze.py` | Batch reader row count instead of full `to_arrow()` |
+| Dagster quality checks | `orchestrator/assets/quality_checks.py` | 100K-row sampling cap via `_sample_table_to_pandas()` |
+| Dagster data_quality job | `orchestrator/jobs/data_quality.py` | 100K-row sampling cap via `_load_pandas()` |
+| SCD Type 2 | `services/lakehouse/.../scd_type2.py` | Explicit Arrow schemas with `nullable=False` |
+
+**Key pattern:**
+```python
+BATCH_SIZE = 50_000
+reader = table.scan().to_arrow_batch_reader()
+accumulated = []
+accumulated_rows = 0
+for batch in reader:
+    accumulated.append(batch)
+    accumulated_rows += batch.num_rows
+    if accumulated_rows >= BATCH_SIZE:
+        process(pa.Table.from_batches(accumulated, schema=reader.schema))
+        accumulated, accumulated_rows = [], 0
+# flush remainder
+if accumulated:
+    process(pa.Table.from_batches(accumulated, schema=reader.schema))
+```
+
+### Arrow Schema Nullability Enforcement
+
+PyIceberg requires `nullable=False` on `required` columns, but `pa.Table.from_pandas()` defaults all to nullable. Explicit Arrow schemas added to silver, gold, and dimension writers with `result.cast(schema)` before append.
+
+### Docker Memory Tuning
+
+- Colima: `colima start --memory 8 --cpu 4` (minimum recommended)
+- Dagster multiprocess executor: each step in separate subprocess
+- Gunicorn workers reduced from 4 to 2 for Superset (memory-constrained environments)
+
+---
+
 ## Summary
 
 | Area | Key Decision | Expected Impact |
@@ -2005,3 +2051,5 @@ if __name__ == "__main__":
 | Snapshots | Expire > 7 days, retain >= 3 | Storage reclamation with time-travel safety |
 | Benchmarks | 4 query types with latency targets | Catch regressions before production |
 | Load testing | 1K sustained / 10K burst / 50 VU API | Validate end-to-end throughput |
+| **OOM prevention** | `to_arrow_batch_reader()` everywhere | Eliminates OOM kills under memory constraints |
+| **Nullability** | Explicit Arrow schemas with `nullable=False` | Prevents PyIceberg append failures |

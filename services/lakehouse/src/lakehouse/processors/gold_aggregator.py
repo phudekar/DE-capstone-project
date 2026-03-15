@@ -13,6 +13,22 @@ from lakehouse.catalog import get_catalog
 
 logger = logging.getLogger(__name__)
 
+GOLD_DAILY_SUMMARY_ARROW_SCHEMA = pa.schema([
+    pa.field("symbol", pa.string(), nullable=False),
+    pa.field("trading_date", pa.date32(), nullable=False),
+    pa.field("open_price", pa.float64(), nullable=False),
+    pa.field("close_price", pa.float64(), nullable=False),
+    pa.field("high_price", pa.float64(), nullable=False),
+    pa.field("low_price", pa.float64(), nullable=False),
+    pa.field("vwap", pa.float64(), nullable=False),
+    pa.field("total_volume", pa.int64(), nullable=False),
+    pa.field("trade_count", pa.int32(), nullable=False),
+    pa.field("total_value", pa.float64(), nullable=False),
+    pa.field("company_name", pa.string(), nullable=True),
+    pa.field("sector", pa.string(), nullable=True),
+    pa.field("_aggregated_at", pa.timestamp("us", tz="UTC"), nullable=False),
+])
+
 
 def aggregate_daily_trading_summary(
     catalog, trading_date: date | None = None
@@ -32,8 +48,9 @@ def aggregate_daily_trading_summary(
     silver_table = catalog.load_table(f"{config.NS_SILVER}.trades")
     gold_table = catalog.load_table(f"{config.NS_GOLD}.daily_trading_summary")
 
-    # Read Silver trades into Arrow
-    silver_arrow = silver_table.scan().to_arrow()
+    # Read Silver trades into Arrow — filter to target date to limit memory
+    date_filter = f"timestamp >= '{trading_date.isoformat()}T00:00:00+00:00' AND timestamp < '{trading_date.isoformat()}T23:59:59+00:00'"
+    silver_arrow = silver_table.scan(row_filter=date_filter).to_arrow()
 
     if len(silver_arrow) == 0:
         logger.info("No Silver trades to aggregate.")
@@ -83,6 +100,9 @@ def aggregate_daily_trading_summary(
     now = datetime.now(timezone.utc)
     agg_at = pa.array([now] * len(result), type=pa.timestamp("us", tz="UTC"))
     result = result.append_column("_aggregated_at", agg_at)
+
+    # Cast to explicit schema with correct nullability
+    result = result.cast(GOLD_DAILY_SUMMARY_ARROW_SCHEMA)
 
     # Delete existing Gold records for this date (idempotent overwrite)
     gold_table.delete(f"trading_date == '{trading_date.isoformat()}'")

@@ -120,8 +120,8 @@ def test_sector_rotation_sql(pipeline_db, populated_pipeline):
             SUM(price * quantity)         AS total_value,
             SUM(quantity)                 AS total_volume,
             COUNT(*)                      AS trade_count,
-            SUM(CASE WHEN aggressor_side = 'Buy'  THEN quantity ELSE 0 END) AS buy_qty,
-            SUM(CASE WHEN aggressor_side = 'Sell' THEN quantity ELSE 0 END) AS sell_qty
+            SUM(CASE WHEN is_aggressive_buy = TRUE  THEN quantity ELSE 0 END) AS buy_qty,
+            SUM(CASE WHEN is_aggressive_buy = FALSE THEN quantity ELSE 0 END) AS sell_qty
         FROM silver_trades
         GROUP BY sector
         ORDER BY total_value DESC
@@ -170,10 +170,10 @@ def test_cross_account_activity_sql(pipeline_db, populated_pipeline):
         SELECT COUNT(*) FROM silver_trades t1
         JOIN silver_trades t2
             ON  t1.symbol         = t2.symbol
-            AND t1.aggressor_side != t2.aggressor_side
+            AND t1.is_aggressive_buy != t2.is_aggressive_buy
             AND CAST(t1.timestamp AS DATE) = CAST(t2.timestamp AS DATE)
             AND ABS(t1.quantity - t2.quantity) < t1.quantity * 0.05
-            AND t1.aggressor_side = 'Buy'
+            AND t1.is_aggressive_buy = TRUE
     """).fetchone()[0]
     assert result >= 0  # must not error; may be 0 in random data
 

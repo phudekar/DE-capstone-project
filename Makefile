@@ -15,6 +15,7 @@ PYTEST := $(PYTHON) -m pytest
         build-dagster up-dagster down-dagster logs-dagster \
         logs health ps \
         teardown teardown-destroy build-de-stock \
+        clean-data clean-kafka clean-lakehouse clean-dagster \
         lint format test test-unit test-e2e pre-commit-install pre-commit-run \
         benchmark benchmark-large load-test
 
@@ -113,10 +114,10 @@ build-flink: ## Build Flink processor Docker image
 	$(COMPOSE_INFRA) --profile flink build flink-jobmanager flink-taskmanager
 
 submit-sql-pipeline: ## Submit Flink Job A (SQL trade aggregation + enrichment)
-	docker exec flink-jobmanager python3 -m flink_processor.submit_sql_pipeline
+	docker exec flink-jobmanager flink run -py /opt/flink-processor/src/flink_processor/submit_sql_pipeline.py -pyfs /opt/flink-processor/src
 
 submit-python-pipeline: ## Submit Flink Job B (price alerts + orderbook analytics)
-	docker exec flink-jobmanager python3 -m flink_processor.submit_python_pipeline
+	docker exec flink-jobmanager flink run -py /opt/flink-processor/src/flink_processor/submit_python_pipeline.py -pyfs /opt/flink-processor/src
 
 submit-all-flink: submit-sql-pipeline submit-python-pipeline ## Submit all Flink jobs
 
@@ -194,6 +195,36 @@ teardown: ## Stop all services (preserves data volumes)
 teardown-destroy: ## Stop all and destroy data volumes
 	$(COMPOSE_ALL) down -v --remove-orphans
 	@echo "All containers stopped and volumes destroyed."
+
+# === Data Cleanup ===
+
+clean-kafka: ## Delete all Kafka topic data (stops Kafka first)
+	@echo "Stopping Kafka services..."
+	$(COMPOSE_INFRA) stop kafka-ui schema-registry kafka-broker-1
+	$(COMPOSE_INFRA) rm -f kafka-ui schema-registry kafka-init kafka-broker-1
+	docker volume rm -f de-project_kafka-broker-1-data
+	@echo "Kafka data wiped. Run 'make up-kafka' to restart with empty topics."
+
+clean-lakehouse: ## Delete all MinIO/Iceberg lakehouse data
+	@echo "Stopping storage services..."
+	$(COMPOSE_INFRA) stop iceberg-rest minio
+	$(COMPOSE_INFRA) rm -f iceberg-rest minio-init minio
+	docker volume rm -f de-project_minio-data
+	@echo "Lakehouse data wiped. Run 'make up-storage && make init-lakehouse' to reinitialise."
+
+clean-dagster: ## Delete Dagster run history and schedule state
+	@echo "Stopping Dagster services..."
+	$(COMPOSE_DAGSTER) down
+	docker volume rm -f de-project_dagster-pg-data
+	@echo "Dagster data wiped. Run 'make up-dagster' to restart fresh."
+
+clean-data: ## Wipe ALL infrastructure data (Kafka + Lakehouse + Dagster)
+	@echo "Stopping all services..."
+	$(COMPOSE_ALL) down --remove-orphans
+	$(COMPOSE_DAGSTER) down 2>/dev/null || true
+	$(COMPOSE_INFRA) --profile flink down 2>/dev/null || true
+	docker volume rm -f de-project_kafka-broker-1-data de-project_minio-data de-project_dagster-pg-data
+	@echo "All infrastructure data wiped. Run 'make up' to restart fresh."
 
 # === Logs (per service) ===
 

@@ -9,8 +9,9 @@ from kafka_bridge.validation.message_validator import validate_message
 def _make_order_placed_msg() -> dict:
     return {
         "event_type": "OrderPlaced",
-        "timestamp": "2024-01-01T00:00:00Z",
         "data": {
+            "event_id": "evt-1",
+            "timestamp": "2024-01-01T00:00:00Z",
             "order_id": "ord-1",
             "symbol": "AAPL",
             "side": "Buy",
@@ -18,7 +19,7 @@ def _make_order_placed_msg() -> dict:
             "price": 150.0,
             "quantity": 100,
             "agent_id": "agent-1",
-            "agent_type": "Retail",
+            "agent_type": "RetailTrader",
         },
     }
 
@@ -35,7 +36,7 @@ class TestBridgePipeline:
 
     def test_flatten_produces_correct_avro_dict(self):
         raw = _make_order_placed_msg()
-        flat = {"event_type": raw["event_type"], "timestamp": raw["timestamp"], **raw["data"]}
+        flat = {"event_type": raw["event_type"], **raw["data"]}
         assert flat["event_type"] == "OrderPlaced"
         assert flat["symbol"] == "AAPL"
         assert flat["price"] == 150.0
@@ -50,7 +51,7 @@ class TestBridgePipeline:
         assert not parsed
 
     def test_invalid_event_goes_to_dlq_route(self):
-        raw = {"event_type": "Bogus", "timestamp": "2024-01-01T00:00:00Z", "data": {}}
+        raw = {"event_type": "Bogus", "data": {}}
         event = validate_message(raw)
         assert event is None
         # Would be sent to DLQ in bridge

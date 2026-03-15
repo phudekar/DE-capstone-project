@@ -576,12 +576,11 @@ The data warehouse follows a three-tier Medallion architecture. Each tier is imp
 | `snapshot_id`   | `string`        | Natural PK  | Unique snapshot identifier           |
 | `symbol_key`    | `long`          | FK          | Surrogate key to `dim_symbol`        |
 | `time_key`      | `long`          | FK          | Surrogate key to `dim_time`          |
-| `bid_price`     | `decimal(18,6)` | Measure     | Best bid price                       |
-| `ask_price`     | `decimal(18,6)` | Measure     | Best ask price                       |
-| `spread`        | `decimal(18,6)` | Measure     | `ask_price - bid_price`              |
+| `best_bid`      | `decimal(18,6)` | Measure     | Best bid price                       |
+| `best_ask`      | `decimal(18,6)` | Measure     | Best ask price                       |
+| `spread`        | `decimal(18,6)` | Measure     | `best_ask - best_bid`                |
 | `bid_depth`     | `long`          | Measure     | Total bid quantity (top 5 levels)    |
 | `ask_depth`     | `long`          | Measure     | Total ask quantity (top 5 levels)    |
-| `mid_price`     | `decimal(18,6)` | Measure     | `(bid_price + ask_price) / 2`        |
 
 - **Partitioning:** `days(snapshot_timestamp)`, `bucket(16, symbol_key)`.
 - **Sort order:** `symbol_key`, `time_key`.
@@ -1714,6 +1713,58 @@ pytest tests/data_models/ --cov=libs/data_models --cov-report=html
 ```
 
 **Note:** Integration tests require Docker services (MinIO + Iceberg REST catalog) to be running. Use `docker compose -f infra/docker/docker-compose.storage.yml up -d` before running the test suite.
+
+---
+
+## Implementation Notes (Post-Phase 4)
+
+### Arrow Schema Nullability
+
+PyIceberg enforces strict nullability: fields marked `required` in the Iceberg schema must have `nullable=False` in PyArrow. However, `pa.Table.from_pandas()` defaults all columns to `nullable=True`, causing append failures.
+
+**Fix applied across the codebase:**
+
+| File | Schema Constant | Purpose |
+|---|---|---|
+| `services/lakehouse/src/lakehouse/processors/silver_processor.py` | `SILVER_TRADES_ARROW_SCHEMA`, `SILVER_ORDERBOOK_ARROW_SCHEMA` | Enforce nullability on silver appends |
+| `services/lakehouse/src/lakehouse/processors/gold_aggregator.py` | `GOLD_DAILY_SUMMARY_ARROW_SCHEMA` | Enforce nullability + `result.cast()` before gold appends |
+| `services/lakehouse/src/lakehouse/scd/scd_type2.py` | `_DIM_SYMBOL_ARROW_SCHEMA` | Enforce nullability on dimension SCD writes |
+
+Pattern:
+```python
+schema = pa.schema([
+    pa.field("trade_id", pa.string(), nullable=False),
+    # ... all required fields with nullable=False
+])
+table = pa.Table.from_pandas(df, schema=schema)
+iceberg_table.append(table)
+```
+
+### Batched Processing (OOM Prevention)
+
+All large table reads replaced `scan().to_arrow()` (loads entire table into memory) with `scan().to_arrow_batch_reader()` (streaming):
+
+```python
+reader = table.scan().to_arrow_batch_reader()
+batches = []
+for batch in reader:
+    batches.append(batch)
+    if sum(b.num_rows for b in batches) >= BATCH_SIZE:
+        process(pa.Table.from_batches(batches))
+        batches = []
+```
+
+| Component | Before | After |
+|---|---|---|
+| Silver processor | `scan().to_arrow()` (413 MB OOM) | 50K-row batch accumulation |
+| Gold aggregator | Full silver scan | Date-filtered scan + `to_arrow_batch_reader()` |
+| Dagster bronze assets | `table.scan().to_arrow()` for row count | `sum(batch.num_rows for batch in batch_reader)` |
+| Dagster quality checks | Full table load for GX | 100K-row cap via `_sample_table_to_pandas()` |
+| Dagster data_quality job | Full table load | 100K-row cap via `_load_pandas()` |
+
+### DuckDB API Note
+
+DuckDB v1.4+ `.arrow()` returns a `RecordBatchReader`, not a `Table`. Use `.fetch_arrow_table()` for a materialized `pa.Table` (required when calling `len()` or similar).
 
 ---
 

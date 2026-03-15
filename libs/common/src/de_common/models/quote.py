@@ -6,10 +6,11 @@ from pydantic import BaseModel
 class QuoteUpdateEvent(BaseModel):
     """Best bid/ask price change."""
 
+    event_id: str
+    timestamp: str
     symbol: str
-    bid_price: float
-    bid_size: int
-    ask_price: float
-    ask_size: int
+    best_bid: float
+    best_bid_size: int
+    best_ask: float
+    best_ask_size: int
     spread: float
-    mid_price: float

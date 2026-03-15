@@ -13,17 +13,18 @@ def raw_trades_source_ddl() -> str:
     return f"""
 CREATE TABLE raw_trades (
     event_type STRING,
+    event_id STRING,
     `timestamp` STRING,
     trade_id STRING,
     symbol STRING,
     price DOUBLE,
     quantity INT,
-    buyer_order_id STRING,
-    seller_order_id STRING,
+    buy_order_id STRING,
+    sell_order_id STRING,
     buyer_agent_id STRING,
     seller_agent_id STRING,
-    aggressor_side STRING,
-    event_time AS TO_TIMESTAMP(`timestamp`),
+    is_aggressive_buy BOOLEAN,
+    event_time AS TO_TIMESTAMP(SUBSTRING(`timestamp`, 1, 23), 'yyyy-MM-dd''T''HH:mm:ss.SSS'),
     WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
 ) WITH (
     'connector' = 'kafka',
@@ -63,23 +64,29 @@ CREATE TABLE trade_aggregates (
 
 
 def reference_symbols_ddl(symbols_data: list[dict]) -> str:
-    """In-memory reference table for symbol enrichment via datagen + VALUES.
+    """Build a CASE-expression UDF-style enrichment map from reference data.
 
-    Uses a TEMPORARY VIEW created from hardcoded VALUES for the lookup join.
+    Instead of a JOIN (which produces update streams incompatible with
+    Kafka append-only sinks), we generate CASE expressions that map
+    symbol → company_name/sector/market_cap_category inline.
     """
-    rows = []
+    company_cases = []
+    sector_cases = []
+    cap_cases = []
     for s in symbols_data:
-        rows.append(
-            f"('{s['symbol']}', '{s['company_name']}', '{s['sector']}', '{s['market_cap_category']}')"
-        )
-    values_csv = ",\n        ".join(rows)
-    return f"""
-CREATE TEMPORARY VIEW reference_symbols AS
-SELECT * FROM (
-    VALUES
-        {values_csv}
-) AS t(symbol, company_name, sector, market_cap_category)
-"""
+        sym = s['symbol']
+        company = s['company_name'].replace("'", "''")
+        sector = s['sector'].replace("'", "''")
+        cap = s['market_cap_category']
+        company_cases.append(f"WHEN '{sym}' THEN '{company}'")
+        sector_cases.append(f"WHEN '{sym}' THEN '{sector}'")
+        cap_cases.append(f"WHEN '{sym}' THEN '{cap}'")
+
+    return {
+        "company_name": "CASE symbol " + " ".join(company_cases) + " ELSE 'Unknown' END",
+        "sector": "CASE symbol " + " ".join(sector_cases) + " ELSE 'Unknown' END",
+        "market_cap_category": "CASE symbol " + " ".join(cap_cases) + " ELSE 'Unknown' END",
+    }
 
 
 def enriched_trades_sink_ddl() -> str:
@@ -87,16 +94,17 @@ def enriched_trades_sink_ddl() -> str:
     return f"""
 CREATE TABLE enriched_trades (
     event_type STRING,
+    event_id STRING,
     `timestamp` STRING,
     trade_id STRING,
     symbol STRING,
     price DOUBLE,
     quantity INT,
-    buyer_order_id STRING,
-    seller_order_id STRING,
+    buy_order_id STRING,
+    sell_order_id STRING,
     buyer_agent_id STRING,
     seller_agent_id STRING,
-    aggressor_side STRING,
+    is_aggressive_buy BOOLEAN,
     company_name STRING,
     sector STRING,
     market_cap_category STRING

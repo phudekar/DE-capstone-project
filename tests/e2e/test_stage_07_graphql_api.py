@@ -76,7 +76,7 @@ def test_row_to_trade_mapping():
         "quantity":       100,
         "buyer_agent_id": "A-buyer",
         "seller_agent_id":"A-seller",
-        "aggressor_side": "Buy",
+        "is_aggressive_buy": True,
         "timestamp":      datetime.now(timezone.utc),
         "company_name":   "Apple Inc.",
         "sector":         "Technology",
@@ -94,7 +94,7 @@ def test_row_to_trade_mapping():
 def test_trades_query_returns_results(pipeline_db, populated_pipeline):
     rows = pipeline_db.conn.execute("""
         SELECT trade_id, symbol, price, quantity,
-               buyer_agent_id, seller_agent_id, aggressor_side,
+               buyer_agent_id, seller_agent_id, is_aggressive_buy,
                timestamp, company_name, sector
         FROM silver_trades
         ORDER BY timestamp DESC
@@ -172,12 +172,12 @@ def test_trades_min_price_filter(pipeline_db, populated_pipeline):
     assert rows > 0
 
 
-def test_aggressor_side_filter(pipeline_db, populated_pipeline):
+def test_is_aggressive_buy_filter(pipeline_db, populated_pipeline):
     rows = pipeline_db.conn.execute("""
-        SELECT DISTINCT aggressor_side FROM silver_trades
+        SELECT DISTINCT is_aggressive_buy FROM silver_trades
     """).fetchall()
-    sides = {r[0] for r in rows}
-    assert sides.issubset({"Buy", "Sell"})
+    values = {r[0] for r in rows}
+    assert values.issubset({True, False})
 
 
 # ── Schema / app importability ────────────────────────────────────────────────

@@ -4,14 +4,15 @@
   "namespace": "com.deproject.raw.orders",
   "fields": [
     {"name": "event_type", "type": "string"},
+    {"name": "event_id", "type": "string"},
     {"name": "timestamp", "type": "string"},
     {"name": "order_id", "type": "string"},
     {"name": "symbol", "type": "string"},
     {"name": "side", "type": {"type": "enum", "name": "Side", "symbols": ["Buy", "Sell"]}},
     {"name": "order_type", "type": {"type": "enum", "name": "OrderType", "symbols": ["Market", "Limit"]}},
-    {"name": "price", "type": "double"},
+    {"name": "price", "type": ["null", "double"], "default": null},
     {"name": "quantity", "type": "int"},
     {"name": "agent_id", "type": "string"},
-    {"name": "agent_type", "type": {"type": "enum", "name": "AgentType", "symbols": ["Retail", "Institutional", "MarketMaker", "HFT", "Noise", "Informed"]}}
+    {"name": "agent_type", "type": {"type": "enum", "name": "AgentType", "symbols": ["RetailTrader", "InstitutionalInvestor", "MarketMaker", "HighFrequencyTrader"]}}
   ]
 }

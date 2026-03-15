@@ -26,23 +26,24 @@ def make_trade_event(
     symbol: str = "AAPL",
     price: float = 182.50,
     quantity: int = 100,
-    aggressor_side: str = "Buy",
+    is_aggressive_buy: bool = True,
     timestamp: str | None = None,
 ) -> dict:
     """Return a raw DE-Stock WebSocket envelope for a TradeExecuted event."""
     return {
         "event_type": "TradeExecuted",
-        "timestamp": timestamp or _now(),
         "data": {
+            "event_id": f"E-{uuid.uuid4().hex[:12]}",
+            "timestamp": timestamp or _now(),
             "trade_id": f"T-{uuid.uuid4().hex[:12]}",
             "symbol": symbol,
             "price": price,
             "quantity": quantity,
-            "buyer_order_id": f"O-{uuid.uuid4().hex[:8]}",
-            "seller_order_id": f"O-{uuid.uuid4().hex[:8]}",
+            "buy_order_id": f"O-{uuid.uuid4().hex[:8]}",
+            "sell_order_id": f"O-{uuid.uuid4().hex[:8]}",
             "buyer_agent_id": f"A-{uuid.uuid4().hex[:6]}",
             "seller_agent_id": f"A-{uuid.uuid4().hex[:6]}",
-            "aggressor_side": aggressor_side,
+            "is_aggressive_buy": is_aggressive_buy,
         },
     }
 
@@ -64,7 +65,7 @@ def make_trade_batch(
                 symbol=sym,
                 price=round(price, 4),
                 quantity=rng.randint(10, 500),
-                aggressor_side=rng.choice(["Buy", "Sell"]),
+                is_aggressive_buy=rng.choice([True, False]),
             ))
     return events
 
@@ -105,15 +106,15 @@ def make_quote_event(symbol: str = "AAPL", mid_price: float = 182.50) -> dict:
     spread = 0.05
     return {
         "event_type": "QuoteUpdate",
-        "timestamp": _now(),
         "data": {
+            "event_id": f"E-{uuid.uuid4().hex[:12]}",
+            "timestamp": _now(),
             "symbol": symbol,
-            "bid_price": round(mid_price - spread / 2, 4),
-            "bid_size": 200,
-            "ask_price": round(mid_price + spread / 2, 4),
-            "ask_size": 150,
+            "best_bid": round(mid_price - spread / 2, 4),
+            "best_bid_size": 200,
+            "best_ask": round(mid_price + spread / 2, 4),
+            "best_ask_size": 150,
             "spread": spread,
-            "mid_price": mid_price,
         },
     }
 
@@ -123,8 +124,9 @@ def make_quote_event(symbol: str = "AAPL", mid_price: float = 182.50) -> dict:
 def make_order_placed_event(symbol: str = "AAPL") -> dict:
     return {
         "event_type": "OrderPlaced",
-        "timestamp": _now(),
         "data": {
+            "event_id": f"E-{uuid.uuid4().hex[:12]}",
+            "timestamp": _now(),
             "order_id": f"O-{uuid.uuid4().hex[:8]}",
             "symbol": symbol,
             "side": "Buy",
@@ -132,7 +134,7 @@ def make_order_placed_event(symbol: str = "AAPL") -> dict:
             "price": 182.00,
             "quantity": 50,
             "agent_id": f"A-{uuid.uuid4().hex[:6]}",
-            "agent_type": "Retail",
+            "agent_type": "RetailTrader",
         },
     }
 
@@ -142,8 +144,9 @@ def make_order_placed_event(symbol: str = "AAPL") -> dict:
 def make_market_stats_event(symbol: str = "AAPL", volume: int = 500_000) -> dict:
     return {
         "event_type": "MarketStats",
-        "timestamp": _now(),
         "data": {
+            "event_id": f"E-{uuid.uuid4().hex[:12]}",
+            "timestamp": _now(),
             "symbol": symbol,
             "open": 180.00,
             "high": 185.00,
@@ -163,7 +166,6 @@ def make_invalid_event() -> dict:
     """An envelope with an unknown event_type (should be routed to DLQ)."""
     return {
         "event_type": "UnknownEvent",
-        "timestamp": _now(),
         "data": {"foo": "bar"},
     }
 
@@ -172,9 +174,8 @@ def make_malformed_trade_event() -> dict:
     """A TradeExecuted with a missing required field (should fail validation)."""
     return {
         "event_type": "TradeExecuted",
-        "timestamp": _now(),
         "data": {
-            # missing trade_id, buyer_order_id, etc.
+            # missing trade_id, buy_order_id, event_id, timestamp, etc.
             "symbol": "AAPL",
             "price": 182.50,
         },

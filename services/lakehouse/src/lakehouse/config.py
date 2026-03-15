@@ -42,7 +42,7 @@ DEFAULT_TABLE_PROPERTIES = {
     "write.format.default": "parquet",
     "write.parquet.compression-codec": "zstd",
     "write.parquet.dict-encoding.enabled": "true",
-    "write.metadata.delete-after-commit.enabled": "true",
+    "write.metadata.delete-after-commit.enabled": "false",
     "write.metadata.previous-versions-max": "10",
     # Phase 12: file-size and read-split tuning
     "write.target-file-size-bytes": "268435456",

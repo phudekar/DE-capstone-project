@@ -57,7 +57,19 @@ def seed_dim_symbol(catalog) -> int:
         )
         rows["_updated_at"].append(now)
 
-    arrow_table = pa.table(rows)
+    arrow_schema = pa.schema([
+        pa.field("symbol_key", pa.int32(), nullable=False),
+        pa.field("symbol", pa.string(), nullable=False),
+        pa.field("company_name", pa.string(), nullable=False),
+        pa.field("sector", pa.string(), nullable=False),
+        pa.field("market_cap_category", pa.string(), nullable=False),
+        pa.field("effective_date", pa.date32(), nullable=False),
+        pa.field("expiry_date", pa.date32(), nullable=False),
+        pa.field("is_current", pa.bool_(), nullable=False),
+        pa.field("row_hash", pa.string(), nullable=False),
+        pa.field("_updated_at", pa.timestamp("us", tz="UTC"), nullable=False),
+    ])
+    arrow_table = pa.table(rows, schema=arrow_schema)
     table = catalog.load_table(f"{config.NS_DIM}.dim_symbol")
     table.append(arrow_table)
     logger.info("Seeded dim_symbol with %d symbols.", len(symbols))
@@ -96,7 +108,15 @@ def seed_dim_time(catalog) -> int:
             rows["trading_session"].append(session)
             rows["is_market_hours"].append(session == "regular")
 
-    arrow_table = pa.table(rows)
+    arrow_schema = pa.schema([
+        pa.field("time_key", pa.int32(), nullable=False),
+        pa.field("hour", pa.int32(), nullable=False),
+        pa.field("minute", pa.int32(), nullable=False),
+        pa.field("time_of_day", pa.string(), nullable=False),
+        pa.field("trading_session", pa.string(), nullable=False),
+        pa.field("is_market_hours", pa.bool_(), nullable=False),
+    ])
+    arrow_table = pa.table(rows, schema=arrow_schema)
     table = catalog.load_table(f"{config.NS_DIM}.dim_time")
     table.append(arrow_table)
     logger.info("Seeded dim_time with 1440 minute rows.")

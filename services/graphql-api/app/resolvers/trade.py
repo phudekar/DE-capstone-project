@@ -26,9 +26,11 @@ def _row_to_trade(row: dict) -> Trade:
         symbol=row["symbol"],
         price=float(row["price"]),
         quantity=int(row["quantity"]),
+        buy_order_id=row.get("buy_order_id", ""),
+        sell_order_id=row.get("sell_order_id", ""),
         buyer_agent_id=row.get("buyer_agent_id", ""),
         seller_agent_id=row.get("seller_agent_id", ""),
-        aggressor_side=row.get("aggressor_side", ""),
+        is_aggressive_buy=str(row.get("is_aggressive_buy", "False")).lower() in ("true", "1"),
         timestamp=ts,
         company_name=row.get("company_name"),
         sector=row.get("sector"),
@@ -47,9 +49,9 @@ def _build_where(f: TradeFilterInput) -> tuple[str, list]:
         placeholders = ",".join(["?" for _ in f.symbols])
         clauses.append(f"symbol IN ({placeholders})")
         params.extend(f.symbols)
-    if f.aggressor_side:
-        clauses.append("aggressor_side = ?")
-        params.append(f.aggressor_side)
+    if f.is_aggressive_buy is not None:
+        clauses.append("is_aggressive_buy = ?")
+        params.append(f.is_aggressive_buy)
     if f.min_price is not None:
         clauses.append("price >= ?")
         params.append(f.min_price)
@@ -85,7 +87,7 @@ class TradeResolver:
             table="trades",
             sql=f"""
                 SELECT trade_id, symbol, price, quantity,
-                       buyer_agent_id, seller_agent_id, aggressor_side,
+                       buy_order_id, sell_order_id, buyer_agent_id, seller_agent_id, is_aggressive_buy,
                        timestamp, company_name, sector
                 FROM t
                 WHERE {where_clause}

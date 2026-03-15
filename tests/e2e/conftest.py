@@ -85,11 +85,11 @@ class PipelineDB:
                 symbol          VARCHAR NOT NULL,
                 price           DOUBLE  NOT NULL,
                 quantity        INTEGER NOT NULL,
-                buyer_order_id  VARCHAR NOT NULL,
-                seller_order_id VARCHAR NOT NULL,
+                buy_order_id    VARCHAR NOT NULL,
+                sell_order_id   VARCHAR NOT NULL,
                 buyer_agent_id  VARCHAR NOT NULL,
                 seller_agent_id VARCHAR NOT NULL,
-                aggressor_side  VARCHAR NOT NULL,
+                is_aggressive_buy BOOLEAN NOT NULL,
                 event_type      VARCHAR NOT NULL,
                 timestamp       TIMESTAMPTZ NOT NULL,
                 _kafka_topic    VARCHAR NOT NULL,
@@ -118,11 +118,11 @@ class PipelineDB:
                 symbol          VARCHAR NOT NULL,
                 price           DOUBLE  NOT NULL,
                 quantity        INTEGER NOT NULL,
-                buyer_order_id  VARCHAR NOT NULL,
-                seller_order_id VARCHAR NOT NULL,
+                buy_order_id    VARCHAR NOT NULL,
+                sell_order_id   VARCHAR NOT NULL,
                 buyer_agent_id  VARCHAR NOT NULL,
                 seller_agent_id VARCHAR NOT NULL,
-                aggressor_side  VARCHAR NOT NULL,
+                is_aggressive_buy BOOLEAN NOT NULL,
                 timestamp       TIMESTAMPTZ NOT NULL,
                 company_name    VARCHAR,
                 sector          VARCHAR,
@@ -208,7 +208,9 @@ class PipelineSimulator:
 
         event_type = raw_event["event_type"]
         data       = raw_event["data"]
-        flat       = {"event_type": event_type, "timestamp": raw_event["timestamp"], **data}
+        # timestamp may be in data (newer events) or at envelope level (orderbook, market stats)
+        ts = data.get("timestamp") or raw_event.get("timestamp")
+        flat       = {"event_type": event_type, "timestamp": ts, **data}
         route      = route_event(event_type, data)
         return {"topic": route.topic, "key": route.key, "flat": flat}
 
@@ -231,9 +233,9 @@ class PipelineSimulator:
             """, (
                 flat["trade_id"], flat["symbol"],
                 float(flat["price"]), int(flat["quantity"]),
-                flat["buyer_order_id"], flat["seller_order_id"],
+                flat["buy_order_id"], flat["sell_order_id"],
                 flat["buyer_agent_id"], flat["seller_agent_id"],
-                str(flat["aggressor_side"]),
+                bool(flat["is_aggressive_buy"]),
                 flat["event_type"], ts,
                 topic, 0, offset, now,
             ))
@@ -279,9 +281,9 @@ class PipelineSimulator:
             """, (
                 rd["trade_id"], rd["symbol"],
                 rd["price"], rd["quantity"],
-                rd["buyer_order_id"], rd["seller_order_id"],
+                rd["buy_order_id"], rd["sell_order_id"],
                 rd["buyer_agent_id"], rd["seller_agent_id"],
-                rd["aggressor_side"], rd["timestamp"],
+                rd["is_aggressive_buy"], rd["timestamp"],
                 dim.get("company_name"), dim.get("sector"), now,
             ))
             written += 1

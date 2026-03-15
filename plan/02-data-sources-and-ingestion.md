@@ -111,8 +111,9 @@ Emitted when an agent submits a new order to the order book.
 ```json
 {
   "event_type": "OrderPlaced",
-  "timestamp": "2026-02-18T14:30:00.123456Z",
   "data": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440000",
+    "timestamp": "2026-02-18T14:30:00.123456Z",
     "order_id": "550e8400-e29b-41d4-a716-446655440000",
     "symbol": "AAPL",
     "side": "Buy",
@@ -120,21 +121,23 @@ Emitted when an agent submits a new order to the order book.
     "price": 185.50,
     "quantity": 100,
     "agent_id": "retail-0042",
-    "agent_type": "Retail"
+    "agent_type": "RetailTrader"
   }
 }
 ```
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `event_id` | UUID v4 | Unique event identifier |
+| `timestamp` | ISO-8601 | Event timestamp (inside data) |
 | `order_id` | UUID v4 | Unique order identifier |
 | `symbol` | string | Stock ticker (e.g., AAPL) |
 | `side` | enum | `Buy` or `Sell` |
 | `order_type` | enum | `Market` or `Limit` |
-| `price` | float | Order price (0.0 for market orders) |
+| `price` | float/null | Order price (`null` for market orders) |
 | `quantity` | int | Number of shares |
 | `agent_id` | string | Identifier of the submitting agent |
-| `agent_type` | enum | One of 6 agent types |
+| `agent_type` | enum | One of 4 agent types (`RetailTrader`, `InstitutionalInvestor`, `MarketMaker`, `HighFrequencyTrader`) |
 
 #### 2.2.2 TradeExecuted
 
@@ -143,32 +146,35 @@ Emitted when two orders match in the order book (a fill).
 ```json
 {
   "event_type": "TradeExecuted",
-  "timestamp": "2026-02-18T14:30:00.123789Z",
   "data": {
+    "event_id": "660e8400-e29b-41d4-a716-446655440001",
+    "timestamp": "2026-02-18T14:30:00.123789Z",
     "trade_id": "660e8400-e29b-41d4-a716-446655440001",
     "symbol": "AAPL",
     "price": 185.50,
     "quantity": 100,
-    "buyer_order_id": "550e8400-e29b-41d4-a716-446655440000",
-    "seller_order_id": "770e8400-e29b-41d4-a716-446655440002",
+    "buy_order_id": "550e8400-e29b-41d4-a716-446655440000",
+    "sell_order_id": "770e8400-e29b-41d4-a716-446655440002",
     "buyer_agent_id": "retail-0042",
     "seller_agent_id": "mm-003",
-    "aggressor_side": "Buy"
+    "is_aggressive_buy": true
   }
 }
 ```
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `event_id` | UUID v4 | Unique event identifier |
+| `timestamp` | ISO-8601 | Event timestamp (inside data) |
 | `trade_id` | UUID v4 | Unique trade identifier |
 | `symbol` | string | Stock ticker |
 | `price` | float | Execution price |
 | `quantity` | int | Shares traded |
-| `buyer_order_id` | UUID v4 | Buy-side order ID |
-| `seller_order_id` | UUID v4 | Sell-side order ID |
+| `buy_order_id` | UUID v4 | Buy-side order ID |
+| `sell_order_id` | UUID v4 | Sell-side order ID |
 | `buyer_agent_id` | string | Buyer's agent identifier |
 | `seller_agent_id` | string | Seller's agent identifier |
-| `aggressor_side` | enum | `Buy` or `Sell` — which side initiated the match |
+| `is_aggressive_buy` | boolean | `true` if buy side initiated the match |
 
 #### 2.2.3 QuoteUpdate
 
@@ -177,28 +183,29 @@ Emitted when the best bid or ask price changes.
 ```json
 {
   "event_type": "QuoteUpdate",
-  "timestamp": "2026-02-18T14:30:00.124000Z",
   "data": {
+    "event_id": "87a0cf36-5496-491c-b302-7d16bdf168a0",
+    "timestamp": "2026-02-18T14:30:00.124000Z",
     "symbol": "AAPL",
-    "bid_price": 185.48,
-    "bid_size": 500,
-    "ask_price": 185.52,
-    "ask_size": 300,
-    "spread": 0.04,
-    "mid_price": 185.50
+    "best_bid": 185.48,
+    "best_bid_size": 500,
+    "best_ask": 185.52,
+    "best_ask_size": 300,
+    "spread": 0.04
   }
 }
 ```
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `event_id` | UUID v4 | Unique event identifier |
+| `timestamp` | ISO-8601 | Event timestamp (inside data) |
 | `symbol` | string | Stock ticker |
-| `bid_price` | float | Best bid price |
-| `bid_size` | int | Total shares at best bid |
-| `ask_price` | float | Best ask price |
-| `ask_size` | int | Total shares at best ask |
-| `spread` | float | ask_price - bid_price |
-| `mid_price` | float | (bid_price + ask_price) / 2 |
+| `best_bid` | float | Best bid price |
+| `best_bid_size` | int | Total shares at best bid |
+| `best_ask` | float | Best ask price |
+| `best_ask_size` | int | Total shares at best ask |
+| `spread` | float | best_ask - best_bid |
 
 #### 2.2.4 OrderBookSnapshot
 
@@ -296,28 +303,29 @@ Logs an agent's decision or significant action.
 ```json
 {
   "event_type": "AgentAction",
-  "timestamp": "2026-02-18T14:30:00.122000Z",
   "data": {
+    "event_id": "3fa7c880-9c56-4db3-8cc2-1810ddbe0d80",
+    "timestamp": "2026-02-18T14:30:00.122000Z",
     "agent_id": "inst-002",
-    "agent_type": "Institutional",
-    "action": "PlaceOrder",
+    "agent_type": "InstitutionalInvestor",
     "symbol": "AAPL",
-    "details": {
-      "side": "Buy",
-      "quantity": 5000,
-      "strategy": "block_accumulation"
-    }
+    "action": "momentum_limit",
+    "decision_factors": [
+      "current_price: Some(185.50)"
+    ]
   }
 }
 ```
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `event_id` | UUID v4 | Unique event identifier |
+| `timestamp` | ISO-8601 | Event timestamp (inside data) |
 | `agent_id` | string | Agent identifier |
-| `agent_type` | enum | Agent type (see Section 2.3) |
-| `action` | string | Action taken (e.g., PlaceOrder, CancelOrder, AdjustQuote) |
+| `agent_type` | enum | Agent type (`RetailTrader`, `InstitutionalInvestor`, `MarketMaker`, `HighFrequencyTrader`) |
 | `symbol` | string | Relevant stock ticker |
-| `details` | object | Action-specific metadata |
+| `action` | string | Action taken (e.g., momentum_limit, momentum_market) |
+| `decision_factors` | list[string] | Decision context strings |
 
 #### 2.2.8 MarketStats
 
@@ -1451,7 +1459,7 @@ Kafka UI (provectuslabs/kafka-ui) provides a web interface at http://localhost:8
   "type": "enum",
   "name": "AgentType",
   "namespace": "com.destock.events",
-  "symbols": ["Retail", "Institutional", "MarketMaker", "HFT", "Noise", "Informed"]
+  "symbols": ["RetailTrader", "InstitutionalInvestor", "MarketMaker", "HighFrequencyTrader"]
 }
 ```
 
@@ -1490,11 +1498,11 @@ Kafka UI (provectuslabs/kafka-ui) provides a web interface at http://localhost:8
     {"name": "symbol", "type": "string", "doc": "Stock ticker symbol"},
     {"name": "price", "type": "double", "doc": "Execution price"},
     {"name": "quantity", "type": "int", "doc": "Shares traded"},
-    {"name": "buyer_order_id", "type": "string", "doc": "Buy-side order ID"},
-    {"name": "seller_order_id", "type": "string", "doc": "Sell-side order ID"},
+    {"name": "buy_order_id", "type": "string", "doc": "Buy-side order ID"},
+    {"name": "sell_order_id", "type": "string", "doc": "Sell-side order ID"},
     {"name": "buyer_agent_id", "type": "string", "doc": "Buyer's agent identifier"},
     {"name": "seller_agent_id", "type": "string", "doc": "Seller's agent identifier"},
-    {"name": "aggressor_side", "type": "Side", "doc": "Which side initiated the match"},
+    {"name": "is_aggressive_buy", "type": "boolean", "doc": "True if buy side initiated the match"},
     {"name": "timestamp", "type": {"type": "long", "logicalType": "timestamp-micros"}, "doc": "Event timestamp UTC"}
   ]
 }
@@ -1510,12 +1518,11 @@ Kafka UI (provectuslabs/kafka-ui) provides a web interface at http://localhost:8
   "doc": "Best bid/ask price change.",
   "fields": [
     {"name": "symbol", "type": "string"},
-    {"name": "bid_price", "type": "double"},
-    {"name": "bid_size", "type": "int"},
-    {"name": "ask_price", "type": "double"},
-    {"name": "ask_size", "type": "int"},
+    {"name": "best_bid", "type": "double"},
+    {"name": "best_bid_size", "type": "int"},
+    {"name": "best_ask", "type": "double"},
+    {"name": "best_ask_size", "type": "int"},
     {"name": "spread", "type": "double"},
-    {"name": "mid_price", "type": "double"},
     {"name": "timestamp", "type": {"type": "long", "logicalType": "timestamp-micros"}}
   ]
 }

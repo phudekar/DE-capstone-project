@@ -19,7 +19,7 @@ def test_trade_type_fields():
     assert trade_type is not None
     # Strawberry stores field .name in Python snake_case
     field_names = {f.name for f in trade_type.fields}
-    expected = {"trade_id", "symbol", "price", "quantity", "aggressor_side", "timestamp"}
+    expected = {"trade_id", "symbol", "price", "quantity", "buy_order_id", "sell_order_id", "buyer_agent_id", "seller_agent_id", "is_aggressive_buy", "timestamp"}
     assert expected.issubset(field_names)
 
 

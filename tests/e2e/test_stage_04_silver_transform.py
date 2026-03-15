@@ -99,10 +99,10 @@ def test_silver_positive_prices(pipeline_db, populated_pipeline):
     assert bad == 0
 
 
-def test_silver_valid_aggressor_sides(pipeline_db, populated_pipeline):
+def test_silver_valid_is_aggressive_buy(pipeline_db, populated_pipeline):
     bad = pipeline_db.conn.execute("""
         SELECT COUNT(*) FROM silver_trades
-        WHERE aggressor_side NOT IN ('Buy', 'Sell')
+        WHERE is_aggressive_buy NOT IN (TRUE, FALSE)
     """).fetchone()[0]
     assert bad == 0
 

@@ -4,11 +4,12 @@
   "namespace": "com.deproject.raw.agentactions",
   "fields": [
     {"name": "event_type", "type": "string"},
+    {"name": "event_id", "type": "string"},
     {"name": "timestamp", "type": "string"},
     {"name": "agent_id", "type": "string"},
-    {"name": "agent_type", "type": {"type": "enum", "name": "AgentType", "symbols": ["Retail", "Institutional", "MarketMaker", "HFT", "Noise", "Informed"]}},
-    {"name": "action", "type": "string"},
+    {"name": "agent_type", "type": {"type": "enum", "name": "AgentType", "symbols": ["RetailTrader", "InstitutionalInvestor", "MarketMaker", "HighFrequencyTrader"]}},
     {"name": "symbol", "type": "string"},
-    {"name": "details", "type": {"type": "map", "values": "string"}}
+    {"name": "action", "type": "string"},
+    {"name": "decision_factors", "type": {"type": "array", "items": "string"}}
   ]
 }

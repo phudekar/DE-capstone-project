@@ -22,7 +22,8 @@ from tests.e2e.fixtures.events import make_trade_event, make_orderbook_event
 
 
 def _flat(raw: dict) -> dict:
-    return {"event_type": raw["event_type"], "timestamp": raw["timestamp"], **raw["data"]}
+    ts = raw["data"].get("timestamp") or raw.get("timestamp")
+    return {"event_type": raw["event_type"], "timestamp": ts, **raw["data"]}
 
 
 def _parse_trade(flat: dict, topic: str = "raw.trades",
@@ -34,11 +35,11 @@ def _parse_trade(flat: dict, topic: str = "raw.trades",
         "symbol":           flat["symbol"],
         "price":            float(flat["price"]),
         "quantity":         int(flat["quantity"]),
-        "buyer_order_id":   flat["buyer_order_id"],
-        "seller_order_id":  flat["seller_order_id"],
+        "buy_order_id":     flat["buy_order_id"],
+        "sell_order_id":    flat["sell_order_id"],
         "buyer_agent_id":   flat["buyer_agent_id"],
         "seller_agent_id":  flat["seller_agent_id"],
-        "aggressor_side":   str(flat["aggressor_side"]),
+        "is_aggressive_buy": bool(flat["is_aggressive_buy"]),
         "event_type":       flat["event_type"],
         "timestamp":        ts,
         "_kafka_topic":     topic,
@@ -72,9 +73,9 @@ def test_parse_trade_has_all_columns():
     flat = _flat(make_trade_event())
     row = _parse_trade(flat)
     required = {"trade_id", "symbol", "price", "quantity",
-                "buyer_order_id", "seller_order_id",
+                "buy_order_id", "sell_order_id",
                 "buyer_agent_id", "seller_agent_id",
-                "aggressor_side", "event_type", "timestamp",
+                "is_aggressive_buy", "event_type", "timestamp",
                 "_kafka_topic", "_kafka_partition", "_kafka_offset", "_ingested_at"}
     assert required.issubset(set(row.keys()))
 

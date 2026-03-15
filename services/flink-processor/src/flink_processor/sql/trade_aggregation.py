@@ -37,26 +37,30 @@ def all_aggregation_inserts() -> list[str]:
     return [trade_aggregation_insert(ws, ie) for ws, ie in WINDOW_CONFIGS]
 
 
-def enrichment_insert() -> str:
-    """INSERT statement joining raw trades with reference symbols."""
-    return """
+def enrichment_insert(lookup_exprs: dict[str, str]) -> str:
+    """INSERT statement enriching raw trades with reference data via CASE expressions.
+
+    Args:
+        lookup_exprs: dict with keys 'company_name', 'sector', 'market_cap_category',
+                      each containing a CASE expression for the lookup.
+    """
+    return f"""
 INSERT INTO enriched_trades
 SELECT
-    t.event_type,
-    t.`timestamp`,
-    t.trade_id,
-    t.symbol,
-    t.price,
-    t.quantity,
-    t.buyer_order_id,
-    t.seller_order_id,
-    t.buyer_agent_id,
-    t.seller_agent_id,
-    t.aggressor_side,
-    r.company_name,
-    r.sector,
-    r.market_cap_category
-FROM raw_trades AS t
-LEFT JOIN reference_symbols AS r
-    ON t.symbol = r.symbol
+    event_type,
+    event_id,
+    `timestamp`,
+    trade_id,
+    symbol,
+    price,
+    quantity,
+    buy_order_id,
+    sell_order_id,
+    buyer_agent_id,
+    seller_agent_id,
+    is_aggressive_buy,
+    {lookup_exprs['company_name']} AS company_name,
+    {lookup_exprs['sector']} AS sector,
+    {lookup_exprs['market_cap_category']} AS market_cap_category
+FROM raw_trades
 """

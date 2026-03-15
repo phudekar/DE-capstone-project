@@ -49,6 +49,11 @@ class Bridge:
                 self._dlq.send(raw_text, f"json_decode_error: {exc}")
                 continue
 
+            # Skip non-event messages (e.g. welcome handshake)
+            if "event_type" not in raw:
+                logger.debug("Skipping non-event message: %s", raw.get("type", "unknown"))
+                continue
+
             # Validate with Pydantic
             event = validate_message(raw)
             if event is None:
@@ -63,7 +68,7 @@ class Bridge:
             route = route_event(event_type, data)
 
             # Flatten: merge envelope fields into data
-            flat = {"event_type": event_type, "timestamp": raw["timestamp"], **data}
+            flat = {"event_type": event_type, **data}
 
             # Serialize to JSON
             json_bytes = json.dumps(flat).encode("utf-8")

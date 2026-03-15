@@ -1570,5 +1570,24 @@ scripts/
 │  Rebuild after destroy: make setup                           │
 │  Rebuild after nuclear: make fresh-start                     │
 │                                                              │
+│  DATA CLEANUP (Makefile targets — implemented):              │
+│  make clean-kafka       Wipe Kafka data volumes              │
+│  make clean-lakehouse   Wipe MinIO/Iceberg data volumes      │
+│  make clean-dagster     Wipe Dagster run history volumes     │
+│  make clean-data        All of the above in one shot         │
+│                                                              │
 └──────────────────────────────────────────────────────────────┘
 ```
+
+### Implementation Notes (Post-Phase 12)
+
+The following `make` targets were implemented for selective data cleanup by removing Docker named volumes (stops services first, then removes volumes):
+
+| Target | Volumes Removed | Restart Command |
+|---|---|---|
+| `make clean-kafka` | `de-project_kafka-broker-1-data` | `make up-kafka` |
+| `make clean-lakehouse` | `de-project_minio-data`, `de-project_iceberg-rest-data` | `make up-storage && make init-lakehouse` |
+| `make clean-dagster` | `de-project_dagster-pg-data` | `make up-dagster` |
+| `make clean-data` | All of the above | `make up` |
+
+These differ from the planned `wipe-data.sh` approach (which uses `mc` / `docker exec` to delete data in running containers). The Makefile targets take the simpler approach of removing Docker volumes entirely, which is more reliable for a clean reset.

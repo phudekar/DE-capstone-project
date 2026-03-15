@@ -381,7 +381,6 @@ class OrderBook:
     bids: List[OrderBookLevel]
     asks: List[OrderBookLevel]
     spread: Decimal
-    mid_price: Decimal
 
 # ─── MarketData ──────────────────────────────────────────────────────
 

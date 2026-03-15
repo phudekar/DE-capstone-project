@@ -7,11 +7,11 @@ BRONZE_EXPECTED_COLUMNS = [
     "symbol",
     "price",
     "quantity",
-    "buyer_order_id",
-    "seller_order_id",
+    "buy_order_id",
+    "sell_order_id",
     "buyer_agent_id",
     "seller_agent_id",
-    "aggressor_side",
+    "is_aggressive_buy",
     "event_type",
     "timestamp",
     "_kafka_topic",
@@ -67,11 +67,11 @@ def build_bronze_trades_suite() -> ExpectationSuite:
         )
     )
 
-    # Validity: aggressor_side in {"Buy", "Sell"}
+    # Validity: is_aggressive_buy is boolean
     suite.add_expectation(
         ExpectationConfiguration(
             expectation_type="expect_column_values_to_be_in_set",
-            kwargs={"column": "aggressor_side", "value_set": ["Buy", "Sell"]},
+            kwargs={"column": "is_aggressive_buy", "value_set": [True, False]},
         )
     )
 
