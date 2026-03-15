@@ -25,7 +25,7 @@ def silver_trades(
     prometheus: PrometheusResource,
 ) -> None:
     """Process Bronze trades into Silver — dedup, enrich with dim_symbol."""
-    partition_key = context.partition_key
+    partition_key = context.partition_key if context.has_partition_key else "unpartitioned"
     context.log.info("Processing silver_trades for partition %s", partition_key)
 
     try:
@@ -58,7 +58,7 @@ def silver_orderbook_snapshots(
     prometheus: PrometheusResource,
 ) -> None:
     """Process Bronze orderbook into Silver — extract top-of-book, enrich."""
-    partition_key = context.partition_key
+    partition_key = context.partition_key if context.has_partition_key else "unpartitioned"
     context.log.info("Processing silver_orderbook_snapshots for partition %s", partition_key)
 
     try:
@@ -92,10 +92,11 @@ def silver_market_data(
     prometheus: PrometheusResource,
 ) -> None:
     """Placeholder: silver_market_data not yet implemented in Phase 4."""
+    partition_key = context.partition_key if context.has_partition_key else "unpartitioned"
     context.log.info(
         "SKIP: silver_market_data not yet implemented. "
         "Partition %s recorded as materialized.",
-        context.partition_key,
+        partition_key,
     )
 
 
@@ -113,8 +114,9 @@ def silver_trader_activity(
     prometheus: PrometheusResource,
 ) -> None:
     """Placeholder: silver_trader_activity not yet implemented in Phase 4."""
+    partition_key = context.partition_key if context.has_partition_key else "unpartitioned"
     context.log.info(
         "SKIP: silver_trader_activity not yet implemented. "
         "Partition %s recorded as materialized.",
-        context.partition_key,
+        partition_key,
     )

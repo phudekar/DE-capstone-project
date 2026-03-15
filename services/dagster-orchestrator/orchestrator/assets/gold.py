@@ -28,7 +28,7 @@ def gold_daily_trading_summary(
     prometheus: PrometheusResource,
 ) -> None:
     """Aggregate Silver trades into daily trading summary using DuckDB."""
-    partition_key = context.partition_key
+    partition_key = context.partition_key if context.has_partition_key else date.today().isoformat()
     trading_date = date.fromisoformat(partition_key)
     context.log.info("Processing gold_daily_trading_summary for %s", trading_date)
 
@@ -69,7 +69,7 @@ def gold_trader_performance(
     context.log.info(
         "SKIP: gold_trader_performance not yet implemented. "
         "Partition %s recorded as materialized.",
-        context.partition_key,
+        context.partition_key if context.has_partition_key else "unpartitioned",
     )
 
 
@@ -91,7 +91,7 @@ def gold_market_overview(
     context.log.info(
         "SKIP: gold_market_overview not yet implemented. "
         "Partition %s recorded as materialized.",
-        context.partition_key,
+        context.partition_key if context.has_partition_key else "unpartitioned",
     )
 
 
@@ -113,5 +113,5 @@ def gold_portfolio_positions(
     context.log.info(
         "SKIP: gold_portfolio_positions not yet implemented. "
         "Partition %s recorded as materialized.",
-        context.partition_key,
+        context.partition_key if context.has_partition_key else "unpartitioned",
     )

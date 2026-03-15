@@ -30,7 +30,7 @@ def bronze_raw_trades(
     Delegates to the lakehouse BronzeWriter for actual ingestion logic.
     In sensor-triggered mode, this asset signals that new data is available.
     """
-    partition_key = context.partition_key
+    partition_key = context.partition_key if context.has_partition_key else "unpartitioned"
     context.log.info("Processing bronze_raw_trades for partition %s", partition_key)
 
     try:
@@ -67,7 +67,7 @@ def bronze_raw_orderbook(
     prometheus: PrometheusResource,
 ) -> None:
     """Ingest raw orderbook snapshots from Kafka into bronze.raw_orderbook."""
-    partition_key = context.partition_key
+    partition_key = context.partition_key if context.has_partition_key else "unpartitioned"
     context.log.info("Processing bronze_raw_orderbook for partition %s", partition_key)
 
     try:
@@ -107,5 +107,5 @@ def bronze_raw_marketdata(
     context.log.info(
         "SKIP: bronze_raw_marketdata not yet implemented. "
         "Partition %s recorded as materialized.",
-        context.partition_key,
+        context.partition_key if context.has_partition_key else "unpartitioned",
     )
