@@ -1,5 +1,8 @@
 """Silver layer expectation suite for trades."""
 
+import json
+import os
+
 from great_expectations.core import ExpectationConfiguration, ExpectationSuite
 
 SILVER_EXPECTED_COLUMNS = [
@@ -18,10 +21,27 @@ SILVER_EXPECTED_COLUMNS = [
     "_processed_at",
 ]
 
-KNOWN_SYMBOLS = [
-    "AAPL", "MSFT", "GOOGL", "AMZN", "META",
-    "TSLA", "NVDA", "JPM", "BAC", "WMT",
-]
+# Default path matches the Docker container layout; override via env var
+_REFERENCE_DATA_PATH = os.getenv(
+    "REFERENCE_DATA_PATH", "/app/data/reference/symbols.json"
+)
+
+
+def _load_known_symbols() -> list[str]:
+    """Load valid symbols from reference data file."""
+    try:
+        with open(_REFERENCE_DATA_PATH) as f:
+            return [entry["symbol"] for entry in json.load(f)]
+    except (FileNotFoundError, KeyError, json.JSONDecodeError):
+        # Fallback if reference file is unavailable
+        return [
+            "AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "NVDA",
+            "CRM", "JPM", "BAC", "GS", "V", "JNJ", "UNH", "PFE",
+            "WMT", "KO", "MCD", "XOM", "CVX", "SMCI", "MSTR", "PLTR", "RIVN",
+        ]
+
+
+KNOWN_SYMBOLS = _load_known_symbols()
 
 
 def build_silver_trades_suite(symbols: list[str] | None = None) -> ExpectationSuite:
