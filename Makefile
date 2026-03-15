@@ -3,6 +3,8 @@ COMPOSE_BASE := docker-compose --env-file $(COMPOSE_DIR)/.env -f $(COMPOSE_DIR)/
 COMPOSE_INFRA := $(COMPOSE_BASE) -f $(COMPOSE_DIR)/docker-compose.kafka.yml -f $(COMPOSE_DIR)/docker-compose.storage.yml -f $(COMPOSE_DIR)/docker-compose.flink.yml
 COMPOSE_ALL := $(COMPOSE_INFRA) -f $(COMPOSE_DIR)/docker-compose.services.yml
 COMPOSE_DAGSTER := $(COMPOSE_BASE) -f $(COMPOSE_DIR)/docker-compose.dagster.yml
+COMPOSE_MONITORING := $(COMPOSE_BASE) -f $(COMPOSE_DIR)/docker-compose.monitoring.yml
+COMPOSE_SUPERSET := docker-compose -f services/superset/docker-compose.yml
 
 PYTHON := python
 PYTEST := $(PYTHON) -m pytest
@@ -13,6 +15,8 @@ PYTEST := $(PYTHON) -m pytest
         build-flink submit-sql-pipeline submit-python-pipeline submit-all-flink \
         build-lakehouse init-lakehouse up-lakehouse down-lakehouse run-silver run-gold logs-lakehouse \
         build-dagster up-dagster down-dagster logs-dagster \
+        up-monitoring down-monitoring logs-monitoring \
+        up-superset down-superset logs-superset \
         logs health ps \
         teardown teardown-destroy build-de-stock \
         clean-data clean-kafka clean-lakehouse clean-dagster \
@@ -181,6 +185,28 @@ down-dagster: ## Stop Dagster services
 
 logs-dagster: ## Tail Dagster logs
 	$(COMPOSE_DAGSTER) logs -f --tail=50
+
+# === Monitoring (Prometheus + Grafana + Alertmanager) ===
+
+up-monitoring: ## Start monitoring stack (Prometheus, Grafana, Alertmanager)
+	$(COMPOSE_MONITORING) up -d prometheus grafana alertmanager pushgateway node-exporter cadvisor
+
+down-monitoring: ## Stop monitoring stack
+	$(COMPOSE_MONITORING) stop prometheus grafana alertmanager pushgateway node-exporter cadvisor
+
+logs-monitoring: ## Tail monitoring stack logs
+	$(COMPOSE_MONITORING) logs -f --tail=50 prometheus grafana alertmanager
+
+# === Superset ===
+
+up-superset: ## Start Superset (web + worker + beat + redis + db)
+	$(COMPOSE_SUPERSET) up -d
+
+down-superset: ## Stop Superset
+	$(COMPOSE_SUPERSET) stop
+
+logs-superset: ## Tail Superset logs
+	$(COMPOSE_SUPERSET) logs -f --tail=50
 
 # === Health & Monitoring ===
 
