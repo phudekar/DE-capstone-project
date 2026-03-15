@@ -68,7 +68,7 @@ services:
     hostname: kafka-ui
     container_name: kafka-ui
     ports:
-      - "8080:8080"
+      - "8089:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: "de-project"
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka-broker-1:29092"

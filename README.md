@@ -43,7 +43,7 @@ interactive dashboards.
 │ OpenMetadata │    │ Prometheus + Grafana │
 │ catalog +    │    │ pipeline SLAs        │
 │ lineage      │    │ data freshness       │
-│ :8585        │    │ :9090 / :3001        │
+│ :8585        │    │ :9099 / :3001        │
 └──────────────┘    └─────────────────────┘
 ```
 
@@ -55,7 +55,7 @@ interactive dashboards.
 |---|---|---|
 | Data generation | DE-Stock (Rust exchange simulator) | WebSocket :8080 |
 | Message broker | Apache Kafka (KRaft, single broker) | :9092 |
-| Kafka UI | Kafka-UI | :8081 |
+| Kafka UI | Kafka-UI | :8089 |
 | Stream processing | Apache Flink | :8082 (UI) |
 | Object storage | MinIO (S3-compatible) | :9000 / :9001 |
 | Table format | Apache Iceberg + REST catalog | :8183 |
@@ -65,7 +65,7 @@ interactive dashboards.
 | API layer | GraphQL / Strawberry + FastAPI | :8000 |
 | Visualization | Apache Superset 3.1 | :8088 |
 | Governance | OpenMetadata | :8585 |
-| Metrics | Prometheus | :9090 |
+| Metrics | Prometheus | :9099 |
 | Dashboards | Grafana | :3001 |
 
 ---
@@ -122,7 +122,7 @@ make submit-all-flink
 | Service | URL |
 |---|---|
 | DE-Stock WebSocket | ws://localhost:8080/ws |
-| Kafka UI | http://localhost:8080 |
+| Kafka UI | http://localhost:8089 |
 | Flink Web UI | http://localhost:8082 |
 | MinIO Console | http://localhost:9001 (minioadmin / minioadmin) |
 | GraphQL Playground | http://localhost:8000/graphql |
@@ -130,7 +130,7 @@ make submit-all-flink
 | Superset | http://localhost:8088 (admin / admin) |
 | OpenMetadata | http://localhost:8585 |
 | Grafana | http://localhost:3001 (admin / admin) |
-| Prometheus | http://localhost:9090 |
+| Prometheus | http://localhost:9099 |
 
 ---
 

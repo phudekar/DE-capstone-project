@@ -1,6 +1,6 @@
 global:
   resolve_timeout: 5m
-  slack_api_url: "${SLACK_WEBHOOK_URL}"
+  slack_api_url: "https://hooks.slack.com/services/placeholder"
   smtp_smarthost: "smtp.example.com:587"
   smtp_from: "alertmanager@trade-pipeline.local"
   smtp_auth_username: "${SMTP_USERNAME}"
