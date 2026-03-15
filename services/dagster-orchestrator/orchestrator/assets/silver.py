@@ -33,14 +33,15 @@ def silver_trades(
         from lakehouse.processors.silver_processor import process_trades
 
         catalog = get_catalog()
-        count = process_trades(catalog)
-        context.log.info("Wrote %d records to silver.trades.", count)
-        prometheus.push_metric("silver_trades_count", float(count))
-
-    except Exception:
+    except (ConnectionError, OSError) as exc:
         context.log.warning(
-            "Lakehouse not available — silver_trades recorded as materialized."
+            "Lakehouse not available — silver_trades recorded as materialized: %s", exc
         )
+        return
+
+    count = process_trades(catalog)
+    context.log.info("Wrote %d records to silver.trades.", count)
+    prometheus.push_metric("silver_trades_count", float(count))
 
 
 @asset(
@@ -65,14 +66,16 @@ def silver_orderbook_snapshots(
         from lakehouse.processors.silver_processor import process_orderbook
 
         catalog = get_catalog()
-        count = process_orderbook(catalog)
-        context.log.info("Wrote %d records to silver.orderbook_snapshots.", count)
-        prometheus.push_metric("silver_orderbook_count", float(count))
-
-    except Exception:
+    except (ConnectionError, OSError) as exc:
         context.log.warning(
-            "Lakehouse not available — silver_orderbook_snapshots recorded as materialized."
+            "Lakehouse not available — silver_orderbook_snapshots recorded as materialized: %s",
+            exc,
         )
+        return
+
+    count = process_orderbook(catalog)
+    context.log.info("Wrote %d records to silver.orderbook_snapshots.", count)
+    prometheus.push_metric("silver_orderbook_count", float(count))
 
 
 @asset(

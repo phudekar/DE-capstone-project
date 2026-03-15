@@ -29,13 +29,14 @@ def dim_symbol(
         from lakehouse.seed.seed_dimensions import seed_dim_symbol
 
         catalog = get_catalog()
-        seed_dim_symbol(catalog)
-        context.log.info("dim_symbol refreshed successfully.")
-
-    except Exception:
+    except (ConnectionError, OSError) as exc:
         context.log.warning(
-            "Lakehouse not available — dim_symbol recorded as materialized."
+            "Lakehouse not available — dim_symbol recorded as materialized: %s", exc
         )
+        return
+
+    seed_dim_symbol(catalog)
+    context.log.info("dim_symbol refreshed successfully.")
 
 
 @asset(
@@ -57,13 +58,14 @@ def dim_time(
         from lakehouse.seed.seed_dimensions import seed_dim_time
 
         catalog = get_catalog()
-        seed_dim_time(catalog)
-        context.log.info("dim_time refreshed successfully.")
-
-    except Exception:
+    except (ConnectionError, OSError) as exc:
         context.log.warning(
-            "Lakehouse not available — dim_time recorded as materialized."
+            "Lakehouse not available — dim_time recorded as materialized: %s", exc
         )
+        return
+
+    seed_dim_time(catalog)
+    context.log.info("dim_time refreshed successfully.")
 
 
 @asset(

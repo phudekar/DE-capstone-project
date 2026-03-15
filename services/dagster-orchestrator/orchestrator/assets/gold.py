@@ -37,16 +37,18 @@ def gold_daily_trading_summary(
         from lakehouse.processors.gold_aggregator import aggregate_daily_trading_summary
 
         catalog = get_catalog()
-        count = aggregate_daily_trading_summary(catalog, trading_date)
-        context.log.info("Wrote %d daily summaries for %s.", count, trading_date)
-        prometheus.push_metric(
-            "gold_daily_summary_count", float(count), {"date": str(trading_date)}
-        )
-
-    except Exception:
+    except (ConnectionError, OSError) as exc:
         context.log.warning(
-            "Lakehouse not available — gold_daily_trading_summary recorded as materialized."
+            "Lakehouse not available — gold_daily_trading_summary recorded as materialized: %s",
+            exc,
         )
+        return
+
+    count = aggregate_daily_trading_summary(catalog, trading_date)
+    context.log.info("Wrote %d daily summaries for %s.", count, trading_date)
+    prometheus.push_metric(
+        "gold_daily_summary_count", float(count), {"date": str(trading_date)}
+    )
 
 
 @asset(
