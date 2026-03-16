@@ -7,7 +7,7 @@ const makeTrade = (overrides: Partial<Trade> = {}): Trade => ({
   symbol: "AAPL",
   price: 150.0,
   quantity: 100,
-  timestamp: "2026-03-16T10:30:00Z",
+  timestamp: "2026-03-16T10:30:45+00:00",
   isAggressiveBuy: true,
   ...overrides,
 });
@@ -21,13 +21,30 @@ describe("createCandleFromTrade", () => {
     expect(candle.low).toBe(150.0);
     expect(candle.close).toBe(150.0);
     expect(candle.volume).toBe(100);
-    expect(candle.time).toBe("2026-03-16");
+  });
+
+  it("truncates timestamp to minute boundary", () => {
+    const trade = makeTrade({ timestamp: "2026-03-16T10:30:45+00:00" });
+    const candle = createCandleFromTrade(trade);
+    expect(candle.time).toBe("2026-03-16T10:30:00");
+  });
+
+  it("handles Z timezone suffix", () => {
+    const trade = makeTrade({ timestamp: "2026-03-16T10:30:45Z" });
+    const candle = createCandleFromTrade(trade);
+    expect(candle.time).toBe("2026-03-16T10:30:00");
+  });
+
+  it("handles timestamp without timezone", () => {
+    const trade = makeTrade({ timestamp: "2026-03-16T10:30:45" });
+    const candle = createCandleFromTrade(trade);
+    expect(candle.time).toBe("2026-03-16T10:30:00");
   });
 });
 
 describe("updateCandleWithTrade", () => {
   const baseCandle: OhlcvCandle = {
-    time: "2026-03-16",
+    time: "2026-03-16T10:30:00",
     open: 150.0,
     high: 155.0,
     low: 148.0,
@@ -68,6 +85,6 @@ describe("updateCandleWithTrade", () => {
   it("preserves time", () => {
     const trade = makeTrade();
     const updated = updateCandleWithTrade(baseCandle, trade);
-    expect(updated.time).toBe("2026-03-16");
+    expect(updated.time).toBe("2026-03-16T10:30:00");
   });
 });

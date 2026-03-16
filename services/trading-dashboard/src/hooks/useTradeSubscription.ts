@@ -37,8 +37,10 @@ export function useTradeSubscription(symbol: string): TradeSubscriptionResult {
       setLiveCandle((prev) => {
         if (!prev) return createCandleFromTrade(trade);
 
-        const tradeDate = trade.timestamp.slice(0, 10);
-        if (tradeDate !== prev.time) {
+        // Compare at minute granularity — new minute = new candle
+        const tradeMinute = trade.timestamp.slice(0, 16);
+        const candleMinute = prev.time.slice(0, 16);
+        if (tradeMinute !== candleMinute) {
           return createCandleFromTrade(trade);
         }
 

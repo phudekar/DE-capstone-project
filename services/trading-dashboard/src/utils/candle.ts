@@ -1,12 +1,15 @@
 import type { OhlcvCandle, Trade } from "../types";
 
-function toDateString(timestamp: string): string {
-  return timestamp.slice(0, 10);
+/** Truncate a timestamp to the start of its minute: "2026-03-16T20:08:45+00:00" → "2026-03-16T20:08:00" */
+function toMinuteTimestamp(timestamp: string): string {
+  // Handle both "2026-03-16T20:08:45" and "2026-03-16T20:08:45+00:00"
+  const withoutTz = timestamp.replace(/[+-]\d{2}:\d{2}$/, "").replace(/Z$/, "");
+  return withoutTz.slice(0, 16) + ":00";
 }
 
 export function createCandleFromTrade(trade: Trade): OhlcvCandle {
   return {
-    time: toDateString(trade.timestamp),
+    time: toMinuteTimestamp(trade.timestamp),
     open: trade.price,
     high: trade.price,
     low: trade.price,
