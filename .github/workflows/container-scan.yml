@@ -59,6 +59,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
       - name: Build image
         run: |
           docker build \
@@ -67,13 +75,13 @@ jobs:
             ${{ matrix.context }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: "scan-target:${{ matrix.service }}"
-          format: "sarif"
-          output: "trivy-${{ matrix.service }}.sarif"
-          severity: "CRITICAL,HIGH"
-          exit-code: "1"
+        run: |
+          trivy image \
+            --format sarif \
+            --output trivy-${{ matrix.service }}.sarif \
+            --severity CRITICAL,HIGH \
+            --exit-code 1 \
+            scan-target:${{ matrix.service }}
 
       - name: Upload SARIF to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
@@ -122,18 +130,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
       - name: Pull image
         run: docker pull ${{ matrix.image }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: "${{ matrix.image }}"
-          format: "sarif"
-          output: "trivy-${{ matrix.image_name }}.sarif"
-          severity: "CRITICAL,HIGH"
-          # Don't fail on third-party images — report only
-          exit-code: "0"
+        run: |
+          trivy image \
+            --format sarif \
+            --output trivy-${{ matrix.image_name }}.sarif \
+            --severity CRITICAL,HIGH \
+            --exit-code 0 \
+            ${{ matrix.image }}
 
       - name: Upload SARIF to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
