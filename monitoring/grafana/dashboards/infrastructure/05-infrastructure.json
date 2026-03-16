@@ -105,26 +105,48 @@
     },
     {
       "id": 7,
-      "title": "CPU Usage by Container",
+      "title": "CPU Usage by System Service",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+      "description": "Colima cAdvisor exposes cgroup-level metrics only. Per-container breakdown requires 'docker stats'.",
       "targets": [
         {
-          "expr": "rate(container_cpu_usage_seconds_total{id=~\"/docker/.*\"}[1m]) * 100",
-          "legendFormat": "{{id}}"
+          "expr": "rate(container_cpu_usage_seconds_total{id=\"/system.slice/docker.service\"}[1m]) * 100",
+          "legendFormat": "docker.service"
+        },
+        {
+          "expr": "rate(container_cpu_usage_seconds_total{id=\"/system.slice/containerd.service\"}[1m]) * 100",
+          "legendFormat": "containerd"
+        },
+        {
+          "expr": "rate(container_cpu_usage_seconds_total{id=\"/docker\"}[1m]) * 100",
+          "legendFormat": "docker cgroup total"
         }
       ],
       "fieldConfig": {"defaults": {"unit": "percent"}}
     },
     {
       "id": 8,
-      "title": "Memory Usage by Container",
+      "title": "Memory Usage by System Service",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+      "description": "Colima cAdvisor exposes cgroup-level metrics only. Per-container breakdown requires 'docker stats'.",
       "targets": [
         {
-          "expr": "container_memory_usage_bytes{id=~\"/docker/.*\"}",
-          "legendFormat": "{{id}}"
+          "expr": "container_memory_usage_bytes{id=\"/system.slice/docker.service\"}",
+          "legendFormat": "docker.service"
+        },
+        {
+          "expr": "container_memory_usage_bytes{id=\"/system.slice/containerd.service\"}",
+          "legendFormat": "containerd"
+        },
+        {
+          "expr": "container_memory_usage_bytes{id=\"/docker\"}",
+          "legendFormat": "docker cgroup total"
+        },
+        {
+          "expr": "machine_memory_bytes",
+          "legendFormat": "VM total"
         }
       ],
       "fieldConfig": {"defaults": {"unit": "bytes"}}
