@@ -22,7 +22,7 @@ jobs:
       matrix:
         include:
           - service: kafka-bridge
-            context: services/kafka-bridge
+            context: .
             dockerfile: services/kafka-bridge/Dockerfile
           - service: lakehouse
             context: .
@@ -31,7 +31,7 @@ jobs:
             context: services/flink-processor
             dockerfile: services/flink-processor/Dockerfile
           - service: graphql-api
-            context: services/graphql-api
+            context: .
             dockerfile: services/graphql-api/Dockerfile
           - service: dagster-orchestrator
             context: .
