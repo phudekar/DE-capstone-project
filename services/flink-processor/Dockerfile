@@ -34,6 +34,8 @@ RUN echo $JAVA_HOME
 RUN ls -l $JAVA_HOME/include
 
 RUN pip3 install --no-cache-dir apache-flink==1.18.1
+# Patch CVE-2023-47248: pyarrow arbitrary code execution (bundled 11.0.0 → 14.0.1+)
+RUN pip3 install --no-cache-dir "pyarrow>=14.0.1"
 
 ENV PYTHONPATH=/opt/flink-processor/src
 ENV REFERENCE_DATA_PATH=/opt/flink-processor/data/reference/symbols.json
