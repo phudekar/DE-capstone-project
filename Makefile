@@ -254,6 +254,24 @@ clean-data: ## Wipe ALL infrastructure data (Kafka + Lakehouse + Dagster)
 	docker volume rm -f de-project_kafka-broker-1-data de-project_minio-data de-project_dagster-pg-data
 	@echo "All infrastructure data wiped. Run 'make up' to restart fresh."
 
+# === Trading Dashboard ===
+
+build-dashboard: ## Build Trading Dashboard Docker image
+	$(COMPOSE_ALL) build trading-dashboard
+
+up-dashboard: build-dashboard ## Start Trading Dashboard (requires graphql-api)
+	$(COMPOSE_ALL) up -d trading-dashboard
+
+down-dashboard: ## Stop Trading Dashboard
+	$(COMPOSE_ALL) stop trading-dashboard
+	$(COMPOSE_ALL) rm -f trading-dashboard
+
+test-dashboard: ## Run Trading Dashboard tests
+	cd services/trading-dashboard && npm test
+
+logs-dashboard: ## Tail Trading Dashboard logs
+	$(COMPOSE_ALL) logs -f --tail=50 trading-dashboard
+
 # === Logs (per service) ===
 
 logs-kafka: ## Tail Kafka broker logs
