@@ -2,54 +2,52 @@ groups:
   - name: kafka_health
     interval: 30s
     rules:
-      - alert: KafkaBrokerDown
-        expr: up{job="kafka"} == 0
+      - alert: KafkaBridgeDown
+        expr: up{job="kafka-bridge"} == 0
         for: 1m
         labels:
           severity: critical
           service: kafka
         annotations:
-          summary: "Kafka broker is down"
-          description: "Kafka broker {{ $labels.instance }} has been down for > 1 minute."
+          summary: "Kafka Bridge is down"
+          description: "Kafka Bridge has been unreachable for > 1 minute."
 
-      - alert: KafkaUnderReplicatedPartitions
-        expr: kafka_server_replica_manager_under_replicated_partitions > 0
-        for: 5m
-        labels:
-          severity: critical
-          service: kafka
-        annotations:
-          summary: "Kafka has under-replicated partitions"
-          description: "{{ $value }} partitions are under-replicated on {{ $labels.instance }}."
-
-      - alert: KafkaOfflinePartitions
-        expr: kafka_controller_offline_partitions_count > 0
-        for: 1m
-        labels:
-          severity: critical
-          service: kafka
-        annotations:
-          summary: "Kafka has offline partitions"
-          description: "{{ $value }} partitions are offline."
-
-      - alert: KafkaConsumerLagHigh
-        expr: kafka_consumer_records_lag > 10000
+      - alert: KafkaBridgeNoMessages
+        expr: rate(kafka_bridge_ws_messages_received_total[5m]) == 0
         for: 5m
         labels:
           severity: warning
           service: kafka
         annotations:
-          summary: "High consumer lag for {{ $labels.topic }}"
-          description: >
-            Consumer {{ $labels.client_id }} on topic {{ $labels.topic }}
-            partition {{ $labels.partition }} has lag of {{ $value }} records.
+          summary: "No messages flowing through Kafka Bridge"
+          description: "Kafka Bridge has received no WebSocket messages in the last 5 minutes."
 
-      - alert: KafkaNoMessages
-        expr: rate(kafka_server_broker_topic_metrics_messages_in_total[5m]) == 0
+      - alert: KafkaBridgeHighValidationFailures
+        expr: rate(kafka_bridge_validation_failures_total[5m]) > 0.1
         for: 5m
         labels:
           severity: warning
           service: kafka
         annotations:
-          summary: "No messages flowing to topic {{ $labels.topic }}"
-          description: "Topic {{ $labels.topic }} has received no messages in the last 5 minutes."
+          summary: "High validation failure rate in Kafka Bridge"
+          description: "Kafka Bridge is experiencing {{ $value | printf \"%.2f\" }} validation failures/sec."
+
+      - alert: KafkaBridgeHighDLQ
+        expr: increase(kafka_bridge_dlq_produced_total[15m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: kafka
+        annotations:
+          summary: "Dead letter queue messages increasing"
+          description: "{{ $value }} messages sent to DLQ in the last 15 minutes."
+
+      - alert: KafkaBridgeHighLatency
+        expr: histogram_quantile(0.95, rate(kafka_bridge_latency_seconds_bucket[5m])) > 1.0
+        for: 5m
+        labels:
+          severity: warning
+          service: kafka
+        annotations:
+          summary: "Kafka Bridge p95 latency above 1s"
+          description: "95th percentile bridge latency is {{ $value | humanizeDuration }}."

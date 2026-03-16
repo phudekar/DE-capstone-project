@@ -9,50 +9,71 @@
   "panels": [
     {
       "id": 1,
-      "title": "Data Freshness Heatmap",
-      "type": "heatmap",
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
-      "targets": [
-        {
-          "expr": "data_freshness_seconds",
-          "legendFormat": "{{layer}}.{{table}}"
-        }
-      ],
-      "fieldConfig": {"defaults": {"unit": "s"}}
-    },
-    {
-      "id": 2,
-      "title": "Row Counts by Table (Latest Partition)",
-      "type": "bargauge",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
-      "targets": [
-        {
-          "expr": "data_row_count{partition_date=\"latest\"}",
-          "legendFormat": "{{layer}}.{{table}}"
-        }
-      ],
-      "fieldConfig": {"defaults": {"unit": "short"}}
-    },
-    {
-      "id": 3,
-      "title": "Volume Deviation from 7-day Average (%)",
+      "title": "Data Freshness by Asset",
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+      "description": "Requires dagster prometheus_metrics_sensor to be enabled. Pushes dagster_asset_freshness_seconds via pushgateway.",
       "targets": [
         {
-          "expr": "data_volume_deviation_percent",
-          "legendFormat": "{{layer}}.{{table}}"
+          "expr": "dagster_asset_freshness_seconds",
+          "legendFormat": "{{asset}}"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
+          "unit": "s",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {"color": "green", "value": null},
-              {"color": "yellow", "value": 20},
-              {"color": "red", "value": 50}
+              {"color": "yellow", "value": 300},
+              {"color": "red", "value": 900}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Bridge Message Throughput",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "rate(kafka_bridge_ws_messages_received_total[5m])",
+          "legendFormat": "messages/sec (5m avg)"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "ops"}}
+    },
+    {
+      "id": 3,
+      "title": "Bridge Error Rate",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "targets": [
+        {
+          "expr": "rate(kafka_bridge_validation_failures_total[5m])",
+          "legendFormat": "validation failures"
+        },
+        {
+          "expr": "rate(kafka_bridge_serialization_failures_total[5m])",
+          "legendFormat": "serialization failures"
+        },
+        {
+          "expr": "rate(kafka_bridge_dlq_produced_total[5m])",
+          "legendFormat": "DLQ messages"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 0.1},
+              {"color": "red", "value": 1}
             ]
           }
         }
@@ -60,38 +81,37 @@
     },
     {
       "id": 4,
-      "title": "Schema Changes (last 24h)",
-      "type": "table",
+      "title": "GraphQL Cache Effectiveness",
+      "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
       "targets": [
         {
-          "expr": "increase(schema_changes_total[24h])",
-          "legendFormat": "{{table}} - {{change_type}}",
-          "instant": true
+          "expr": "rate(graphql_cache_hits_total[5m])",
+          "legendFormat": "cache hits/sec"
+        },
+        {
+          "expr": "rate(graphql_cache_misses_total[5m])",
+          "legendFormat": "cache misses/sec"
         }
-      ]
+      ],
+      "fieldConfig": {"defaults": {"unit": "ops"}}
     },
     {
       "id": 5,
-      "title": "Volume Anomaly Count (last 24h)",
+      "title": "Scrape Target Health",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 16},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
       "targets": [
         {
-          "expr": "sum(increase(data_volume_anomaly_total[24h]))",
-          "legendFormat": "Anomalies"
+          "expr": "up",
+          "legendFormat": "{{job}}"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 1},
-              {"color": "red", "value": 10}
-            ]
-          }
+          "mappings": [
+            {"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}
+          ]
         }
       }
     }

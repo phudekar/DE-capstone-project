@@ -107,12 +107,15 @@ make up
 make up-dagster
 
 # 8. Start Superset (visualization)
-cd services/superset && docker-compose up -d --build
+make up-superset
 
 # 9. Bootstrap Superset (DB, datasets, charts, dashboards)
 cd services/superset && python bootstrap/init_superset.py
 
-# 10. (Optional) Start Flink — requires >= 4 GB Docker memory
+# 10. (Optional) Start monitoring stack (Prometheus + Grafana + Alertmanager)
+make up-monitoring
+
+# 11. (Optional) Start Flink — requires >= 4 GB Docker memory
 make up-flink
 make submit-all-flink
 ```
@@ -134,7 +137,68 @@ make submit-all-flink
 
 ---
 
-## Running Tests
+## Make Commands
+
+Run `make help` for a full list. Key commands:
+
+### Infrastructure & Services
+
+| Command | Description |
+|---|---|
+| `make up` | Start everything (infra + services, without Flink) |
+| `make down` | Stop everything (preserves data) |
+| `make up-infra` | Start Kafka + Storage (Flink is opt-in) |
+| `make up-kafka` | Start Kafka broker + Schema Registry + UI |
+| `make up-storage` | Start MinIO + Iceberg REST catalog |
+| `make up-flink` | Start Flink cluster (requires >= 4GB Docker memory) |
+| `make up-services` | Start DE-Stock simulator |
+| `make up-bridge` | Start Kafka Bridge (WS → Kafka) |
+| `make up-dagster` | Start Dagster webserver + daemon + postgres |
+| `make up-monitoring` | Start Prometheus + Grafana + Alertmanager |
+| `make up-superset` | Start Superset (web + worker + beat + redis + db) |
+
+### Lakehouse
+
+| Command | Description |
+|---|---|
+| `make init-lakehouse` | Create Iceberg tables + seed dimensions |
+| `make up-lakehouse` | Start Bronze writer (long-running) |
+| `make run-silver` | Run Bronze → Silver processor |
+| `make run-gold` | Run Silver → Gold aggregator |
+
+### Flink Jobs
+
+| Command | Description |
+|---|---|
+| `make submit-sql-pipeline` | Submit Flink Job A (SQL trade aggregation) |
+| `make submit-python-pipeline` | Submit Flink Job B (price alerts + analytics) |
+| `make submit-all-flink` | Submit all Flink jobs |
+
+### Logs
+
+| Command | Description |
+|---|---|
+| `make logs` | Tail logs for all services |
+| `make logs-kafka` | Tail Kafka broker logs |
+| `make logs-bridge` | Tail Kafka Bridge logs |
+| `make logs-flink` | Tail Flink logs |
+| `make logs-lakehouse` | Tail lakehouse logs |
+| `make logs-dagster` | Tail Dagster logs |
+| `make logs-monitoring` | Tail monitoring stack logs |
+| `make logs-superset` | Tail Superset logs |
+
+### Stopping Services
+
+| Command | Description |
+|---|---|
+| `make down-monitoring` | Stop monitoring stack |
+| `make down-superset` | Stop Superset |
+| `make down-dagster` | Stop Dagster services |
+| `make down-flink` | Stop Flink cluster |
+| `make down-kafka` | Stop Kafka |
+| `make down-storage` | Stop storage services |
+
+### Testing & Code Quality
 
 ```bash
 # All unit tests (no Docker required)
@@ -384,6 +448,8 @@ After cleaning, restart the relevant services:
 make up-kafka                          # Restart Kafka with empty topics
 make up-storage && make init-lakehouse # Restart storage and reinitialise tables
 make up-dagster                        # Restart Dagster fresh
+make up-monitoring                     # Restart monitoring stack
+make up-superset                       # Restart Superset
 make up                                # Restart everything
 ```
 

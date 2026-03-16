@@ -9,87 +9,82 @@
   "panels": [
     {
       "id": 1,
-      "title": "Request Rate by Operation",
+      "title": "Active Requests",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
       "targets": [
         {
-          "expr": "rate(graphql_requests_total[1m])",
-          "legendFormat": "{{operation_type}} / {{operation_name}} [{{status}}]"
+          "expr": "graphql_active_requests",
+          "legendFormat": "in-flight requests"
         }
       ],
-      "fieldConfig": {"defaults": {"unit": "reqps"}}
+      "fieldConfig": {"defaults": {"unit": "short"}}
     },
     {
       "id": 2,
-      "title": "Latency Percentiles",
+      "title": "Cache Hit Rate (%)",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, rate(graphql_request_duration_seconds_bucket[1m]))",
-          "legendFormat": "p50"
-        },
-        {
-          "expr": "histogram_quantile(0.95, rate(graphql_request_duration_seconds_bucket[1m]))",
-          "legendFormat": "p95"
-        },
-        {
-          "expr": "histogram_quantile(0.99, rate(graphql_request_duration_seconds_bucket[1m]))",
-          "legendFormat": "p99"
-        }
-      ],
-      "fieldConfig": {"defaults": {"unit": "s"}}
-    },
-    {
-      "id": 3,
-      "title": "Error Rate (%)",
-      "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
-      "targets": [
-        {
-          "expr": "rate(graphql_errors_total[1m]) / rate(graphql_requests_total[1m]) * 100",
-          "legendFormat": "Error Rate %"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 1},
-              {"color": "red", "value": 5}
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": 4,
-      "title": "Cache Hit Rate (%)",
-      "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
-      "targets": [
-        {
-          "expr": "rate(graphql_cache_hits_total[1m]) / (rate(graphql_cache_hits_total[1m]) + rate(graphql_cache_misses_total[1m])) * 100",
-          "legendFormat": "Cache Hit Rate %"
+          "expr": "rate(graphql_cache_hits_total[5m]) / (rate(graphql_cache_hits_total[5m]) + rate(graphql_cache_misses_total[5m])) * 100",
+          "legendFormat": "hit rate"
         }
       ],
       "fieldConfig": {"defaults": {"unit": "percent", "max": 100}}
     },
     {
+      "id": 3,
+      "title": "Cache Hits vs Misses / sec",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "rate(graphql_cache_hits_total[1m])",
+          "legendFormat": "hits/sec"
+        },
+        {
+          "expr": "rate(graphql_cache_misses_total[1m])",
+          "legendFormat": "misses/sec"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "ops"}}
+    },
+    {
+      "id": 4,
+      "title": "GraphQL API Process Memory",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes{job=\"graphql-api\"}",
+          "legendFormat": "RSS"
+        },
+        {
+          "expr": "process_virtual_memory_bytes{job=\"graphql-api\"}",
+          "legendFormat": "Virtual"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "bytes"}}
+    },
+    {
       "id": 5,
-      "title": "Active Requests",
+      "title": "API Uptime",
       "type": "stat",
       "gridPos": {"h": 4, "w": 6, "x": 0, "y": 16},
       "targets": [
         {
-          "expr": "graphql_active_requests",
-          "legendFormat": "In-flight"
+          "expr": "up{job=\"graphql-api\"}",
+          "legendFormat": "GraphQL API"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}
+          ]
+        }
+      }
     }
   ]
 }

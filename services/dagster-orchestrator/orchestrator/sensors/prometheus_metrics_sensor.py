@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime, timezone
 
-from dagster import SensorEvaluationContext, SkipReason, sensor
+from dagster import AssetKey, SensorEvaluationContext, SkipReason, sensor
 
 from orchestrator.metrics.dagster_metrics import (
     dagster_asset_freshness_seconds,
@@ -36,7 +36,7 @@ def prometheus_metrics_sensor(context: SensorEvaluationContext):
     for asset_key, layer in _ASSET_LAYER_MAP.items():
         try:
             record = context.instance.get_latest_materialization_event(
-                asset_key=asset_key
+                asset_key=AssetKey(asset_key)
             )
             if record is None:
                 freshness = float("inf")

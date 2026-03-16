@@ -2,26 +2,27 @@ groups:
   - name: data_volume
     interval: 60s
     rules:
-      - alert: VolumeAnomalyDetected
-        expr: abs(data_volume_deviation_percent) > 20
-        for: 5m
+      - alert: BridgeThroughputDrop
+        expr: rate(kafka_bridge_ws_messages_received_total[10m]) < 0.1
+        for: 10m
         labels:
           severity: warning
           service: data-quality
         annotations:
-          summary: "Volume anomaly detected for {{ $labels.table }}"
+          summary: "Bridge message throughput critically low"
           description: >
-            {{ $labels.layer }}.{{ $labels.table }} row count deviates
-            {{ $value | printf "%.1f" }}% from 7-day average.
+            Kafka Bridge is receiving only {{ $value | printf "%.2f" }}
+            messages/sec (10m avg). Expected at least 0.1 msg/sec during
+            market hours.
 
-      - alert: ZeroRowCount
-        expr: data_row_count == 0
+      - alert: BridgeThroughputZero
+        expr: rate(kafka_bridge_ws_messages_received_total[5m]) == 0
         for: 10m
         labels:
           severity: critical
           service: data-quality
         annotations:
-          summary: "Zero rows in {{ $labels.table }}"
+          summary: "No messages flowing through pipeline"
           description: >
-            {{ $labels.layer }}.{{ $labels.table }} has zero rows in
-            the latest partition. Data pipeline may be broken.
+            Kafka Bridge has received zero messages for 10+ minutes.
+            Data pipeline may be completely stalled.

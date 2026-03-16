@@ -14,7 +14,7 @@
       "gridPos": {"h": 4, "w": 8, "x": 0, "y": 0},
       "targets": [
         {
-          "expr": "max by (layer) (data_freshness_seconds)",
+          "expr": "max by (layer) (dagster_asset_freshness_seconds)",
           "legendFormat": "{{layer}}"
         }
       ],
@@ -39,8 +39,8 @@
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
       "targets": [
         {
-          "expr": "rate(kafka_server_broker_topic_metrics_messages_in_total{topic=~\"trades.*\"}[1m])",
-          "legendFormat": "{{topic}}"
+          "expr": "rate(kafka_bridge_ws_messages_received_total[1m])",
+          "legendFormat": "WS messages received"
         }
       ],
       "fieldConfig": {
@@ -54,7 +54,7 @@
       "gridPos": {"h": 4, "w": 8, "x": 8, "y": 0},
       "targets": [
         {
-          "expr": "up{job=~\"kafka|flink|graphql-api|kafka-bridge\"}",
+          "expr": "up{job=~\"graphql-api|kafka-bridge|pushgateway|node-exporter|cadvisor\"}",
           "legendFormat": "{{job}}"
         }
       ],
@@ -68,28 +68,36 @@
     },
     {
       "id": 4,
-      "title": "GraphQL Request Rate",
+      "title": "GraphQL Cache Hit Rate (%)",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
       "targets": [
         {
-          "expr": "rate(graphql_requests_total[1m])",
-          "legendFormat": "{{operation_type}} {{status}}"
+          "expr": "rate(graphql_cache_hits_total[5m]) / (rate(graphql_cache_hits_total[5m]) + rate(graphql_cache_misses_total[5m])) * 100",
+          "legendFormat": "cache hit rate"
+        },
+        {
+          "expr": "graphql_active_requests",
+          "legendFormat": "active requests"
         }
       ],
       "fieldConfig": {
-        "defaults": {"unit": "reqps"}
+        "defaults": {"unit": "percent", "max": 100}
       }
     },
     {
       "id": 5,
-      "title": "Volume Anomalies (last 1h)",
+      "title": "Bridge Errors (last 1h)",
       "type": "stat",
       "gridPos": {"h": 4, "w": 8, "x": 16, "y": 0},
       "targets": [
         {
-          "expr": "sum(increase(data_volume_anomaly_total[1h]))",
-          "legendFormat": "Anomalies"
+          "expr": "sum(increase(kafka_bridge_validation_failures_total[1h])) or vector(0)",
+          "legendFormat": "Validation failures"
+        },
+        {
+          "expr": "sum(increase(kafka_bridge_serialization_failures_total[1h])) or vector(0)",
+          "legendFormat": "Serialization failures"
         }
       ],
       "fieldConfig": {

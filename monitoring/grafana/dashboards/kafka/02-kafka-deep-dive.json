@@ -9,87 +9,73 @@
   "panels": [
     {
       "id": 1,
-      "title": "Messages In / sec by Topic",
+      "title": "Bridge Messages Received / sec",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
       "targets": [
         {
-          "expr": "rate(kafka_server_broker_topic_metrics_messages_in_total[1m])",
-          "legendFormat": "{{topic}}"
+          "expr": "rate(kafka_bridge_ws_messages_received_total[1m])",
+          "legendFormat": "messages/sec"
         }
       ],
       "fieldConfig": {"defaults": {"unit": "ops"}}
     },
     {
       "id": 2,
-      "title": "Consumer Lag by Topic",
+      "title": "Bridge Processing Latency",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
       "targets": [
         {
-          "expr": "kafka_consumer_records_lag",
-          "legendFormat": "{{topic}}[{{partition}}] - {{client_id}}"
+          "expr": "rate(kafka_bridge_latency_seconds_sum[1m]) / rate(kafka_bridge_latency_seconds_count[1m])",
+          "legendFormat": "avg latency"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(kafka_bridge_latency_seconds_bucket[1m]))",
+          "legendFormat": "p95 latency"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 1000},
-              {"color": "red", "value": 10000}
-            ]
-          }
-        }
-      }
+      "fieldConfig": {"defaults": {"unit": "s"}}
     },
     {
       "id": 3,
-      "title": "Bytes In / sec by Topic",
+      "title": "Validation & Serialization Failures / sec",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
       "targets": [
         {
-          "expr": "rate(kafka_server_broker_topic_metrics_bytes_in_total[1m])",
-          "legendFormat": "{{topic}}"
+          "expr": "rate(kafka_bridge_validation_failures_total[1m])",
+          "legendFormat": "validation failures"
+        },
+        {
+          "expr": "rate(kafka_bridge_serialization_failures_total[1m])",
+          "legendFormat": "serialization failures"
         }
       ],
-      "fieldConfig": {"defaults": {"unit": "bytes"}}
+      "fieldConfig": {"defaults": {"unit": "ops"}}
     },
     {
       "id": 4,
-      "title": "Under-replicated Partitions",
-      "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 8},
+      "title": "Dead Letter Queue Messages (5m)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
       "targets": [
         {
-          "expr": "kafka_server_replica_manager_under_replicated_partitions",
-          "legendFormat": "Under-replicated"
+          "expr": "increase(kafka_bridge_dlq_produced_total[5m])",
+          "legendFormat": "DLQ messages"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"color": "green", "value": null},
-              {"color": "red", "value": 1}
-            ]
-          }
-        }
-      }
+      "fieldConfig": {"defaults": {"unit": "short"}}
     },
     {
       "id": 5,
-      "title": "Offline Partitions",
+      "title": "WebSocket Reconnects",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 8},
+      "gridPos": {"h": 4, "w": 12, "x": 0, "y": 16},
       "targets": [
         {
-          "expr": "kafka_controller_offline_partitions_count",
-          "legendFormat": "Offline"
+          "expr": "kafka_bridge_ws_reconnects_total",
+          "legendFormat": "total reconnects"
         }
       ],
       "fieldConfig": {
@@ -98,7 +84,8 @@
             "mode": "absolute",
             "steps": [
               {"color": "green", "value": null},
-              {"color": "red", "value": 1}
+              {"color": "yellow", "value": 5},
+              {"color": "red", "value": 20}
             ]
           }
         }

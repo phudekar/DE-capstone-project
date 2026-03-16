@@ -3,7 +3,7 @@ groups:
     interval: 30s
     rules:
       - alert: BronzeFreshnessViolation
-        expr: data_freshness_seconds{layer="bronze"} > 120
+        expr: dagster_asset_freshness_seconds{layer="bronze"} > 120
         for: 2m
         labels:
           severity: warning
@@ -11,12 +11,12 @@ groups:
         annotations:
           summary: "Bronze layer freshness SLA violation"
           description: >
-            Table {{ $labels.table }} in bronze layer has not received
+            Asset {{ $labels.asset }} in bronze layer has not received
             data for {{ $value | humanizeDuration }}.
             Threshold: 2 minutes.
 
       - alert: SilverFreshnessViolation
-        expr: data_freshness_seconds{layer="silver"} > 600
+        expr: dagster_asset_freshness_seconds{layer="silver"} > 600
         for: 5m
         labels:
           severity: warning
@@ -24,12 +24,12 @@ groups:
         annotations:
           summary: "Silver layer freshness SLA violation"
           description: >
-            Table {{ $labels.table }} in silver layer has not been
+            Asset {{ $labels.asset }} in silver layer has not been
             updated for {{ $value | humanizeDuration }}.
             Threshold: 10 minutes.
 
       - alert: GoldFreshnessViolation
-        expr: data_freshness_seconds{layer="gold"} > 7200
+        expr: dagster_asset_freshness_seconds{layer="gold"} > 7200
         for: 15m
         labels:
           severity: warning
@@ -37,12 +37,12 @@ groups:
         annotations:
           summary: "Gold layer freshness SLA violation"
           description: >
-            Table {{ $labels.table }} in gold layer has not been
+            Asset {{ $labels.asset }} in gold layer has not been
             updated for {{ $value | humanizeDuration }}.
             Threshold: 2 hours.
 
       - alert: FreshnessCriticalFailure
-        expr: data_freshness_seconds{layer="bronze"} > 900
+        expr: dagster_asset_freshness_seconds{layer="bronze"} > 900
         for: 5m
         labels:
           severity: critical
@@ -50,5 +50,5 @@ groups:
         annotations:
           summary: "CRITICAL: Bronze data stale for > 15 minutes"
           description: >
-            No data flowing into {{ $labels.table }} for 15+ minutes.
+            No data flowing into {{ $labels.asset }} for 15+ minutes.
             Pipeline may be completely stalled.

@@ -1,3 +1,5 @@
+export COMPOSE_IGNORE_ORPHANS := true
+
 COMPOSE_DIR := infrastructure/docker-compose
 COMPOSE_BASE := docker-compose --env-file $(COMPOSE_DIR)/.env -f $(COMPOSE_DIR)/docker-compose.base.yml
 COMPOSE_INFRA := $(COMPOSE_BASE) -f $(COMPOSE_DIR)/docker-compose.kafka.yml -f $(COMPOSE_DIR)/docker-compose.storage.yml -f $(COMPOSE_DIR)/docker-compose.flink.yml

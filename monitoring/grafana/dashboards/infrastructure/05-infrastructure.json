@@ -22,13 +22,17 @@
     },
     {
       "id": 2,
-      "title": "Memory Available",
+      "title": "Memory Usage",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
       "targets": [
         {
+          "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes",
+          "legendFormat": "used"
+        },
+        {
           "expr": "node_memory_MemAvailable_bytes",
-          "legendFormat": "{{instance}}"
+          "legendFormat": "available"
         }
       ],
       "fieldConfig": {"defaults": {"unit": "bytes"}}
@@ -48,26 +52,36 @@
     },
     {
       "id": 4,
-      "title": "Container CPU Usage",
+      "title": "Docker Total CPU Usage",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "description": "Total CPU used by all Docker containers (Colima cgroup aggregate).",
       "targets": [
         {
-          "expr": "rate(container_cpu_usage_seconds_total{name!=\"\"}[1m]) * 100",
-          "legendFormat": "{{name}}"
+          "expr": "rate(container_cpu_usage_seconds_total{id=\"/docker\"}[1m]) * 100",
+          "legendFormat": "docker total"
+        },
+        {
+          "expr": "rate(container_cpu_usage_seconds_total{id=\"/system.slice/containerd.service\"}[1m]) * 100",
+          "legendFormat": "containerd"
         }
       ],
       "fieldConfig": {"defaults": {"unit": "percent"}}
     },
     {
       "id": 5,
-      "title": "Container Memory Usage",
+      "title": "Docker Total Memory Usage",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "description": "Total memory used by all Docker containers (Colima cgroup aggregate). Use 'docker stats' for per-container breakdown.",
       "targets": [
         {
-          "expr": "container_memory_usage_bytes{name!=\"\"}",
-          "legendFormat": "{{name}}"
+          "expr": "container_memory_usage_bytes{id=\"/docker\"}",
+          "legendFormat": "docker total"
+        },
+        {
+          "expr": "machine_memory_bytes",
+          "legendFormat": "VM total"
         }
       ],
       "fieldConfig": {"defaults": {"unit": "bytes"}}
@@ -79,15 +93,41 @@
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total[1m])",
-          "legendFormat": "rx {{instance}} {{device}}"
+          "expr": "rate(node_network_receive_bytes_total{device!~\"lo|veth.*\"}[1m])",
+          "legendFormat": "rx {{device}}"
         },
         {
-          "expr": "rate(node_network_transmit_bytes_total[1m])",
-          "legendFormat": "tx {{instance}} {{device}}"
+          "expr": "rate(node_network_transmit_bytes_total{device!~\"lo|veth.*\"}[1m])",
+          "legendFormat": "tx {{device}}"
         }
       ],
       "fieldConfig": {"defaults": {"unit": "Bps"}}
+    },
+    {
+      "id": 7,
+      "title": "CPU Usage by Container",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+      "targets": [
+        {
+          "expr": "rate(container_cpu_usage_seconds_total{id=~\"/docker/.*\"}[1m]) * 100",
+          "legendFormat": "{{id}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "percent"}}
+    },
+    {
+      "id": 8,
+      "title": "Memory Usage by Container",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+      "targets": [
+        {
+          "expr": "container_memory_usage_bytes{id=~\"/docker/.*\"}",
+          "legendFormat": "{{id}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "bytes"}}
     }
   ]
 }

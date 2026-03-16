@@ -2931,3 +2931,69 @@ To prevent Prometheus storage issues, the following cardinality limits apply:
 - Use `metric_relabel_configs` in Prometheus to drop high-cardinality labels if needed
 - Monitor `prometheus_tsdb_symbol_table_size_bytes` for early warning
 - Set `--storage.tsdb.retention.size=10GB` as a hard cap
+
+---
+
+## Implementation Notes (Post-Phase 8 Fixes)
+
+This section documents deviations from the original plan based on the actual metrics available in the deployed stack.
+
+### Metric Availability
+
+The original plan assumed JMX-exported Kafka broker metrics (`kafka_server_*`) and several custom data observability metrics (`data_freshness_seconds`, `data_row_count`, `data_volume_deviation_percent`, `schema_changes_total`, `data_distribution_zscore`). In practice:
+
+| Planned Metric Source           | Actual Status | Replacement                                       |
+|---------------------------------|---------------|---------------------------------------------------|
+| Kafka JMX Exporter              | Not deployed  | Kafka Bridge custom metrics (`kafka_bridge_*`)    |
+| `data_freshness_seconds`        | Renamed       | `dagster_asset_freshness_seconds` (via Pushgateway)|
+| `data_row_count`                | Not exported  | Bridge throughput (`kafka_bridge_ws_messages_received_total`) |
+| `data_volume_deviation_percent` | Not exported  | Bridge error rates as proxy                       |
+| `schema_changes_total`          | Not exported  | Not available — removed from dashboards           |
+| `graphql_requests_total`        | Not exported  | `graphql_active_requests` (gauge)                 |
+| `graphql_request_duration_seconds` | Not exported | Cache hit/miss metrics as proxy                 |
+| `graphql_errors_total`          | Not exported  | Not available — removed from dashboards           |
+| cAdvisor per-container metrics  | Colima limitation | Only system-level cgroups (`id="/docker"`)     |
+
+### Dashboard Corrections (Applied)
+
+**Dashboard 1 — Pipeline Overview** (5 panels):
+- Data Freshness by Layer: `dagster_asset_freshness_seconds` grouped by `layer` label
+- Trade Messages per Second: `rate(kafka_bridge_ws_messages_received_total[1m])`
+- Pipeline Component Health: `up{job=~"graphql-api|kafka-bridge|pushgateway|node-exporter|cadvisor"}`
+- GraphQL Cache Hit Rate + Active Requests
+- Bridge Errors (validation + serialization failures)
+
+**Dashboard 2 — Kafka Deep Dive** (5 panels):
+All panels rewritten to use kafka-bridge metrics:
+- Bridge Messages Received/sec, Processing Latency (avg + p95), Validation & Serialization Failures, DLQ Messages, WebSocket Reconnects
+
+**Dashboard 4 — Data Quality** (5 panels):
+- Data Freshness by Asset: `dagster_asset_freshness_seconds` (timeseries, not heatmap)
+- Bridge Message Throughput, Bridge Error Rate, GraphQL Cache Effectiveness, Scrape Target Health
+
+**Dashboard 5 — Infrastructure** (6 panels):
+- Container CPU/Memory: uses `id="/docker"` cgroup aggregate (Colima cannot resolve individual container names)
+- Network I/O: excludes `lo` and `veth*` interfaces
+
+**Dashboard 6 — API Performance** (5 panels):
+- Active Requests, Cache Hit Rate, Cache Hits vs Misses, Process Memory (RSS + Virtual), API Uptime
+
+### Alert Rule Corrections (Applied)
+
+| Rule File              | Changes                                                                 |
+|------------------------|-------------------------------------------------------------------------|
+| `freshness_rules.yml`  | `data_freshness_seconds` → `dagster_asset_freshness_seconds`; `$labels.table` → `$labels.asset` |
+| `kafka_rules.yml`      | All JMX alerts replaced with kafka-bridge alerts (BridgeDown, NoMessages, HighValidationFailures, HighDLQ, HighLatency) |
+| `volume_rules.yml`     | `data_volume_deviation_percent`/`data_row_count` → bridge throughput alerts (BridgeThroughputDrop, BridgeThroughputZero) |
+| `api_rules.yml`        | `graphql_errors_total`/`graphql_requests_total`/`graphql_request_duration_seconds` → available metrics (APIDown, HighActiveRequests, LowCacheHitRate) |
+| `flink_rules.yml`      | No changes needed (Flink Prometheus Reporter exports expected metrics)  |
+
+### Prometheus Scrape Config Fix
+
+- `kafka-bridge` target port corrected from `8001` to `9090` (prometheus_client HTTP server)
+- `kafka` JMX job commented out (no JMX exporter sidecar configured on KRaft broker)
+
+### Dagster Sensor Fixes
+
+- `freshness_sensor.py`: `_MONITORED_ASSETS` changed from `str` list to `AssetKey` list (Dagster 1.12 enforces type)
+- `prometheus_metrics_sensor.py`: Added `AssetKey()` wrapper for `get_latest_materialization_event()` calls

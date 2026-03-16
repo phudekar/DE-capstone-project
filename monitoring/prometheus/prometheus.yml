@@ -18,13 +18,13 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
 
-  # Kafka Brokers (JMX Exporter sidecar)
-  - job_name: "kafka"
-    static_configs:
-      - targets:
-          - "kafka:7071"
-        labels:
-          cluster: "trade-pipeline"
+  # Kafka Brokers (JMX Exporter sidecar — disabled until JMX exporter is configured)
+  # - job_name: "kafka"
+  #   static_configs:
+  #     - targets:
+  #         - "kafka-broker-1:7071"
+  #       labels:
+  #         cluster: "trade-pipeline"
 
   # Flink JobManager & TaskManagers
   - job_name: "flink"
@@ -45,10 +45,10 @@ scrape_configs:
       - targets: ["graphql-api:8000"]
     metrics_path: "/metrics"
 
-  # Kafka Bridge application
+  # Kafka Bridge application (prometheus_client on port 9090)
   - job_name: "kafka-bridge"
     static_configs:
-      - targets: ["kafka-bridge:8001"]
+      - targets: ["kafka-bridge:9090"]
     metrics_path: "/metrics"
 
   # Node Exporter (host metrics)
