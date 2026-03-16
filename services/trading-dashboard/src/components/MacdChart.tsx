@@ -11,6 +11,11 @@ import {
 } from "lightweight-charts";
 import type { MacdPoint } from "../types";
 
+function toChartTime(timeStr: string): Time {
+  if (timeStr.length <= 10) return timeStr as Time;
+  return Math.floor(new Date(timeStr).getTime() / 1000) as unknown as Time;
+}
+
 interface Props {
   macdData: MacdPoint[];
   visibleRange?: { from: number; to: number } | null;
@@ -78,17 +83,17 @@ export default function MacdChart({ macdData, visibleRange }: Props) {
     if (macdData.length === 0) return;
 
     const macdLineData: LineData<Time>[] = macdData.map((p) => ({
-      time: p.time as Time,
+      time: toChartTime(p.time),
       value: p.macd,
     }));
 
     const signalLineData: LineData<Time>[] = macdData.map((p) => ({
-      time: p.time as Time,
+      time: toChartTime(p.time),
       value: p.signal,
     }));
 
     const histogramData: HistogramData<Time>[] = macdData.map((p) => ({
-      time: p.time as Time,
+      time: toChartTime(p.time),
       value: p.histogram,
       color: p.histogram >= 0 ? "#26a69a" : "#ef5350",
     }));

@@ -27,6 +27,32 @@ export const DAILY_SUMMARY_QUERY = gql`
   }
 `;
 
+export const MINUTE_CANDLES_QUERY = gql`
+  query MinuteCandles($symbol: String!, $dateRange: DateRangeInput!, $interval: String, $first: Int, $after: String) {
+    minuteCandles(symbol: $symbol, dateRange: $dateRange, interval: $interval, first: $first, after: $after) {
+      edges {
+        node {
+          symbol
+          timestamp
+          openPrice
+          closePrice
+          highPrice
+          lowPrice
+          totalVolume
+          tradeCount
+          priceChange
+          priceChangePct
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      totalCount
+    }
+  }
+`;
+
 export const SYMBOLS_QUERY = gql`
   query Symbols($first: Int, $after: String) {
     symbols(first: $first, after: $after) {

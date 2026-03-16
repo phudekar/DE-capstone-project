@@ -1,9 +1,20 @@
-import type { DailySummaryNode, Trade } from "../types";
+import type { Trade } from "../types";
+
+interface CandleSummary {
+  openPrice: number;
+  closePrice: number;
+  highPrice: number;
+  lowPrice: number;
+  totalVolume: number;
+  priceChange?: number | null;
+  priceChangePct?: number | null;
+  companyName?: string | null;
+}
 
 interface Props {
   symbol: string;
   lastTrade: Trade | null;
-  dailySummary: DailySummaryNode | null;
+  dailySummary: CandleSummary | null;
   tradeCount: number;
 }
 

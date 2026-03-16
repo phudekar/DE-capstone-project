@@ -6,20 +6,22 @@ import Watchlist from "./components/Watchlist";
 import OrderBook from "./components/OrderBook";
 import SymbolHeader from "./components/SymbolHeader";
 import ConnectionStatus from "./components/ConnectionStatus";
+import { TimeframeSelector } from "./components/TimeframeSelector";
 import { useOhlcvData } from "./hooks/useOhlcvData";
 import { useMacd } from "./hooks/useMacd";
 import { useTradeSubscription } from "./hooks/useTradeSubscription";
 import { MARKET_OVERVIEW_QUERY } from "./graphql/queries";
-import type { MarketOverview } from "./types";
+import type { MarketOverview, TimeframeInterval } from "./types";
 
 const DEFAULT_SYMBOLS = ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "TSLA", "META", "JPM"];
 
 export default function App() {
   const [activeSymbol, setActiveSymbol] = useState("AAPL");
+  const [interval, setInterval] = useState<TimeframeInterval>("1m");
   const [visibleRange, setVisibleRange] = useState<{ from: number; to: number } | null>(null);
 
-  // Historical data
-  const { candles, loading, latestSummary } = useOhlcvData(activeSymbol);
+  // Historical data — now uses minute candles with configurable interval
+  const { candles, loading, latestSummary } = useOhlcvData(activeSymbol, interval);
 
   // MACD from historical candles
   const macdData = useMacd(candles);
@@ -86,6 +88,9 @@ export default function App() {
 
       {/* Main chart area */}
       <div style={{ display: "flex", flexDirection: "column", gap: "8px", overflow: "hidden" }}>
+        <div style={{ padding: "4px 8px" }}>
+          <TimeframeSelector selected={interval} onChange={setInterval} />
+        </div>
         <div style={{ flex: 3, background: "#16213e", borderRadius: "6px", overflow: "hidden" }}>
           {loading ? (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#888" }}>

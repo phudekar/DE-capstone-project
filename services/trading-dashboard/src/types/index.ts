@@ -31,6 +31,21 @@ export interface DailySummaryNode {
   priceChangePct: number | null;
 }
 
+export interface MinuteCandleNode {
+  symbol: string;
+  timestamp: string;
+  openPrice: number;
+  closePrice: number;
+  highPrice: number;
+  lowPrice: number;
+  totalVolume: number;
+  tradeCount: number;
+  priceChange: number | null;
+  priceChangePct: number | null;
+}
+
+export type TimeframeInterval = "1m" | "5m" | "15m" | "30m" | "1h" | "4h" | "1d" | "1w";
+
 export interface SymbolNode {
   symbol: string;
   companyName: string;

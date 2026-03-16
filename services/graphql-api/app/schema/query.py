@@ -10,11 +10,12 @@ from strawberry.types import Info
 
 from app.resolvers.daily_summary import DailySummaryResolver
 from app.resolvers.market_overview import MarketOverviewResolver
+from app.resolvers.minute_candles import MinuteCandleResolver
 from app.resolvers.order_book import OrderBookResolver
 from app.resolvers.symbol import SymbolResolver
 from app.resolvers.trade import TradeResolver
 from app.schema.inputs import DateRangeInput, SymbolFilterInput, TradeFilterInput
-from app.schema.pagination import DailySummaryConnection, SymbolConnection, TradeConnection
+from app.schema.pagination import DailySummaryConnection, MinuteCandleConnection, SymbolConnection, TradeConnection
 from app.schema.types import MarketOverview, OrderBookSnapshot, Trade
 
 
@@ -47,6 +48,23 @@ class Query:
     ) -> DailySummaryConnection:
         resolver = DailySummaryResolver(info.context.engine, info.context.cache)
         return await resolver.resolve(symbol=symbol, date_range=date_range, first=first or 30, after=after)
+
+    @strawberry.field(
+        description="OHLCV candles aggregated from trades. Interval: 1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w. Default: 1m."
+    )
+    async def minute_candles(
+        self,
+        info: Info,
+        symbol: str,
+        date_range: DateRangeInput,
+        interval: Optional[str] = "1m",
+        first: Optional[int] = 500,
+        after: Optional[str] = None,
+    ) -> MinuteCandleConnection:
+        resolver = MinuteCandleResolver(info.context.engine, info.context.cache)
+        return await resolver.resolve(
+            symbol=symbol, date_range=date_range, interval=interval or "1m", first=first or 500, after=after
+        )
 
     @strawberry.field(description="Market-wide overview for a given date.")
     async def market_overview(self, info: Info, target_date: Optional[date] = None) -> MarketOverview:

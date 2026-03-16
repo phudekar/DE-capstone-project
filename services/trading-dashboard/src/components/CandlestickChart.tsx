@@ -17,9 +17,27 @@ interface Props {
   onVisibleRangeChange?: (range: { from: number; to: number } | null) => void;
 }
 
+/** Convert ISO time string to Lightweight Charts Time.
+ *  - "YYYY-MM-DD" → pass as-is (daily)
+ *  - Full datetime → Unix timestamp in seconds (intraday)
+ */
+function toChartTime(timeStr: string): Time {
+  if (timeStr.length <= 10) {
+    // Date-only string like "2026-03-16"
+    return timeStr as Time;
+  }
+  // Full datetime — convert to Unix timestamp (seconds)
+  return Math.floor(new Date(timeStr).getTime() / 1000) as unknown as Time;
+}
+
+function isIntraday(candles: OhlcvCandle[]): boolean {
+  if (candles.length === 0) return false;
+  return candles[0].time.length > 10;
+}
+
 function toCandlestickData(candle: OhlcvCandle): CandlestickData<Time> {
   return {
-    time: candle.time as Time,
+    time: toChartTime(candle.time),
     open: candle.open,
     high: candle.high,
     low: candle.low,
@@ -29,7 +47,7 @@ function toCandlestickData(candle: OhlcvCandle): CandlestickData<Time> {
 
 function toVolumeData(candle: OhlcvCandle): HistogramData<Time> {
   return {
-    time: candle.time as Time,
+    time: toChartTime(candle.time),
     value: candle.volume,
     color: candle.close >= candle.open ? "rgba(38, 166, 154, 0.4)" : "rgba(239, 83, 80, 0.4)",
   };
@@ -55,7 +73,7 @@ export default function CandlestickChart({ candles, liveCandle, onVisibleRangeCh
       },
       crosshair: { mode: CrosshairMode.Normal },
       rightPriceScale: { borderColor: "#2a2a4a" },
-      timeScale: { borderColor: "#2a2a4a", timeVisible: false },
+      timeScale: { borderColor: "#2a2a4a", timeVisible: true, secondsVisible: false },
     });
 
     const candleSeries = chart.addCandlestickSeries({
@@ -100,6 +118,14 @@ export default function CandlestickChart({ candles, liveCandle, onVisibleRangeCh
 
   useEffect(() => {
     if (!candleSeriesRef.current || !volumeSeriesRef.current || candles.length === 0) return;
+
+    // Update timeScale visibility based on whether data is intraday
+    const intraday = isIntraday(candles);
+    chartRef.current?.timeScale().applyOptions({
+      timeVisible: intraday,
+      secondsVisible: false,
+    });
+
     candleSeriesRef.current.setData(candles.map(toCandlestickData));
     volumeSeriesRef.current.setData(candles.map(toVolumeData));
     chartRef.current?.timeScale().fitContent();

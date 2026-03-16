@@ -75,6 +75,30 @@ class DailySummary:
 
 
 @strawberry.type
+class MinuteCandle:
+    """Minute-level OHLCV candle aggregated from Silver trades."""
+
+    symbol: str
+    timestamp: datetime
+    open_price: float
+    close_price: float
+    high_price: float
+    low_price: float
+    total_volume: int
+    trade_count: int
+
+    @strawberry.field
+    def price_change(self) -> float:
+        return self.close_price - self.open_price
+
+    @strawberry.field
+    def price_change_pct(self) -> float:
+        if self.open_price == 0:
+            return 0.0
+        return (self.close_price - self.open_price) / self.open_price * 100
+
+
+@strawberry.type
 class MarketOverview:
     """Market-wide summary for a given date."""
 

@@ -8,7 +8,7 @@ from typing import Optional, TypeVar
 
 import strawberry
 
-from app.schema.types import DailySummary, Symbol, Trade
+from app.schema.types import DailySummary, MinuteCandle, Symbol, Trade
 
 T = TypeVar("T")
 
@@ -52,6 +52,19 @@ class DailySummaryEdge:
 @strawberry.type
 class DailySummaryConnection:
     edges: list[DailySummaryEdge]
+    page_info: PageInfo
+    total_count: int
+
+
+@strawberry.type
+class MinuteCandleEdge:
+    node: MinuteCandle
+    cursor: str
+
+
+@strawberry.type
+class MinuteCandleConnection:
+    edges: list[MinuteCandleEdge]
     page_info: PageInfo
     total_count: int
 
