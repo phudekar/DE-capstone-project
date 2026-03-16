@@ -1,9 +1,5 @@
 """GraphQL request context factory."""
 
-from __future__ import annotations
-
-from dataclasses import dataclass
-
 from fastapi import Request
 from strawberry.dataloader import DataLoader
 from strawberry.fastapi import BaseContext
@@ -16,27 +12,38 @@ from app.services.watchlist_service import WatchlistService, get_watchlist_servi
 from app.streaming.kafka_consumer import KafkaConsumerFactory
 
 
-@dataclass
 class GraphQLContext(BaseContext):
-    engine: IcebergDuckDB
-    cache: MemoryCache
-    user: UserContext
-    symbol_loader: DataLoader
-    watchlist_service: WatchlistService
-    kafka_factory: KafkaConsumerFactory
+    def __init__(
+        self,
+        engine: IcebergDuckDB,
+        cache: MemoryCache,
+        symbol_loader: DataLoader,
+        watchlist_service: WatchlistService,
+        kafka_factory: KafkaConsumerFactory,
+        user: UserContext = ANONYMOUS,
+    ) -> None:
+        super().__init__()
+        self.engine = engine
+        self.cache = cache
+        self.symbol_loader = symbol_loader
+        self.watchlist_service = watchlist_service
+        self.kafka_factory = kafka_factory
+        self._fallback_user = user
 
-    @classmethod
-    def from_request(cls, request: Request) -> "GraphQLContext":
-        engine = get_engine()
-        return cls(
-            engine=engine,
-            cache=get_cache(),
-            user=getattr(request.state, "user", ANONYMOUS),
-            symbol_loader=make_symbol_loader(engine),
-            watchlist_service=get_watchlist_service(),
-            kafka_factory=KafkaConsumerFactory(),
-        )
+    @property
+    def user(self) -> UserContext:
+        """Resolve user from request.state (HTTP) or fallback (WebSocket/test)."""
+        if self.request is not None and isinstance(self.request, Request):
+            return getattr(self.request.state, "user", self._fallback_user)
+        return self._fallback_user
 
 
-async def get_context(request: Request) -> GraphQLContext:
-    return GraphQLContext.from_request(request)
+async def get_context() -> GraphQLContext:
+    engine = get_engine()
+    return GraphQLContext(
+        engine=engine,
+        cache=get_cache(),
+        symbol_loader=make_symbol_loader(engine),
+        watchlist_service=get_watchlist_service(),
+        kafka_factory=KafkaConsumerFactory(),
+    )
