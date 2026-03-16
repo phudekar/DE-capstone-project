@@ -105,48 +105,28 @@
     },
     {
       "id": 7,
-      "title": "CPU Usage by System Service",
+      "title": "CPU Usage by Container (%)",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
-      "description": "Colima cAdvisor exposes cgroup-level metrics only. Per-container breakdown requires 'docker stats'.",
+      "description": "Per-container CPU usage via Docker API exporter.",
       "targets": [
         {
-          "expr": "rate(container_cpu_usage_seconds_total{id=\"/system.slice/docker.service\"}[1m]) * 100",
-          "legendFormat": "docker.service"
-        },
-        {
-          "expr": "rate(container_cpu_usage_seconds_total{id=\"/system.slice/containerd.service\"}[1m]) * 100",
-          "legendFormat": "containerd"
-        },
-        {
-          "expr": "rate(container_cpu_usage_seconds_total{id=\"/docker\"}[1m]) * 100",
-          "legendFormat": "docker cgroup total"
+          "expr": "docker_container_cpu_percent",
+          "legendFormat": "{{name}}"
         }
       ],
       "fieldConfig": {"defaults": {"unit": "percent"}}
     },
     {
       "id": 8,
-      "title": "Memory Usage by System Service",
+      "title": "Memory Usage by Container",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
-      "description": "Colima cAdvisor exposes cgroup-level metrics only. Per-container breakdown requires 'docker stats'.",
+      "description": "Per-container memory usage via Docker API exporter.",
       "targets": [
         {
-          "expr": "container_memory_usage_bytes{id=\"/system.slice/docker.service\"}",
-          "legendFormat": "docker.service"
-        },
-        {
-          "expr": "container_memory_usage_bytes{id=\"/system.slice/containerd.service\"}",
-          "legendFormat": "containerd"
-        },
-        {
-          "expr": "container_memory_usage_bytes{id=\"/docker\"}",
-          "legendFormat": "docker cgroup total"
-        },
-        {
-          "expr": "machine_memory_bytes",
-          "legendFormat": "VM total"
+          "expr": "docker_container_memory_bytes",
+          "legendFormat": "{{name}}"
         }
       ],
       "fieldConfig": {"defaults": {"unit": "bytes"}}

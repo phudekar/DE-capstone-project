@@ -56,7 +56,12 @@ scrape_configs:
     static_configs:
       - targets: ["node-exporter:9100"]
 
-  # cAdvisor (container metrics)
+  # cAdvisor (host/system-level cgroup metrics)
   - job_name: "cadvisor"
     static_configs:
       - targets: ["cadvisor:8080"]
+
+  # Docker Exporter (per-container CPU/memory via Docker API)
+  - job_name: "docker-exporter"
+    static_configs:
+      - targets: ["docker-exporter:9417"]
