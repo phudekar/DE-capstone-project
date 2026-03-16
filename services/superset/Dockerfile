@@ -2,6 +2,9 @@ FROM apache/superset:3.1.3
 
 USER root
 
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
 # Install DuckDB SQLAlchemy driver and additional dependencies
 RUN pip install --no-cache-dir \
     duckdb==1.1.3 \

@@ -1,7 +1,7 @@
 FROM flink:1.18.1-scala_2.12-java11
 
 # Install Python 3 + pip, symlink python -> python3 (required by Flink's Python UDF runner)
-RUN apt-get update && \
+RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y python3 python3-pip python3-venv && \
     ln -sf /usr/bin/python3 /usr/bin/python && \
     rm -rf /var/lib/apt/lists/*
