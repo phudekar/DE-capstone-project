@@ -249,7 +249,7 @@ make format
 
 ```
 DE-project/
-├── .github/workflows/          # CI (lint + test) and CD (Docker build + push)
+├── .github/workflows/          # CI, CD, container security scan, performance
 ├── infrastructure/
 │   ├── docker-compose/         # All docker-compose stack files
 │   └── scripts/                # Schema registration, setup helpers
@@ -365,6 +365,25 @@ Triggers on every push and PR to `main`.
 ### CD (`.github/workflows/cd.yml`)
 Triggers on push to `main`. Builds and pushes Docker images for all 6 services to
 GitHub Container Registry (`ghcr.io`) with `sha-*` and `latest` tags.
+
+### Container Security Scan (`.github/workflows/container-scan.yml`)
+
+Scans all Docker images for known vulnerabilities using [Trivy](https://trivy.dev/).
+Triggers on push/PR to `main` (when Dockerfiles or compose files change), weekly on
+Monday at 06:00 UTC, and on manual dispatch.
+
+| Job group | Images scanned | Gate behaviour |
+|---|---|---|
+| **Built images** (8) | kafka-bridge, lakehouse, flink-processor, graphql-api, dagster-orchestrator, superset, de-stock, docker-exporter | Fails on fixable CRITICAL CVEs |
+| **Third-party images** (14) | cp-kafka, cp-schema-registry, kafka-ui, minio, iceberg-rest, postgres, redis, mysql, prometheus, grafana, alertmanager, elasticsearch, openmetadata-server, openmetadata-ingestion | Report-only (no failure) |
+
+Each scan produces:
+- A **human-readable table** in the job log showing all CRITICAL and HIGH vulnerabilities
+- A **SARIF report** uploaded to the GitHub **Security** tab for unified tracking alongside code scanning alerts
+
+All Dockerfiles include `apt-get upgrade` and `pip install --upgrade setuptools wheel`
+to patch OS-level and Python-level CVEs at build time. All base images and third-party
+images are pinned to specific versions (no `:latest` tags) for reproducible builds.
 
 ---
 
