@@ -44,7 +44,7 @@ services:
       - de-network
 
   iceberg-rest:
-    image: tabulario/iceberg-rest:1.6.1
+    image: tabulario/iceberg-rest:1.6.0
     hostname: iceberg-rest
     container_name: iceberg-rest
     ports:

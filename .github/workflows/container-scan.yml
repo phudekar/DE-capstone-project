@@ -89,8 +89,16 @@ jobs:
             --format sarif \
             --output trivy-${{ matrix.service }}.sarif \
             --severity CRITICAL,HIGH \
+            scan-target:${{ matrix.service }}
+
+      - name: Fail on fixable CRITICAL vulnerabilities
+        run: |
+          trivy image \
+            --scanners vuln \
+            --severity CRITICAL \
             --ignore-unfixed \
             --exit-code 1 \
+            --quiet \
             scan-target:${{ matrix.service }}
 
       - name: Upload SARIF to GitHub Security tab
@@ -116,7 +124,7 @@ jobs:
             image_name: kafka-ui
           - image: "minio/minio:RELEASE.2025-02-28T09-55-16Z"
             image_name: minio
-          - image: "tabulario/iceberg-rest:1.6.1"
+          - image: "tabulario/iceberg-rest:1.6.0"
             image_name: iceberg-rest
           - image: "postgres:16-alpine"
             image_name: postgres
