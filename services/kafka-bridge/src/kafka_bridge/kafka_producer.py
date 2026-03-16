@@ -14,17 +14,19 @@ class KafkaProducer:
     """Wraps confluent_kafka.Producer with idempotent, batched, snappy config."""
 
     def __init__(self, settings: Settings) -> None:
-        self._producer = Producer({
-            "bootstrap.servers": settings.kafka_bootstrap_servers,
-            "acks": settings.kafka_acks,
-            "compression.type": settings.kafka_compression_type,
-            "linger.ms": settings.kafka_linger_ms,
-            "batch.size": settings.kafka_batch_size,
-            "queue.buffering.max.messages": settings.kafka_queue_buffering_max_messages,
-            "socket.send.buffer.bytes": settings.kafka_socket_send_buffer_bytes,
-            "enable.idempotence": settings.kafka_enable_idempotence,
-            "client.id": "kafka-bridge",
-        })
+        self._producer = Producer(
+            {
+                "bootstrap.servers": settings.kafka_bootstrap_servers,
+                "acks": settings.kafka_acks,
+                "compression.type": settings.kafka_compression_type,
+                "linger.ms": settings.kafka_linger_ms,
+                "batch.size": settings.kafka_batch_size,
+                "queue.buffering.max.messages": settings.kafka_queue_buffering_max_messages,
+                "socket.send.buffer.bytes": settings.kafka_socket_send_buffer_bytes,
+                "enable.idempotence": settings.kafka_enable_idempotence,
+                "client.id": "kafka-bridge",
+            }
+        )
         logger.info("Kafka producer initialized (servers=%s)", settings.kafka_bootstrap_servers)
 
     @staticmethod

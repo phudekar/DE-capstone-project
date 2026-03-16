@@ -46,9 +46,7 @@ def gold_daily_trading_summary(
 
     count = aggregate_daily_trading_summary(catalog, trading_date)
     context.log.info("Wrote %d daily summaries for %s.", count, trading_date)
-    prometheus.push_metric(
-        "gold_daily_summary_count", float(count), {"date": str(trading_date)}
-    )
+    prometheus.push_metric("gold_daily_summary_count", float(count), {"date": str(trading_date)})
 
 
 @asset(
@@ -67,8 +65,7 @@ def gold_trader_performance(
 ) -> None:
     """Placeholder: gold_trader_performance not yet implemented in Phase 4."""
     context.log.info(
-        "SKIP: gold_trader_performance not yet implemented. "
-        "Partition %s recorded as materialized.",
+        "SKIP: gold_trader_performance not yet implemented. Partition %s recorded as materialized.",
         context.partition_key if context.has_partition_key else "unpartitioned",
     )
 
@@ -89,8 +86,7 @@ def gold_market_overview(
 ) -> None:
     """Placeholder: gold_market_overview not yet implemented in Phase 4."""
     context.log.info(
-        "SKIP: gold_market_overview not yet implemented. "
-        "Partition %s recorded as materialized.",
+        "SKIP: gold_market_overview not yet implemented. Partition %s recorded as materialized.",
         context.partition_key if context.has_partition_key else "unpartitioned",
     )
 
@@ -111,7 +107,6 @@ def gold_portfolio_positions(
 ) -> None:
     """Placeholder: gold_portfolio_positions not yet implemented in Phase 4."""
     context.log.info(
-        "SKIP: gold_portfolio_positions not yet implemented. "
-        "Partition %s recorded as materialized.",
+        "SKIP: gold_portfolio_positions not yet implemented. Partition %s recorded as materialized.",
         context.partition_key if context.has_partition_key else "unpartitioned",
     )

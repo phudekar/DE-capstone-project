@@ -28,14 +28,10 @@ class DuckDBEngine:
 
     def trades_by_symbol(self, symbol: str, limit: int = 100) -> pa.Table:
         """Get recent trades for a symbol from Silver."""
-        arrow = self._scan_to_arrow(
-            f"{config.NS_SILVER}.trades", row_filter=f"symbol == '{symbol}'"
-        )
+        arrow = self._scan_to_arrow(f"{config.NS_SILVER}.trades", row_filter=f"symbol == '{symbol}'")
         con = duckdb.connect()
         con.register("trades", arrow)
-        result = con.execute(
-            "SELECT * FROM trades ORDER BY timestamp DESC LIMIT ?", [limit]
-        ).fetch_arrow_table()
+        result = con.execute("SELECT * FROM trades ORDER BY timestamp DESC LIMIT ?", [limit]).fetch_arrow_table()
         con.close()
         return result
 

@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-import strawberry
-from strawberry.types import Info
 from typing import Optional
 
+import strawberry
+from strawberry.types import Info
+
 from app.auth.permissions import require_role
+from app.schema.inputs import AddToWatchlistInput, WatchlistInput
 from app.schema.types import Watchlist
-from app.schema.inputs import WatchlistInput, AddToWatchlistInput
 
 
 @strawberry.type
 class Mutation:
-
     @strawberry.mutation(description="Create a new watchlist for the authenticated user.")
     async def create_watchlist(self, info: Info, input: WatchlistInput) -> Watchlist:
         require_role(info, ["viewer", "analyst", "trader", "admin"])

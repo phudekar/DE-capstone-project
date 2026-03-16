@@ -64,8 +64,5 @@ class TestSilverSuite:
         suite = build_silver_trades_suite(symbols=["XYZ"])
         result = validate_dataframe(df, suite)
         # Should pass with custom symbol set
-        symbol_results = [
-            r for r in result["results"]
-            if r["expectation_type"] == "expect_column_values_to_be_in_set"
-        ]
+        symbol_results = [r for r in result["results"] if r["expectation_type"] == "expect_column_values_to_be_in_set"]
         assert all(r["success"] for r in symbol_results)

@@ -59,8 +59,8 @@ SELECT
     buyer_agent_id,
     seller_agent_id,
     is_aggressive_buy,
-    {lookup_exprs['company_name']} AS company_name,
-    {lookup_exprs['sector']} AS sector,
-    {lookup_exprs['market_cap_category']} AS market_cap_category
+    {lookup_exprs["company_name"]} AS company_name,
+    {lookup_exprs["sector"]} AS sector,
+    {lookup_exprs["market_cap_category"]} AS market_cap_category
 FROM raw_trades
 """

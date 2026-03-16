@@ -1,14 +1,9 @@
 """Tests for gold expectation suite."""
 
-import datetime
-
-import pandas as pd
-
-from data_quality.runner import validate_dataframe
-from data_quality.suites.gold_suite import build_gold_daily_summary_suite
-
 # Register the custom expectation so GX recognizes it
 import data_quality.custom_expectations.expect_ohlcv_consistency  # noqa: F401
+from data_quality.runner import validate_dataframe
+from data_quality.suites.gold_suite import build_gold_daily_summary_suite
 
 
 class TestGoldSuite:
@@ -47,10 +42,7 @@ class TestGoldSuite:
         suite = build_gold_daily_summary_suite()
         result = validate_dataframe(df, suite)
         failed = [r for r in result["results"] if not r["success"]]
-        assert any(
-            r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent"
-            for r in failed
-        )
+        assert any(r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent" for r in failed)
 
     def test_low_above_close_fails(self, valid_gold_df):
         df = valid_gold_df.copy()
@@ -58,10 +50,7 @@ class TestGoldSuite:
         suite = build_gold_daily_summary_suite()
         result = validate_dataframe(df, suite)
         failed = [r for r in result["results"] if not r["success"]]
-        assert any(
-            r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent"
-            for r in failed
-        )
+        assert any(r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent" for r in failed)
 
     def test_vwap_outside_range_fails(self, valid_gold_df):
         df = valid_gold_df.copy()
@@ -69,10 +58,7 @@ class TestGoldSuite:
         suite = build_gold_daily_summary_suite()
         result = validate_dataframe(df, suite)
         failed = [r for r in result["results"] if not r["success"]]
-        assert any(
-            r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent"
-            for r in failed
-        )
+        assert any(r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent" for r in failed)
 
     def test_missing_column_fails(self, valid_gold_df):
         df = valid_gold_df.drop(columns=["vwap"])

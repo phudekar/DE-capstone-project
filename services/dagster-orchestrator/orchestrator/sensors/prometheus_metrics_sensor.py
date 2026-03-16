@@ -8,7 +8,6 @@ from dagster import AssetKey, SensorEvaluationContext, SkipReason, sensor
 from orchestrator.metrics.dagster_metrics import (
     dagster_asset_freshness_seconds,
     push_metrics,
-    registry,
 )
 
 logger = logging.getLogger(__name__)
@@ -35,20 +34,14 @@ def prometheus_metrics_sensor(context: SensorEvaluationContext):
 
     for asset_key, layer in _ASSET_LAYER_MAP.items():
         try:
-            record = context.instance.get_latest_materialization_event(
-                asset_key=AssetKey(asset_key)
-            )
+            record = context.instance.get_latest_materialization_event(asset_key=AssetKey(asset_key))
             if record is None:
                 freshness = float("inf")
             else:
-                materialized_at = datetime.fromtimestamp(
-                    record.timestamp, tz=timezone.utc
-                )
+                materialized_at = datetime.fromtimestamp(record.timestamp, tz=timezone.utc)
                 freshness = (now - materialized_at).total_seconds()
 
-            dagster_asset_freshness_seconds.labels(
-                asset_key=asset_key, layer=layer
-            ).set(freshness)
+            dagster_asset_freshness_seconds.labels(asset_key=asset_key, layer=layer).set(freshness)
             pushed += 1
         except Exception as exc:
             logger.warning("Could not compute freshness for %s: %s", asset_key, exc)

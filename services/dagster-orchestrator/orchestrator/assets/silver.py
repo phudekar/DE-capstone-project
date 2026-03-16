@@ -35,9 +35,7 @@ def silver_trades(
 
         catalog = get_catalog()
     except (ConnectionError, OSError) as exc:
-        context.log.warning(
-            "Lakehouse not available — silver_trades recorded as materialized: %s", exc
-        )
+        context.log.warning("Lakehouse not available — silver_trades recorded as materialized: %s", exc)
         return
 
     since = None
@@ -105,8 +103,7 @@ def silver_market_data(
     """Placeholder: silver_market_data not yet implemented in Phase 4."""
     partition_key = context.partition_key if context.has_partition_key else "unpartitioned"
     context.log.info(
-        "SKIP: silver_market_data not yet implemented. "
-        "Partition %s recorded as materialized.",
+        "SKIP: silver_market_data not yet implemented. Partition %s recorded as materialized.",
         partition_key,
     )
 
@@ -127,7 +124,6 @@ def silver_trader_activity(
     """Placeholder: silver_trader_activity not yet implemented in Phase 4."""
     partition_key = context.partition_key if context.has_partition_key else "unpartitioned"
     context.log.info(
-        "SKIP: silver_trader_activity not yet implemented. "
-        "Partition %s recorded as materialized.",
+        "SKIP: silver_trader_activity not yet implemented. Partition %s recorded as materialized.",
         partition_key,
     )

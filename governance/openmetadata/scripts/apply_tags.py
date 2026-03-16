@@ -5,8 +5,9 @@ Usage:
     OM_HOST=http://localhost:8585 OM_TOKEN=<jwt> python apply_tags.py
 """
 
-import os
 import logging
+import os
+
 import requests
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -23,23 +24,23 @@ HEADERS = {
 # fqn -> list of tag FQNs
 TABLE_TAGS: dict[str, list[str]] = {
     "de-capstone-iceberg.iceberg.bronze.raw_trades": [
-        "DataLayer.Bronze", "DataDomain.Trade", "Sensitivity.Confidential"
+        "DataLayer.Bronze",
+        "DataDomain.Trade",
+        "Sensitivity.Confidential",
     ],
     "de-capstone-iceberg.iceberg.bronze.raw_order_book": [
-        "DataLayer.Bronze", "DataDomain.Order", "Sensitivity.Confidential"
+        "DataLayer.Bronze",
+        "DataDomain.Order",
+        "Sensitivity.Confidential",
     ],
-    "de-capstone-iceberg.iceberg.silver.trades": [
-        "DataLayer.Silver", "DataDomain.Trade", "Sensitivity.Restricted"
-    ],
-    "de-capstone-iceberg.iceberg.silver.ohlcv": [
-        "DataLayer.Silver", "DataDomain.Analytics", "Sensitivity.Restricted"
-    ],
+    "de-capstone-iceberg.iceberg.silver.trades": ["DataLayer.Silver", "DataDomain.Trade", "Sensitivity.Restricted"],
+    "de-capstone-iceberg.iceberg.silver.ohlcv": ["DataLayer.Silver", "DataDomain.Analytics", "Sensitivity.Restricted"],
     "de-capstone-iceberg.iceberg.gold.daily_trading_summary": [
-        "DataLayer.Gold", "DataDomain.Analytics", "Sensitivity.Public"
+        "DataLayer.Gold",
+        "DataDomain.Analytics",
+        "Sensitivity.Public",
     ],
-    "de-capstone-iceberg.iceberg.gold.top_movers": [
-        "DataLayer.Gold", "DataDomain.Analytics", "Sensitivity.Public"
-    ],
+    "de-capstone-iceberg.iceberg.gold.top_movers": ["DataLayer.Gold", "DataDomain.Analytics", "Sensitivity.Public"],
 }
 
 # fqn -> column -> list of tag FQNs
@@ -63,8 +64,7 @@ def _get_table(fqn: str) -> dict | None:
 
 
 def _tag_refs(tag_fqns: list[str]) -> list[dict]:
-    return [{"tagFQN": t, "source": "Classification", "labelType": "Manual", "state": "Confirmed"}
-            for t in tag_fqns]
+    return [{"tagFQN": t, "source": "Classification", "labelType": "Manual", "state": "Confirmed"} for t in tag_fqns]
 
 
 def apply_table_tags(fqn: str, tags: list[str]) -> None:

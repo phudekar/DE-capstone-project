@@ -8,7 +8,6 @@ from dagster import (
     AssetKey,
     AssetSelection,
     DefaultScheduleStatus,
-    RunConfig,
     RunRequest,
     ScheduleEvaluationContext,
     define_asset_job,

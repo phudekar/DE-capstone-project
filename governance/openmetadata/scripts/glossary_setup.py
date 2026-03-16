@@ -7,8 +7,9 @@ Usage:
     OM_HOST=http://localhost:8585 OM_TOKEN=<jwt> python glossary_setup.py
 """
 
-import os
 import logging
+import os
+
 import requests
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")

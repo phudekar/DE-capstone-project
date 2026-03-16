@@ -16,18 +16,20 @@ logger = logging.getLogger(__name__)
 TRACKED_COLUMNS = ("company_name", "sector", "market_cap_category")
 
 # Explicit Arrow schema matching Iceberg dim_symbol (all required)
-_DIM_SYMBOL_ARROW_SCHEMA = pa.schema([
-    pa.field("symbol_key", pa.int32(), nullable=False),
-    pa.field("symbol", pa.string(), nullable=False),
-    pa.field("company_name", pa.string(), nullable=False),
-    pa.field("sector", pa.string(), nullable=False),
-    pa.field("market_cap_category", pa.string(), nullable=False),
-    pa.field("effective_date", pa.date32(), nullable=False),
-    pa.field("expiry_date", pa.date32(), nullable=False),
-    pa.field("is_current", pa.bool_(), nullable=False),
-    pa.field("row_hash", pa.string(), nullable=False),
-    pa.field("_updated_at", pa.timestamp("us", tz="UTC"), nullable=False),
-])
+_DIM_SYMBOL_ARROW_SCHEMA = pa.schema(
+    [
+        pa.field("symbol_key", pa.int32(), nullable=False),
+        pa.field("symbol", pa.string(), nullable=False),
+        pa.field("company_name", pa.string(), nullable=False),
+        pa.field("sector", pa.string(), nullable=False),
+        pa.field("market_cap_category", pa.string(), nullable=False),
+        pa.field("effective_date", pa.date32(), nullable=False),
+        pa.field("expiry_date", pa.date32(), nullable=False),
+        pa.field("is_current", pa.bool_(), nullable=False),
+        pa.field("row_hash", pa.string(), nullable=False),
+        pa.field("_updated_at", pa.timestamp("us", tz="UTC"), nullable=False),
+    ]
+)
 
 
 def _hash_row(symbol: str, company_name: str, sector: str, market_cap: str) -> str:
@@ -75,9 +77,7 @@ def apply_scd2(incoming_records: list[dict]) -> tuple[int, int]:
     new_rows = []
 
     for rec in incoming_records:
-        new_hash = _hash_row(
-            rec["symbol"], rec["company_name"], rec["sector"], rec["market_cap_category"]
-        )
+        new_hash = _hash_row(rec["symbol"], rec["company_name"], rec["sector"], rec["market_cap_category"])
 
         if rec["symbol"] in current_by_symbol:
             existing = current_by_symbol[rec["symbol"]]
@@ -133,9 +133,7 @@ def apply_scd2(incoming_records: list[dict]) -> tuple[int, int]:
         # Overwrite expired rows using delete + append
         # Delete old current=True rows for changed symbols
         changed_symbols = {r["symbol"] for r in expired_rows}
-        delete_filter = " or ".join(
-            f"(symbol == '{s}' and is_current == true)" for s in changed_symbols
-        )
+        delete_filter = " or ".join(f"(symbol == '{s}' and is_current == true)" for s in changed_symbols)
         table.delete(delete_filter)
         # Re-insert the expired versions
         expired_table = pa.table(

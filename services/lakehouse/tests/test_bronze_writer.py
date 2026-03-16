@@ -1,7 +1,7 @@
 """Tests for Bronze writer message parsing logic."""
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 
 from lakehouse.writers.bronze_writer import BronzeWriter
 
@@ -31,9 +31,7 @@ class TestBronzeWriterParsing:
         assert isinstance(row["_ingested_at"], datetime)
 
     def test_parse_orderbook(self, sample_orderbook_message):
-        row = self.writer._parse_orderbook(
-            sample_orderbook_message, "raw.orderbook-snapshots", 1, 99
-        )
+        row = self.writer._parse_orderbook(sample_orderbook_message, "raw.orderbook-snapshots", 1, 99)
 
         assert row["symbol"] == "AAPL"
         assert row["sequence_number"] == 42

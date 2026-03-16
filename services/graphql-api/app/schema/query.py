@@ -2,24 +2,24 @@
 
 from __future__ import annotations
 
-import strawberry
 from datetime import date
-from strawberry.types import Info
 from typing import Optional
 
-from app.schema.types import MarketOverview, OrderBookSnapshot, Trade
-from app.schema.inputs import TradeFilterInput, DateRangeInput, SymbolFilterInput
-from app.schema.pagination import TradeConnection, DailySummaryConnection, SymbolConnection
-from app.resolvers.trade import TradeResolver
+import strawberry
+from strawberry.types import Info
+
 from app.resolvers.daily_summary import DailySummaryResolver
 from app.resolvers.market_overview import MarketOverviewResolver
-from app.resolvers.symbol import SymbolResolver
 from app.resolvers.order_book import OrderBookResolver
+from app.resolvers.symbol import SymbolResolver
+from app.resolvers.trade import TradeResolver
+from app.schema.inputs import DateRangeInput, SymbolFilterInput, TradeFilterInput
+from app.schema.pagination import DailySummaryConnection, SymbolConnection, TradeConnection
+from app.schema.types import MarketOverview, OrderBookSnapshot, Trade
 
 
 @strawberry.type
 class Query:
-
     @strawberry.field(description="Paginated trade list with optional filtering.")
     async def trades(
         self,
@@ -46,14 +46,10 @@ class Query:
         after: Optional[str] = None,
     ) -> DailySummaryConnection:
         resolver = DailySummaryResolver(info.context.engine, info.context.cache)
-        return await resolver.resolve(
-            symbol=symbol, date_range=date_range, first=first or 30, after=after
-        )
+        return await resolver.resolve(symbol=symbol, date_range=date_range, first=first or 30, after=after)
 
     @strawberry.field(description="Market-wide overview for a given date.")
-    async def market_overview(
-        self, info: Info, target_date: Optional[date] = None
-    ) -> MarketOverview:
+    async def market_overview(self, info: Info, target_date: Optional[date] = None) -> MarketOverview:
         resolver = MarketOverviewResolver(info.context.engine, info.context.cache)
         return await resolver.resolve(target_date=target_date or date.today())
 

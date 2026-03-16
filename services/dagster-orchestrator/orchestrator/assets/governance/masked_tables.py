@@ -76,14 +76,13 @@ def masked_silver_trades_analyst(
     context.log.info("Creating masked_silver_trades_analyst view...")
     try:
         import duckdb
+
         conn = duckdb.connect()
         conn.execute("INSTALL iceberg; LOAD iceberg;")
         conn.execute(_ANALYST_MASK_SQL)
         context.log.info("masked_silver_trades_analyst view created successfully.")
     except Exception as exc:
-        context.log.warning(
-            "Could not create masked analyst view (Iceberg may not be running): %s", exc
-        )
+        context.log.warning("Could not create masked analyst view (Iceberg may not be running): %s", exc)
 
 
 @asset(
@@ -100,14 +99,13 @@ def masked_silver_trades_business(
     context.log.info("Creating masked_silver_trades_business view...")
     try:
         import duckdb
+
         conn = duckdb.connect()
         conn.execute("INSTALL iceberg; LOAD iceberg;")
         conn.execute(_BUSINESS_MASK_SQL)
         context.log.info("masked_silver_trades_business view created successfully.")
     except Exception as exc:
-        context.log.warning(
-            "Could not create masked business view (Iceberg may not be running): %s", exc
-        )
+        context.log.warning("Could not create masked business view (Iceberg may not be running): %s", exc)
 
 
 @asset(
@@ -124,11 +122,10 @@ def masked_gold_summary_public(
     context.log.info("Creating masked_gold_summary_public view...")
     try:
         import duckdb
+
         conn = duckdb.connect()
         conn.execute("INSTALL iceberg; LOAD iceberg;")
         conn.execute(_GOLD_PUBLIC_SQL)
         context.log.info("masked_gold_summary_public view created successfully.")
     except Exception as exc:
-        context.log.warning(
-            "Could not create gold public view (Iceberg may not be running): %s", exc
-        )
+        context.log.warning("Could not create gold public view (Iceberg may not be running): %s", exc)

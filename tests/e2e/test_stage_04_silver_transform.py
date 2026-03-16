@@ -8,10 +8,9 @@ Tests:
   - Running silver twice produces no additional rows (idempotent)
 """
 
-import pytest
-
 
 # ── Trade deduplication ────────────────────────────────────────────────────────
+
 
 def test_silver_trades_no_duplicate_trade_ids(pipeline_db, populated_pipeline):
     dups = pipeline_db.conn.execute("""
@@ -41,17 +40,14 @@ def test_silver_trades_all_bronze_ids_present(pipeline_db, populated_pipeline):
 
 # ── Symbol enrichment ─────────────────────────────────────────────────────────
 
+
 def test_silver_trades_company_name_populated(pipeline_db, populated_pipeline):
-    nulls = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM silver_trades WHERE company_name IS NULL"
-    ).fetchone()[0]
+    nulls = pipeline_db.conn.execute("SELECT COUNT(*) FROM silver_trades WHERE company_name IS NULL").fetchone()[0]
     assert nulls == 0
 
 
 def test_silver_trades_sector_populated(pipeline_db, populated_pipeline):
-    nulls = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM silver_trades WHERE sector IS NULL"
-    ).fetchone()[0]
+    nulls = pipeline_db.conn.execute("SELECT COUNT(*) FROM silver_trades WHERE sector IS NULL").fetchone()[0]
     assert nulls == 0
 
 
@@ -66,36 +62,28 @@ def test_silver_aapl_enriched_correctly(pipeline_db, populated_pipeline):
 
 
 def test_silver_amzn_sector_consumer(pipeline_db, populated_pipeline):
-    row = pipeline_db.conn.execute(
-        "SELECT sector FROM silver_trades WHERE symbol = 'AMZN' LIMIT 1"
-    ).fetchone()
+    row = pipeline_db.conn.execute("SELECT sector FROM silver_trades WHERE symbol = 'AMZN' LIMIT 1").fetchone()
     assert row is not None
     assert row[0] == "Consumer Discretionary"
 
 
 def test_silver_jpm_sector_financials(pipeline_db, populated_pipeline):
-    row = pipeline_db.conn.execute(
-        "SELECT sector FROM silver_trades WHERE symbol = 'JPM' LIMIT 1"
-    ).fetchone()
+    row = pipeline_db.conn.execute("SELECT sector FROM silver_trades WHERE symbol = 'JPM' LIMIT 1").fetchone()
     assert row is not None
     assert row[0] == "Financials"
 
 
 # ── Required field integrity ───────────────────────────────────────────────────
 
+
 def test_silver_no_null_required_fields(pipeline_db, populated_pipeline):
-    for col in ("trade_id", "symbol", "price", "quantity",
-                "timestamp", "_processed_at"):
-        bad = pipeline_db.conn.execute(
-            f"SELECT COUNT(*) FROM silver_trades WHERE {col} IS NULL"
-        ).fetchone()[0]
+    for col in ("trade_id", "symbol", "price", "quantity", "timestamp", "_processed_at"):
+        bad = pipeline_db.conn.execute(f"SELECT COUNT(*) FROM silver_trades WHERE {col} IS NULL").fetchone()[0]
         assert bad == 0, f"NULL found in required column: silver_trades.{col}"
 
 
 def test_silver_positive_prices(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM silver_trades WHERE price <= 0"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM silver_trades WHERE price <= 0").fetchone()[0]
     assert bad == 0
 
 
@@ -108,13 +96,12 @@ def test_silver_valid_is_aggressive_buy(pipeline_db, populated_pipeline):
 
 
 def test_silver_processed_at_is_set(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM silver_trades WHERE _processed_at IS NULL"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM silver_trades WHERE _processed_at IS NULL").fetchone()[0]
     assert bad == 0
 
 
 # ── Price / quantity unchanged from Bronze ────────────────────────────────────
+
 
 def test_silver_price_unchanged_from_bronze(pipeline_db, populated_pipeline):
     mismatches = pipeline_db.conn.execute("""
@@ -136,14 +123,13 @@ def test_silver_quantity_unchanged_from_bronze(pipeline_db, populated_pipeline):
 
 # ── Orderbook silver ──────────────────────────────────────────────────────────
 
+
 def test_silver_orderbook_row_count(pipeline_db, populated_pipeline):
     assert pipeline_db.count("silver_orderbook") == 6
 
 
 def test_silver_orderbook_spread_positive(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM silver_orderbook WHERE spread <= 0"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM silver_orderbook WHERE spread <= 0").fetchone()[0]
     assert bad == 0
 
 
@@ -164,13 +150,12 @@ def test_silver_orderbook_bid_lt_ask(pipeline_db, populated_pipeline):
 
 
 def test_silver_orderbook_enriched(pipeline_db, populated_pipeline):
-    nulls = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM silver_orderbook WHERE sector IS NULL"
-    ).fetchone()[0]
+    nulls = pipeline_db.conn.execute("SELECT COUNT(*) FROM silver_orderbook WHERE sector IS NULL").fetchone()[0]
     assert nulls == 0
 
 
 # ── Idempotency ────────────────────────────────────────────────────────────────
+
 
 def test_silver_processing_is_idempotent(simulator, pipeline_db):
     count_before = pipeline_db.count("silver_trades")

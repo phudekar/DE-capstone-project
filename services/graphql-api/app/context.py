@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
 
 from fastapi import Request
-from strawberry.fastapi import BaseContext
 from strawberry.dataloader import DataLoader
+from strawberry.fastapi import BaseContext
 
-from app.auth.models import UserContext, ANONYMOUS
-from app.cache.memory_cache import get_cache, MemoryCache
-from app.db.iceberg_duckdb import get_engine, IcebergDuckDB
+from app.auth.models import ANONYMOUS, UserContext
+from app.cache.memory_cache import MemoryCache, get_cache
+from app.db.iceberg_duckdb import IcebergDuckDB, get_engine
 from app.loaders.symbol_loader import make_symbol_loader
-from app.services.watchlist_service import get_watchlist_service, WatchlistService
+from app.services.watchlist_service import WatchlistService, get_watchlist_service
 from app.streaming.kafka_consumer import KafkaConsumerFactory
 
 

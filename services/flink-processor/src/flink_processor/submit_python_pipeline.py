@@ -78,9 +78,7 @@ def main() -> None:
     logger.info("Setting up price alert detection: %s → %s", TOPIC_RAW_TRADES, TOPIC_PRICE_ALERTS)
 
     trades_source = _build_kafka_source(TOPIC_RAW_TRADES, "flink-python-price-alerts")
-    trades_stream = env.from_source(
-        trades_source, WatermarkStrategy.no_watermarks(), "raw-trades-source"
-    )
+    trades_stream = env.from_source(trades_source, WatermarkStrategy.no_watermarks(), "raw-trades-source")
 
     detector = PriceAlertDetector()
 
@@ -108,12 +106,8 @@ def main() -> None:
         TOPIC_ORDERBOOK_METRICS,
     )
 
-    orderbook_source = _build_kafka_source(
-        TOPIC_RAW_ORDERBOOK, "flink-python-orderbook-analytics"
-    )
-    orderbook_stream = env.from_source(
-        orderbook_source, WatermarkStrategy.no_watermarks(), "orderbook-source"
-    )
+    orderbook_source = _build_kafka_source(TOPIC_RAW_ORDERBOOK, "flink-python-orderbook-analytics")
+    orderbook_stream = env.from_source(orderbook_source, WatermarkStrategy.no_watermarks(), "orderbook-source")
 
     def analyze_snapshot(snapshot_json: str):
         try:

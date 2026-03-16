@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dagster import DefaultScheduleStatus
-
 from orchestrator.schedules.daily import daily_gold_schedule, silver_micro_batch_schedule
 from orchestrator.schedules.monthly import monthly_recompute_schedule
 from orchestrator.schedules.weekly import weekly_dimension_schedule, weekly_maintenance_schedule
@@ -44,9 +43,7 @@ def test_all_schedules_default_stopped():
         monthly_recompute_schedule,
     ]
     for schedule in schedules:
-        assert schedule.default_status == DefaultScheduleStatus.STOPPED, (
-            f"{schedule.name} should default to STOPPED"
-        )
+        assert schedule.default_status == DefaultScheduleStatus.STOPPED, f"{schedule.name} should default to STOPPED"
 
 
 def test_silver_micro_batch_schedule_name():

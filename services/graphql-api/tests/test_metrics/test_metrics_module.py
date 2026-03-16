@@ -1,6 +1,5 @@
 """Tests for the Prometheus metrics module and MetricsExtension."""
 
-import pytest
 from prometheus_client import REGISTRY
 
 
@@ -9,9 +8,7 @@ def _get_sample_value(sample_name: str, labels: dict | None = None) -> float | N
     for metric in REGISTRY.collect():
         for sample in metric.samples:
             if sample.name == sample_name:
-                if labels is None or all(
-                    sample.labels.get(k) == v for k, v in labels.items()
-                ):
+                if labels is None or all(sample.labels.get(k) == v for k, v in labels.items()):
                     return sample.value
     return None
 
@@ -19,13 +16,14 @@ def _get_sample_value(sample_name: str, labels: dict | None = None) -> float | N
 def test_metrics_module_imports():
     """All metric objects should be importable without error."""
     from app.metrics import (
-        graphql_requests_total,
-        graphql_request_duration_seconds,
-        graphql_errors_total,
         graphql_active_requests,
         graphql_cache_hits_total,
         graphql_cache_misses_total,
+        graphql_errors_total,
+        graphql_request_duration_seconds,
+        graphql_requests_total,
     )
+
     assert graphql_requests_total is not None
     assert graphql_request_duration_seconds is not None
     assert graphql_errors_total is not None
@@ -37,6 +35,7 @@ def test_metrics_module_imports():
 def test_metrics_extension_imports():
     """MetricsExtension should be importable."""
     from app.extensions.metrics_extension import MetricsExtension
+
     assert MetricsExtension is not None
 
 
@@ -76,14 +75,15 @@ def test_request_duration_histogram_observe():
     """Histogram should accept observations."""
     from app.metrics import graphql_request_duration_seconds
 
-    before = _get_sample_value(
-        "graphql_request_duration_seconds_count",
-        {"operation_type": "query", "operation_name": "hist_test"},
-    ) or 0.0
+    before = (
+        _get_sample_value(
+            "graphql_request_duration_seconds_count",
+            {"operation_type": "query", "operation_name": "hist_test"},
+        )
+        or 0.0
+    )
 
-    graphql_request_duration_seconds.labels(
-        operation_type="query", operation_name="hist_test"
-    ).observe(0.1)
+    graphql_request_duration_seconds.labels(operation_type="query", operation_name="hist_test").observe(0.1)
 
     after = _get_sample_value(
         "graphql_request_duration_seconds_count",
@@ -95,8 +95,8 @@ def test_request_duration_histogram_observe():
 
 def test_metrics_endpoint_returns_text():
     """The /metrics endpoint should return Prometheus text format."""
-    from fastapi.testclient import TestClient
     from app.main import app
+    from fastapi.testclient import TestClient
 
     with TestClient(app) as client:
         resp = client.get("/metrics")

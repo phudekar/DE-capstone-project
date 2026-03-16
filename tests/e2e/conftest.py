@@ -32,7 +32,6 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 import duckdb
 import pytest
@@ -41,10 +40,12 @@ import pytest
 
 ROOT = Path(__file__).parent.parent.parent
 
+
 def _add(rel: str) -> None:
     p = str(ROOT / rel)
     if p not in sys.path:
         sys.path.insert(0, p)
+
 
 _add("libs/common/src")
 _add("services/kafka-bridge/src")
@@ -58,18 +59,19 @@ _add("services/superset/bootstrap")
 SYMBOLS = ["AAPL", "MSFT", "GOOG", "AMZN", "TSLA", "JPM"]
 
 SYMBOL_DIM = {
-    "AAPL": {"company_name": "Apple Inc.",         "sector": "Technology"},
-    "MSFT": {"company_name": "Microsoft Corp.",    "sector": "Technology"},
-    "GOOG": {"company_name": "Alphabet Inc.",      "sector": "Technology"},
-    "AMZN": {"company_name": "Amazon.com Inc.",    "sector": "Consumer Discretionary"},
-    "TSLA": {"company_name": "Tesla Inc.",         "sector": "Consumer Discretionary"},
-    "JPM":  {"company_name": "JPMorgan Chase",     "sector": "Financials"},
+    "AAPL": {"company_name": "Apple Inc.", "sector": "Technology"},
+    "MSFT": {"company_name": "Microsoft Corp.", "sector": "Technology"},
+    "GOOG": {"company_name": "Alphabet Inc.", "sector": "Technology"},
+    "AMZN": {"company_name": "Amazon.com Inc.", "sector": "Consumer Discretionary"},
+    "TSLA": {"company_name": "Tesla Inc.", "sector": "Consumer Discretionary"},
+    "JPM": {"company_name": "JPMorgan Chase", "sector": "Financials"},
 }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PipelineDB — in-memory DuckDB with Bronze / Silver / Gold tables
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class PipelineDB:
     """In-memory DuckDB that mirrors the full lakehouse medallion schema."""
@@ -188,6 +190,7 @@ class PipelineDB:
 # PipelineSimulator — runs each stage using service code + PipelineDB
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class PipelineSimulator:
     """Drives raw WebSocket events through every pipeline stage into DuckDB."""
 
@@ -207,11 +210,11 @@ class PipelineSimulator:
             return None
 
         event_type = raw_event["event_type"]
-        data       = raw_event["data"]
+        data = raw_event["data"]
         # timestamp may be in data (newer events) or at envelope level (orderbook, market stats)
         ts = data.get("timestamp") or raw_event.get("timestamp")
-        flat       = {"event_type": event_type, "timestamp": ts, **data}
-        route      = route_event(event_type, data)
+        flat = {"event_type": event_type, "timestamp": ts, **data}
+        route = route_event(event_type, data)
         return {"topic": route.topic, "key": route.key, "flat": flat}
 
     # ── Stage 3: Bronze Ingestion ─────────────────────────────────────────────
@@ -228,29 +231,47 @@ class PipelineSimulator:
         )
 
         if topic == "raw.trades":
-            self.db.conn.execute("""
+            self.db.conn.execute(
+                """
                 INSERT INTO bronze_trades VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-            """, (
-                flat["trade_id"], flat["symbol"],
-                float(flat["price"]), int(flat["quantity"]),
-                flat["buy_order_id"], flat["sell_order_id"],
-                flat["buyer_agent_id"], flat["seller_agent_id"],
-                bool(flat["is_aggressive_buy"]),
-                flat["event_type"], ts,
-                topic, 0, offset, now,
-            ))
+            """,
+                (
+                    flat["trade_id"],
+                    flat["symbol"],
+                    float(flat["price"]),
+                    int(flat["quantity"]),
+                    flat["buy_order_id"],
+                    flat["sell_order_id"],
+                    flat["buyer_agent_id"],
+                    flat["seller_agent_id"],
+                    bool(flat["is_aggressive_buy"]),
+                    flat["event_type"],
+                    ts,
+                    topic,
+                    0,
+                    offset,
+                    now,
+                ),
+            )
 
         elif topic == "raw.orderbook-snapshots":
-            self.db.conn.execute("""
+            self.db.conn.execute(
+                """
                 INSERT INTO bronze_orderbook VALUES (?,?,?,?,?,?,?,?,?,?)
-            """, (
-                flat["symbol"],
-                json.dumps(flat.get("bids", [])),
-                json.dumps(flat.get("asks", [])),
-                int(flat["sequence_number"]),
-                flat["event_type"], ts,
-                topic, 0, offset, now,
-            ))
+            """,
+                (
+                    flat["symbol"],
+                    json.dumps(flat.get("bids", [])),
+                    json.dumps(flat.get("asks", [])),
+                    int(flat["sequence_number"]),
+                    flat["event_type"],
+                    ts,
+                    topic,
+                    0,
+                    offset,
+                    now,
+                ),
+            )
 
     # ── Stage 4: Silver Transformation ────────────────────────────────────────
 
@@ -276,16 +297,26 @@ class PipelineSimulator:
                 continue
             seen.add(rd["trade_id"])
             dim = SYMBOL_DIM.get(rd["symbol"], {})
-            conn.execute("""
+            conn.execute(
+                """
                 INSERT INTO silver_trades VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
-            """, (
-                rd["trade_id"], rd["symbol"],
-                rd["price"], rd["quantity"],
-                rd["buy_order_id"], rd["sell_order_id"],
-                rd["buyer_agent_id"], rd["seller_agent_id"],
-                rd["is_aggressive_buy"], rd["timestamp"],
-                dim.get("company_name"), dim.get("sector"), now,
-            ))
+            """,
+                (
+                    rd["trade_id"],
+                    rd["symbol"],
+                    rd["price"],
+                    rd["quantity"],
+                    rd["buy_order_id"],
+                    rd["sell_order_id"],
+                    rd["buyer_agent_id"],
+                    rd["seller_agent_id"],
+                    rd["is_aggressive_buy"],
+                    rd["timestamp"],
+                    dim.get("company_name"),
+                    dim.get("sector"),
+                    now,
+                ),
+            )
             written += 1
         return written
 
@@ -311,20 +342,30 @@ class PipelineSimulator:
             best_ask = asks[0] if asks else None
             bbp = best_bid["price"] if best_bid else None
             bap = best_ask["price"] if best_ask else None
-            spread   = (bap - bbp) if bbp and bap else None
-            mid      = ((bbp + bap) / 2.0) if bbp and bap else None
+            spread = (bap - bbp) if bbp and bap else None
+            mid = ((bbp + bap) / 2.0) if bbp and bap else None
             dim = SYMBOL_DIM.get(rd["symbol"], {})
-            conn.execute("""
+            conn.execute(
+                """
                 INSERT INTO silver_orderbook VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-            """, (
-                rd["symbol"], rd["timestamp"],
-                bbp, best_bid["quantity"] if best_bid else None,
-                bap, best_ask["quantity"] if best_ask else None,
-                len(bids), len(asks),
-                spread, mid,
-                rd["sequence_number"],
-                dim.get("company_name"), dim.get("sector"), now,
-            ))
+            """,
+                (
+                    rd["symbol"],
+                    rd["timestamp"],
+                    bbp,
+                    best_bid["quantity"] if best_bid else None,
+                    bap,
+                    best_ask["quantity"] if best_ask else None,
+                    len(bids),
+                    len(asks),
+                    spread,
+                    mid,
+                    rd["sequence_number"],
+                    dim.get("company_name"),
+                    dim.get("sector"),
+                    now,
+                ),
+            )
             written += 1
         return written
 
@@ -379,25 +420,26 @@ class PipelineSimulator:
         for topic, flat in routed:
             self.ingest_to_bronze(flat, topic)
 
-        silver_trades   = self.process_silver_trades()
+        silver_trades = self.process_silver_trades()
         silver_orderbook = self.process_silver_orderbook()
-        gold_rows       = self.aggregate_gold()
+        gold_rows = self.aggregate_gold()
 
         return {
-            "events_in":       len(raw_events),
-            "rejected":        rejected,
-            "routed":          len(routed),
-            "bronze_trades":   self.db.count("bronze_trades"),
-            "bronze_orderbook":self.db.count("bronze_orderbook"),
-            "silver_trades":   silver_trades,
+            "events_in": len(raw_events),
+            "rejected": rejected,
+            "routed": len(routed),
+            "bronze_trades": self.db.count("bronze_trades"),
+            "bronze_orderbook": self.db.count("bronze_orderbook"),
+            "silver_trades": silver_trades,
             "silver_orderbook": silver_orderbook,
-            "gold_rows":       gold_rows,
+            "gold_rows": gold_rows,
         }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Session-scoped fixtures
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture(scope="session")
 def pipeline_db() -> PipelineDB:
@@ -414,7 +456,7 @@ def simulator(pipeline_db: PipelineDB) -> PipelineSimulator:
 @pytest.fixture(scope="session")
 def populated_pipeline(simulator: PipelineSimulator):
     """Run the full pipeline with a standard batch of events. Yields stats."""
-    from tests.e2e.fixtures.events import make_trade_batch, make_orderbook_event
+    from tests.e2e.fixtures.events import make_orderbook_event, make_trade_batch
 
     events: list[dict] = []
     events += make_trade_batch(SYMBOLS, n_per_symbol=10)

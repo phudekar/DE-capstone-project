@@ -1,7 +1,6 @@
 """Tests for Bronze layer asset definitions."""
 
 from dagster import AssetKey
-
 from orchestrator.assets.bronze import (
     bronze_raw_marketdata,
     bronze_raw_orderbook,

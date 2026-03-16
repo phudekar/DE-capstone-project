@@ -8,8 +8,8 @@ The DuckDB connection is configured with:
 """
 
 import json
-import os
 import logging
+import os
 
 log = logging.getLogger(__name__)
 
@@ -24,27 +24,29 @@ def create_databases(superset_url: str, session) -> None:
             "allow_ctas": True,
             "allow_cvas": True,
             "allow_dml": True,
-            "extra": json.dumps({
-                "engine_params": {
-                    "connect_args": {
-                        "preload_extensions": ["iceberg", "httpfs"],
-                        "config": {
-                            "threads": "4",
-                            "memory_limit": os.environ.get("DUCKDB_MEMORY_LIMIT", "2GB"),
-                            "autoinstall_known_extensions": "true",
-                            "autoload_known_extensions": "true",
-                            "s3_access_key_id": os.environ.get("MINIO_ROOT_USER", "minio"),
-                            "s3_secret_access_key": os.environ.get("MINIO_ROOT_PASSWORD", "minio123"),
-                            "s3_endpoint": os.environ.get("MINIO_ENDPOINT", "minio:9000"),
-                            "s3_url_style": "path",
-                            "s3_use_ssl": "false",
-                            "s3_region": "us-east-1",
-                            "unsafe_enable_version_guessing": "true",
-                        },
-                    }
-                },
-                "allows_virtual_table_explore": True,
-            }),
+            "extra": json.dumps(
+                {
+                    "engine_params": {
+                        "connect_args": {
+                            "preload_extensions": ["iceberg", "httpfs"],
+                            "config": {
+                                "threads": "4",
+                                "memory_limit": os.environ.get("DUCKDB_MEMORY_LIMIT", "2GB"),
+                                "autoinstall_known_extensions": "true",
+                                "autoload_known_extensions": "true",
+                                "s3_access_key_id": os.environ.get("MINIO_ROOT_USER", "minio"),
+                                "s3_secret_access_key": os.environ.get("MINIO_ROOT_PASSWORD", "minio123"),
+                                "s3_endpoint": os.environ.get("MINIO_ENDPOINT", "minio:9000"),
+                                "s3_url_style": "path",
+                                "s3_use_ssl": "false",
+                                "s3_region": "us-east-1",
+                                "unsafe_enable_version_guessing": "true",
+                            },
+                        }
+                    },
+                    "allows_virtual_table_explore": True,
+                }
+            ),
             "impersonate_user": False,
         },
     ]
@@ -61,5 +63,7 @@ def create_databases(superset_url: str, session) -> None:
         else:
             log.error(
                 "Failed to create database %s: %d %s",
-                db["database_name"], resp.status_code, resp.text[:300],
+                db["database_name"],
+                resp.status_code,
+                resp.text[:300],
             )

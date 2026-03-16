@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional
 
 from app.db.iceberg_duckdb import IcebergDuckDB
 from app.schema.inputs import TradeFilterInput
 from app.schema.pagination import (
+    PageInfo,
     TradeConnection,
     TradeEdge,
-    PageInfo,
-    encode_cursor,
     decode_cursor,
+    encode_cursor,
 )
 from app.schema.types import Trade
 
@@ -99,10 +99,7 @@ class TradeResolver:
 
         has_next = len(rows) > first
         page_rows = rows[:first]
-        edges = [
-            TradeEdge(node=_row_to_trade(r), cursor=encode_cursor(offset + i))
-            for i, r in enumerate(page_rows)
-        ]
+        edges = [TradeEdge(node=_row_to_trade(r), cursor=encode_cursor(offset + i)) for i, r in enumerate(page_rows)]
 
         return TradeConnection(
             edges=edges,

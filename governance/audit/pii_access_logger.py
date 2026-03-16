@@ -47,21 +47,23 @@ from pathlib import Path
 
 AUDIT_LOG_DIR = Path(os.environ.get("AUDIT_LOG_DIR", "/var/log/de-capstone/audit"))
 AUDIT_LOG_FILE = AUDIT_LOG_DIR / "pii_access.jsonl"
-MAX_BYTES = 50 * 1024 * 1024   # 50 MB per file
+MAX_BYTES = 50 * 1024 * 1024  # 50 MB per file
 BACKUP_COUNT = 10
 
 # Columns classified as PII — used to auto-detect when logging is required
-PII_COLUMNS: frozenset[str] = frozenset({
-    "account_id",
-    "user_id",
-    "customer_id",
-    "email",
-    "phone",
-    "ip_address",
-    "device_id",
-    "ssn",
-    "national_id",
-})
+PII_COLUMNS: frozenset[str] = frozenset(
+    {
+        "account_id",
+        "user_id",
+        "customer_id",
+        "email",
+        "phone",
+        "ip_address",
+        "device_id",
+        "ssn",
+        "national_id",
+    }
+)
 
 
 def _setup_audit_handler() -> logging.Logger:

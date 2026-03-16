@@ -1,12 +1,5 @@
 """Asset definitions for Bronze, Silver, Gold, Dimension, Governance, and Maintenance layers."""
 
-from orchestrator.assets.maintenance import compaction_report, iceberg_table_stats
-from orchestrator.assets.governance.masked_tables import (
-    masked_gold_summary_public,
-    masked_silver_trades_analyst,
-    masked_silver_trades_business,
-)
-from orchestrator.assets.governance.pii_retention import pii_retention_enforcement
 from orchestrator.assets.bronze import (
     bronze_raw_marketdata,
     bronze_raw_orderbook,
@@ -25,11 +18,18 @@ from orchestrator.assets.gold import (
     gold_portfolio_positions,
     gold_trader_performance,
 )
+from orchestrator.assets.governance.masked_tables import (
+    masked_gold_summary_public,
+    masked_silver_trades_analyst,
+    masked_silver_trades_business,
+)
+from orchestrator.assets.governance.pii_retention import pii_retention_enforcement
+from orchestrator.assets.maintenance import compaction_report, iceberg_table_stats
 from orchestrator.assets.silver import (
     silver_market_data,
     silver_orderbook_snapshots,
-    silver_trades,
     silver_trader_activity,
+    silver_trades,
 )
 
 __all__ = [

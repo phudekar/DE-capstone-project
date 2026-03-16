@@ -212,4 +212,4 @@ CORS_OPTIONS = {
     "supports_credentials": True,
 }
 
-TALISMAN_ENABLED = False   # Disabled locally; enable in production with proper CSP
+TALISMAN_ENABLED = False  # Disabled locally; enable in production with proper CSP

@@ -4,6 +4,7 @@ Configure Superset threshold-based alerts and scheduled email reports.
 
 import logging
 import os
+
 log = logging.getLogger(__name__)
 
 ALERTS = [
@@ -26,8 +27,8 @@ LIMIT 10
 """,
         "validator_type": "operator",
         "validator_config_json": '{"op": ">", "threshold": 0}',
-        "crontab": "*/5 9-17 * * 1-5",   # Every 5 min during market hours
-        "grace_period": 14400,             # 4 hours between repeated alerts
+        "crontab": "*/5 9-17 * * 1-5",  # Every 5 min during market hours
+        "grace_period": 14400,  # 4 hours between repeated alerts
     },
     {
         "name": "Data Freshness Alert",
@@ -50,7 +51,7 @@ SCHEDULED_REPORTS = [
     {
         "name": "Daily Market Summary",
         "description": "End-of-day market overview PDF emailed to executives.",
-        "crontab": "0 17 * * 1-5",   # 5 PM on trading days
+        "crontab": "0 17 * * 1-5",  # 5 PM on trading days
         "recipients": os.environ.get("EXEC_EMAIL", "executives@example.com"),
     },
     {
@@ -86,10 +87,13 @@ def create_alerts(superset_url: str, session) -> None:
         else:
             log.error(
                 "Failed to create alert %s: %d %s",
-                alert["name"], resp.status_code, resp.text[:200],
+                alert["name"],
+                resp.status_code,
+                resp.text[:200],
             )
 
     log.info(
         "Alert/report configuration complete (%d alerts, %d reports).",
-        len(ALERTS), len(SCHEDULED_REPORTS),
+        len(ALERTS),
+        len(SCHEDULED_REPORTS),
     )

@@ -5,8 +5,6 @@ verifies schema, row counts, and data types — without requiring a live Superse
 or Iceberg cluster.
 """
 
-import pytest
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # daily_trade_summary view
@@ -20,8 +18,17 @@ def test_daily_trade_summary_returns_rows(duckdb_conn):
 
 def test_daily_trade_summary_columns(duckdb_conn):
     cols = {d[0] for d in duckdb_conn.execute("SELECT * FROM daily_trade_summary LIMIT 1").description}
-    required = {"trade_date", "symbol", "trade_count", "total_volume", "total_value",
-                "low_price", "high_price", "avg_price", "sector"}
+    required = {
+        "trade_date",
+        "symbol",
+        "trade_count",
+        "total_volume",
+        "total_value",
+        "low_price",
+        "high_price",
+        "avg_price",
+        "sector",
+    }
     assert required.issubset(cols)
 
 
@@ -87,9 +94,7 @@ def test_sector_summary_returns_rows(duckdb_conn):
 
 
 def test_sector_summary_known_sectors(duckdb_conn):
-    sectors = {r[0] for r in duckdb_conn.execute(
-        "SELECT DISTINCT sector FROM sector_daily_summary"
-    ).fetchall()}
+    sectors = {r[0] for r in duckdb_conn.execute("SELECT DISTINCT sector FROM sector_daily_summary").fetchall()}
     assert "Technology" in sectors
     assert "Consumer Discretionary" in sectors
 
@@ -137,9 +142,7 @@ def test_trades_enriched_value_matches_price_qty(duckdb_conn):
 
 
 def test_trades_enriched_all_symbols_present(duckdb_conn, symbols):
-    found = {r[0] for r in duckdb_conn.execute(
-        "SELECT DISTINCT symbol FROM trades_enriched"
-    ).fetchall()}
+    found = {r[0] for r in duckdb_conn.execute("SELECT DISTINCT symbol FROM trades_enriched").fetchall()}
     assert set(symbols) == found
 
 
@@ -149,9 +152,7 @@ def test_trades_enriched_all_symbols_present(duckdb_conn, symbols):
 
 
 def test_symbol_reference_has_all_symbols(duckdb_conn, symbols):
-    found = {r[0] for r in duckdb_conn.execute(
-        "SELECT symbol FROM symbol_reference"
-    ).fetchall()}
+    found = {r[0] for r in duckdb_conn.execute("SELECT symbol FROM symbol_reference").fetchall()}
     assert set(symbols) == found
 
 

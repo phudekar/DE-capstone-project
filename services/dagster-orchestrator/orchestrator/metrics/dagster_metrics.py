@@ -108,4 +108,5 @@ def push_metrics(job_label: str = "dagster") -> None:
     except Exception as exc:
         # Non-fatal: metrics push failure should not affect pipeline
         import logging
+
         logging.getLogger(__name__).warning("Failed to push metrics: %s", exc)

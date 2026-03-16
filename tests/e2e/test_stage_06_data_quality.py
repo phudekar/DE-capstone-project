@@ -10,15 +10,12 @@ Validates:
   - Cross-layer: no data loss, temporal ordering (processed_at >= ingested_at)
 """
 
-import pytest
-
 
 # ── Bronze quality ─────────────────────────────────────────────────────────────
 
+
 def test_bronze_no_null_trade_ids(pipeline_db, populated_pipeline):
-    count = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM bronze_trades WHERE trade_id IS NULL"
-    ).fetchone()[0]
+    count = pipeline_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE trade_id IS NULL").fetchone()[0]
     assert count == 0
 
 
@@ -38,9 +35,7 @@ def test_bronze_price_in_reasonable_range(pipeline_db, populated_pipeline):
 
 
 def test_bronze_quantity_positive(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM bronze_trades WHERE quantity <= 0"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE quantity <= 0").fetchone()[0]
     assert bad == 0
 
 
@@ -54,13 +49,12 @@ def test_bronze_kafka_offset_unique_per_partition(pipeline_db, populated_pipelin
 
 
 def test_bronze_no_null_timestamps(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM bronze_trades WHERE timestamp IS NULL"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE timestamp IS NULL").fetchone()[0]
     assert bad == 0
 
 
 # ── Silver quality ─────────────────────────────────────────────────────────────
+
 
 def test_silver_no_duplicate_trade_ids(pipeline_db, populated_pipeline):
     dups = pipeline_db.conn.execute("""
@@ -71,11 +65,8 @@ def test_silver_no_duplicate_trade_ids(pipeline_db, populated_pipeline):
 
 
 def test_silver_required_fields_not_null(pipeline_db, populated_pipeline):
-    for col in ("trade_id", "symbol", "price", "quantity",
-                "buy_order_id", "sell_order_id", "timestamp"):
-        bad = pipeline_db.conn.execute(
-            f"SELECT COUNT(*) FROM silver_trades WHERE {col} IS NULL"
-        ).fetchone()[0]
+    for col in ("trade_id", "symbol", "price", "quantity", "buy_order_id", "sell_order_id", "timestamp"):
+        bad = pipeline_db.conn.execute(f"SELECT COUNT(*) FROM silver_trades WHERE {col} IS NULL").fetchone()[0]
         assert bad == 0, f"NULL in silver_trades.{col}"
 
 
@@ -108,42 +99,40 @@ def test_silver_timestamp_consistent_with_bronze(pipeline_db, populated_pipeline
 
 # ── Custom OHLCV expectation (ExpectOHLCVValid) expressed in SQL ───────────────
 
+
 def test_ohlcv_high_gte_open(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < open_price"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < open_price").fetchone()[
+        0
+    ]
     assert bad == 0, "OHLCV violation: high_price < open_price"
 
 
 def test_ohlcv_high_gte_close(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < close_price"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < close_price").fetchone()[
+        0
+    ]
     assert bad == 0, "OHLCV violation: high_price < close_price"
 
 
 def test_ohlcv_low_lte_open(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > open_price"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > open_price").fetchone()[0]
     assert bad == 0, "OHLCV violation: low_price > open_price"
 
 
 def test_ohlcv_low_lte_close(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > close_price"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > close_price").fetchone()[
+        0
+    ]
     assert bad == 0, "OHLCV violation: low_price > close_price"
 
 
 def test_ohlcv_volume_positive(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE total_volume <= 0"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE total_volume <= 0").fetchone()[0]
     assert bad == 0, "OHLCV violation: total_volume <= 0"
 
 
 # ── Freshness / temporal ordering ─────────────────────────────────────────────
+
 
 def test_silver_processed_at_after_bronze_ingested(pipeline_db, populated_pipeline):
     violations = pipeline_db.conn.execute("""
@@ -155,20 +144,17 @@ def test_silver_processed_at_after_bronze_ingested(pipeline_db, populated_pipeli
 
 
 def test_bronze_ingested_at_not_null(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM bronze_trades WHERE _ingested_at IS NULL"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE _ingested_at IS NULL").fetchone()[0]
     assert bad == 0
 
 
 def test_gold_aggregated_at_not_null(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE _aggregated_at IS NULL"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE _aggregated_at IS NULL").fetchone()[0]
     assert bad == 0
 
 
 # ── Cross-layer row count checks ──────────────────────────────────────────────
+
 
 def test_no_data_loss_bronze_to_silver(pipeline_db, populated_pipeline):
     missing = pipeline_db.conn.execute("""

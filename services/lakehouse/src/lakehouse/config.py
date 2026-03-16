@@ -32,9 +32,7 @@ BATCH_MAX_MESSAGES = int(os.getenv("BATCH_MAX_MESSAGES", "1000"))
 BATCH_TIMEOUT_SECONDS = float(os.getenv("BATCH_TIMEOUT_SECONDS", "5.0"))
 
 # Reference data
-REFERENCE_DATA_PATH = os.getenv(
-    "REFERENCE_DATA_PATH", "/app/data/reference/symbols.json"
-)
+REFERENCE_DATA_PATH = os.getenv("REFERENCE_DATA_PATH", "/app/data/reference/symbols.json")
 
 # Default Iceberg table properties
 DEFAULT_TABLE_PROPERTIES = {

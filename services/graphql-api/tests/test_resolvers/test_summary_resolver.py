@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-import pytest
 from datetime import date
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from app.cache.memory_cache import MemoryCache
 from app.db.iceberg_duckdb import IcebergDuckDB
 from app.resolvers.daily_summary import DailySummaryResolver, _row_to_summary
 from app.resolvers.market_overview import MarketOverviewResolver
 from app.schema.inputs import DateRangeInput
+
 from tests.conftest import SAMPLE_SUMMARY_ROW
 
 
@@ -111,6 +112,7 @@ async def test_market_overview_caches_result(cache):
     resolver = MarketOverviewResolver(engine, cache)
 
     from datetime import date as d
+
     target = d(2023, 1, 1)  # past date — long TTL
     await resolver.resolve(target)
     call_count = engine.execute.call_count

@@ -2,20 +2,19 @@
 
 from __future__ import annotations
 
-import pytest
-from datetime import date, datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 
-from strawberry.dataloader import DataLoader
-
-from app.schema import schema
+import pytest
 from app.auth.models import ANONYMOUS
 from app.cache.memory_cache import MemoryCache
 from app.context import GraphQLContext
 from app.db.iceberg_duckdb import IcebergDuckDB
+from app.schema import schema
 from app.services.watchlist_service import WatchlistService
 from app.streaming.kafka_consumer import KafkaConsumerFactory
-from tests.conftest import SAMPLE_TRADE_ROW, SAMPLE_SUMMARY_ROW, SAMPLE_SYMBOL_ROW
+from strawberry.dataloader import DataLoader
+
+from tests.conftest import SAMPLE_SUMMARY_ROW, SAMPLE_SYMBOL_ROW, SAMPLE_TRADE_ROW
 
 
 def _make_context(trade_rows=None, summary_rows=None, symbol_rows=None, user=None):
@@ -116,6 +115,7 @@ async def test_market_overview_query():
 @pytest.mark.asyncio
 async def test_create_watchlist_mutation():
     from app.auth.models import UserContext
+
     user = UserContext(user_id="u1", roles=["viewer"])
     ctx = _make_context(user=user)
     result = await schema.execute(
@@ -137,6 +137,7 @@ async def test_create_watchlist_mutation():
 @pytest.mark.asyncio
 async def test_mutation_permission_denied_for_no_role():
     from app.auth.models import UserContext
+
     no_role_user = UserContext(user_id="x", roles=[])
     ctx = _make_context(user=no_role_user)
     result = await schema.execute(

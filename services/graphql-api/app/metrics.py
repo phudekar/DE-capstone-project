@@ -1,6 +1,6 @@
 """Prometheus metrics for the GraphQL API service."""
 
-from prometheus_client import Counter, Histogram, Gauge, REGISTRY
+from prometheus_client import Counter, Gauge, Histogram
 
 graphql_requests_total = Counter(
     "graphql_requests_total",

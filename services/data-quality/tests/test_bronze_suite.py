@@ -1,7 +1,6 @@
 """Tests for bronze expectation suite."""
 
 import pandas as pd
-
 from data_quality.runner import validate_dataframe
 from data_quality.suites.bronze_suite import build_bronze_trades_suite
 
@@ -62,15 +61,24 @@ class TestBronzeSuite:
     def test_empty_table_fails(self):
         df = pd.DataFrame(
             columns=[
-                "trade_id", "symbol", "price", "quantity", "buy_order_id",
-                "sell_order_id", "buyer_agent_id", "seller_agent_id",
-                "is_aggressive_buy", "event_type", "timestamp",
-                "_kafka_topic", "_kafka_partition", "_kafka_offset", "_ingested_at",
+                "trade_id",
+                "symbol",
+                "price",
+                "quantity",
+                "buy_order_id",
+                "sell_order_id",
+                "buyer_agent_id",
+                "seller_agent_id",
+                "is_aggressive_buy",
+                "event_type",
+                "timestamp",
+                "_kafka_topic",
+                "_kafka_partition",
+                "_kafka_offset",
+                "_ingested_at",
             ]
         )
         suite = build_bronze_trades_suite()
         result = validate_dataframe(df, suite)
         failed = [r for r in result["results"] if not r["success"]]
-        assert any(
-            r["expectation_type"] == "expect_table_row_count_to_be_between" for r in failed
-        )
+        assert any(r["expectation_type"] == "expect_table_row_count_to_be_between" for r in failed)

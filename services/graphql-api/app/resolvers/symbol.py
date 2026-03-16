@@ -9,11 +9,11 @@ from app.config import settings
 from app.db.iceberg_duckdb import IcebergDuckDB
 from app.schema.inputs import SymbolFilterInput
 from app.schema.pagination import (
+    PageInfo,
     SymbolConnection,
     SymbolEdge,
-    PageInfo,
-    encode_cursor,
     decode_cursor,
+    encode_cursor,
 )
 from app.schema.types import Symbol
 
@@ -69,17 +69,17 @@ class SymbolResolver:
             all_rows = await self.engine.execute(
                 namespace="dimensions",
                 table="dim_symbol",
-                sql=f"SELECT symbol, company_name, sector, market_cap_category, is_current FROM t WHERE {where} ORDER BY symbol",
+                sql=(
+                    f"SELECT symbol, company_name, sector, market_cap_category, is_current"
+                    f" FROM t WHERE {where} ORDER BY symbol"
+                ),
                 params=params,
             )
             await self.cache.set(cache_ns, cache_key, all_rows, settings.cache_ttl_symbols)
 
-        page = all_rows[offset: offset + first]
+        page = all_rows[offset : offset + first]
         has_next = len(all_rows) > offset + first
-        edges = [
-            SymbolEdge(node=_row_to_symbol(r), cursor=encode_cursor(offset + i))
-            for i, r in enumerate(page)
-        ]
+        edges = [SymbolEdge(node=_row_to_symbol(r), cursor=encode_cursor(offset + i)) for i, r in enumerate(page)]
         return SymbolConnection(
             edges=edges,
             page_info=PageInfo(

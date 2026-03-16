@@ -16,10 +16,12 @@ class DLQProducer:
     """Sends failed messages to the dead letter queue topic as raw JSON."""
 
     def __init__(self, settings: Settings) -> None:
-        self._producer = Producer({
-            "bootstrap.servers": settings.kafka_bootstrap_servers,
-            "client.id": "kafka-bridge-dlq",
-        })
+        self._producer = Producer(
+            {
+                "bootstrap.servers": settings.kafka_bootstrap_servers,
+                "client.id": "kafka-bridge-dlq",
+            }
+        )
 
     def send(self, raw_message: str, error: str) -> None:
         """Send a failed message to the DLQ with error metadata."""

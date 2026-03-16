@@ -13,26 +13,26 @@ from lakehouse.catalog import get_catalog
 
 logger = logging.getLogger(__name__)
 
-GOLD_DAILY_SUMMARY_ARROW_SCHEMA = pa.schema([
-    pa.field("symbol", pa.string(), nullable=False),
-    pa.field("trading_date", pa.date32(), nullable=False),
-    pa.field("open_price", pa.float64(), nullable=False),
-    pa.field("close_price", pa.float64(), nullable=False),
-    pa.field("high_price", pa.float64(), nullable=False),
-    pa.field("low_price", pa.float64(), nullable=False),
-    pa.field("vwap", pa.float64(), nullable=False),
-    pa.field("total_volume", pa.int64(), nullable=False),
-    pa.field("trade_count", pa.int32(), nullable=False),
-    pa.field("total_value", pa.float64(), nullable=False),
-    pa.field("company_name", pa.string(), nullable=True),
-    pa.field("sector", pa.string(), nullable=True),
-    pa.field("_aggregated_at", pa.timestamp("us", tz="UTC"), nullable=False),
-])
+GOLD_DAILY_SUMMARY_ARROW_SCHEMA = pa.schema(
+    [
+        pa.field("symbol", pa.string(), nullable=False),
+        pa.field("trading_date", pa.date32(), nullable=False),
+        pa.field("open_price", pa.float64(), nullable=False),
+        pa.field("close_price", pa.float64(), nullable=False),
+        pa.field("high_price", pa.float64(), nullable=False),
+        pa.field("low_price", pa.float64(), nullable=False),
+        pa.field("vwap", pa.float64(), nullable=False),
+        pa.field("total_volume", pa.int64(), nullable=False),
+        pa.field("trade_count", pa.int32(), nullable=False),
+        pa.field("total_value", pa.float64(), nullable=False),
+        pa.field("company_name", pa.string(), nullable=True),
+        pa.field("sector", pa.string(), nullable=True),
+        pa.field("_aggregated_at", pa.timestamp("us", tz="UTC"), nullable=False),
+    ]
+)
 
 
-def aggregate_daily_trading_summary(
-    catalog, trading_date: date | None = None
-) -> int:
+def aggregate_daily_trading_summary(catalog, trading_date: date | None = None) -> int:
     """Compute daily trading summary from Silver trades using DuckDB.
 
     Args:
@@ -49,7 +49,8 @@ def aggregate_daily_trading_summary(
     gold_table = catalog.load_table(f"{config.NS_GOLD}.daily_trading_summary")
 
     # Read Silver trades into Arrow — filter to target date to limit memory
-    date_filter = f"timestamp >= '{trading_date.isoformat()}T00:00:00+00:00' AND timestamp < '{trading_date.isoformat()}T23:59:59+00:00'"
+    ds = trading_date.isoformat()
+    date_filter = f"timestamp >= '{ds}T00:00:00+00:00' AND timestamp < '{ds}T23:59:59+00:00'"
     silver_arrow = silver_table.scan(row_filter=date_filter).to_arrow()
 
     if len(silver_arrow) == 0:

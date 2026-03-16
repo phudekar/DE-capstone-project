@@ -131,6 +131,7 @@ def pii_retention_enforcement(
     total_affected = 0
     try:
         import duckdb
+
         from orchestrator.config import settings as orch_settings
 
         catalog_uri = getattr(orch_settings, "iceberg_catalog_uri", "http://iceberg-rest:8181")
@@ -146,9 +147,7 @@ def pii_retention_enforcement(
         )
 
         for namespace, table in tables_to_process:
-            affected = _enforce_retention_for_table(
-                conn, namespace, table, cutoff, config.dry_run
-            )
+            affected = _enforce_retention_for_table(conn, namespace, table, cutoff, config.dry_run)
             total_affected += affected
 
     except Exception as exc:
@@ -162,9 +161,11 @@ def pii_retention_enforcement(
         total_affected,
         "would be pseudonymised" if config.dry_run else "pseudonymised",
     )
-    context.add_output_metadata({
-        "cutoff_date": cutoff.isoformat(),
-        "retention_days": config.retention_days,
-        "dry_run": config.dry_run,
-        "rows_affected": total_affected,
-    })
+    context.add_output_metadata(
+        {
+            "cutoff_date": cutoff.isoformat(),
+            "retention_days": config.retention_days,
+            "dry_run": config.dry_run,
+            "rows_affected": total_affected,
+        }
+    )

@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-import strawberry
 from datetime import date, datetime
-from strawberry.types import Info
 from typing import Optional
+
+import strawberry
+from strawberry.types import Info
 
 
 @strawberry.type

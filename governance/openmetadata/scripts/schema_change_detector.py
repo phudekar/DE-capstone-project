@@ -12,11 +12,12 @@ Usage:
         --snapshot-dir /tmp/schema-snapshots
 """
 
-import os
+import argparse
 import json
 import logging
-import argparse
+import os
 from pathlib import Path
+
 import requests
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -64,10 +65,7 @@ def _detect_changes(baseline: list[dict], current: list[dict]) -> list[str]:
         if name not in curr_map:
             issues.append(f"BREAKING: Column '{name}' was removed.")
         elif curr_map[name]["dataType"] != col["dataType"]:
-            issues.append(
-                f"BREAKING: Column '{name}' type changed "
-                f"{col['dataType']} → {curr_map[name]['dataType']}."
-            )
+            issues.append(f"BREAKING: Column '{name}' type changed {col['dataType']} → {curr_map[name]['dataType']}.")
 
     new_cols = [n for n in curr_map if n not in base_map]
     for name in new_cols:
@@ -116,8 +114,9 @@ def check_table(fqn: str, snapshot_dir: Path) -> bool:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Detect breaking schema changes.")
-    parser.add_argument("--snapshot-dir", default="/tmp/schema-snapshots",
-                        help="Directory to store baseline snapshots.")
+    parser.add_argument(
+        "--snapshot-dir", default="/tmp/schema-snapshots", help="Directory to store baseline snapshots."
+    )
     args = parser.parse_args()
 
     snapshot_dir = Path(args.snapshot_dir)

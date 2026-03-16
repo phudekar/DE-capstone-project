@@ -3,9 +3,8 @@
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.auth.models import UserContext, ANONYMOUS
+from app.auth.models import ANONYMOUS, UserContext
 from app.config import settings
-
 
 # Predefined API keys mapping to user contexts for local dev
 _API_KEY_USERS: dict[str, UserContext] = {

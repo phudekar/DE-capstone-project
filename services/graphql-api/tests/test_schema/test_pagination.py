@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-from app.schema.pagination import encode_cursor, decode_cursor
+from app.schema.pagination import decode_cursor, encode_cursor
 
 
 def test_encode_decode_round_trip():
@@ -16,7 +15,9 @@ def test_cursor_is_base64_string():
     cursor = encode_cursor(42)
     assert isinstance(cursor, str)
     # Must be decodable
-    import base64, json
+    import base64
+    import json
+
     data = json.loads(base64.b64decode(cursor.encode()).decode())
     assert data["offset"] == 42
 

@@ -1,6 +1,7 @@
 """Tests for app.middleware.rls_middleware — row-level security session vars."""
 
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock
+
 from app.auth.models import UserContext
 from app.middleware.rls_middleware import apply_rls_session_vars, clear_rls_session_vars
 

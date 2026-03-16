@@ -22,6 +22,7 @@ def _now() -> str:
 
 # ─── TradeExecuted ─────────────────────────────────────────────────────────────
 
+
 def make_trade_event(
     symbol: str = "AAPL",
     price: float = 182.50,
@@ -55,22 +56,26 @@ def make_trade_batch(
 ) -> list[dict]:
     """Return a list of TradeExecuted envelopes across multiple symbols."""
     import random
+
     rng = random.Random(42)
     events = []
     for sym in symbols:
         price = base_price
         for _ in range(n_per_symbol):
             price *= rng.uniform(0.995, 1.005)
-            events.append(make_trade_event(
-                symbol=sym,
-                price=round(price, 4),
-                quantity=rng.randint(10, 500),
-                is_aggressive_buy=rng.choice([True, False]),
-            ))
+            events.append(
+                make_trade_event(
+                    symbol=sym,
+                    price=round(price, 4),
+                    quantity=rng.randint(10, 500),
+                    is_aggressive_buy=rng.choice([True, False]),
+                )
+            )
     return events
 
 
 # ─── OrderBookSnapshot ─────────────────────────────────────────────────────────
+
 
 def make_orderbook_event(
     symbol: str = "AAPL",
@@ -80,14 +85,8 @@ def make_orderbook_event(
 ) -> dict:
     """Return a raw DE-Stock WebSocket envelope for an OrderBookSnapshot event."""
     spread = 0.02
-    bids = [
-        {"price": round(mid_price - spread / 2 - i * 0.10, 2), "quantity": 100 + i * 20}
-        for i in range(n_levels)
-    ]
-    asks = [
-        {"price": round(mid_price + spread / 2 + i * 0.10, 2), "quantity": 80 + i * 15}
-        for i in range(n_levels)
-    ]
+    bids = [{"price": round(mid_price - spread / 2 - i * 0.10, 2), "quantity": 100 + i * 20} for i in range(n_levels)]
+    asks = [{"price": round(mid_price + spread / 2 + i * 0.10, 2), "quantity": 80 + i * 15} for i in range(n_levels)]
     return {
         "event_type": "OrderBookSnapshot",
         "timestamp": timestamp or _now(),
@@ -101,6 +100,7 @@ def make_orderbook_event(
 
 
 # ─── QuoteUpdate ───────────────────────────────────────────────────────────────
+
 
 def make_quote_event(symbol: str = "AAPL", mid_price: float = 182.50) -> dict:
     spread = 0.05
@@ -120,6 +120,7 @@ def make_quote_event(symbol: str = "AAPL", mid_price: float = 182.50) -> dict:
 
 
 # ─── OrderPlaced ───────────────────────────────────────────────────────────────
+
 
 def make_order_placed_event(symbol: str = "AAPL") -> dict:
     return {
@@ -141,6 +142,7 @@ def make_order_placed_event(symbol: str = "AAPL") -> dict:
 
 # ─── MarketStats ───────────────────────────────────────────────────────────────
 
+
 def make_market_stats_event(symbol: str = "AAPL", volume: int = 500_000) -> dict:
     return {
         "event_type": "MarketStats",
@@ -161,6 +163,7 @@ def make_market_stats_event(symbol: str = "AAPL", volume: int = 500_000) -> dict
 
 
 # ─── Invalid events ────────────────────────────────────────────────────────────
+
 
 def make_invalid_event() -> dict:
     """An envelope with an unknown event_type (should be routed to DLQ)."""
@@ -190,5 +193,5 @@ SYMBOL_REFERENCE = {
     "GOOG": {"company_name": "Alphabet Inc.", "sector": "Technology"},
     "AMZN": {"company_name": "Amazon.com Inc.", "sector": "Consumer Discretionary"},
     "TSLA": {"company_name": "Tesla Inc.", "sector": "Consumer Discretionary"},
-    "JPM":  {"company_name": "JPMorgan Chase & Co.", "sector": "Financials"},
+    "JPM": {"company_name": "JPMorgan Chase & Co.", "sector": "Financials"},
 }

@@ -13,19 +13,19 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT / "libs/common/src"))
 
-import pytest
-from pydantic import TypeAdapter
+import pytest  # noqa: E402
+from de_common.models.enums import AgentType, OrderType, Side  # noqa: E402
+from de_common.models.events import MarketEvent  # noqa: E402
+from pydantic import TypeAdapter  # noqa: E402
 
-from de_common.models.events import MarketEvent
-from de_common.models.enums import Side, AgentType, OrderType
-from tests.e2e.fixtures.events import (
-    make_trade_event,
-    make_orderbook_event,
-    make_quote_event,
-    make_order_placed_event,
-    make_market_stats_event,
+from tests.e2e.fixtures.events import (  # noqa: E402
     make_invalid_event,
     make_malformed_trade_event,
+    make_market_stats_event,
+    make_order_placed_event,
+    make_orderbook_event,
+    make_quote_event,
+    make_trade_event,
 )
 
 _adapter = TypeAdapter(MarketEvent)
@@ -36,6 +36,7 @@ def _parse(raw: dict):
 
 
 # ── TradeExecuted ──────────────────────────────────────────────────────────────
+
 
 def test_trade_event_parses():
     raw = make_trade_event(symbol="AAPL", price=182.50, quantity=100)
@@ -76,6 +77,7 @@ def test_trade_event_timestamp_parsed():
 
 # ── OrderBookSnapshot ──────────────────────────────────────────────────────────
 
+
 def test_orderbook_event_parses():
     raw = make_orderbook_event(symbol="MSFT", mid_price=310.00, n_levels=3)
     event = _parse(raw)
@@ -107,6 +109,7 @@ def test_orderbook_best_bid_lt_best_ask():
 
 # ── QuoteUpdate ────────────────────────────────────────────────────────────────
 
+
 def test_quote_event_parses():
     raw = make_quote_event(symbol="GOOG", mid_price=140.00)
     event = _parse(raw)
@@ -130,6 +133,7 @@ def test_quote_mid_price_between_bid_ask():
 
 # ── OrderPlaced ────────────────────────────────────────────────────────────────
 
+
 def test_order_placed_event_parses():
     raw = make_order_placed_event(symbol="AAPL")
     event = _parse(raw)
@@ -146,6 +150,7 @@ def test_order_placed_has_agent_type():
 
 
 # ── MarketStats ────────────────────────────────────────────────────────────────
+
 
 def test_market_stats_event_parses():
     raw = make_market_stats_event(symbol="JPM", volume=250_000)
@@ -164,8 +169,10 @@ def test_market_stats_ohlc_ordering():
 
 # ── Validation failures ────────────────────────────────────────────────────────
 
+
 def test_malformed_trade_fails_validation():
     from pydantic import ValidationError
+
     raw = make_malformed_trade_event()
     with pytest.raises(ValidationError):
         _parse(raw)
@@ -173,6 +180,7 @@ def test_malformed_trade_fails_validation():
 
 def test_invalid_event_type_fails_validation():
     from pydantic import ValidationError
+
     raw = make_invalid_event()
     with pytest.raises(ValidationError):
         _parse(raw)
@@ -180,5 +188,6 @@ def test_invalid_event_type_fails_validation():
 
 def test_empty_dict_fails_validation():
     from pydantic import ValidationError
+
     with pytest.raises(ValidationError):
         _parse({})

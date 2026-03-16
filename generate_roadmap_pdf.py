@@ -27,46 +27,46 @@ MONO = "mono"
 
 # Syntax highlighting: token type -> RGB (VS Code-inspired light theme)
 _TOKEN_COLORS = {
-    Token.Keyword:              (0, 0, 200),       # blue
-    Token.Keyword.Namespace:    (0, 0, 200),
-    Token.Keyword.Constant:     (0, 0, 200),
-    Token.Keyword.Type:         (0, 0, 200),
-    Token.Name.Builtin:         (0, 130, 120),      # teal
-    Token.Name.Function:        (120, 80, 0),        # dark yellow/brown
-    Token.Name.Function.Magic:  (120, 80, 0),
-    Token.Name.Decorator:       (175, 80, 0),        # orange
-    Token.Name.Class:           (0, 130, 120),
-    Token.Literal.String:       (163, 21, 21),       # red
-    Token.Literal.String.Doc:   (163, 21, 21),
+    Token.Keyword: (0, 0, 200),  # blue
+    Token.Keyword.Namespace: (0, 0, 200),
+    Token.Keyword.Constant: (0, 0, 200),
+    Token.Keyword.Type: (0, 0, 200),
+    Token.Name.Builtin: (0, 130, 120),  # teal
+    Token.Name.Function: (120, 80, 0),  # dark yellow/brown
+    Token.Name.Function.Magic: (120, 80, 0),
+    Token.Name.Decorator: (175, 80, 0),  # orange
+    Token.Name.Class: (0, 130, 120),
+    Token.Literal.String: (163, 21, 21),  # red
+    Token.Literal.String.Doc: (163, 21, 21),
     Token.Literal.String.Interpol: (0, 0, 200),
     Token.Literal.String.Affix: (0, 0, 200),
-    Token.Literal.Number:       (9, 134, 88),        # green
+    Token.Literal.Number: (9, 134, 88),  # green
     Token.Literal.Number.Integer: (9, 134, 88),
     Token.Literal.Number.Float: (9, 134, 88),
-    Token.Comment:              (0, 128, 0),         # green
-    Token.Comment.Single:       (0, 128, 0),
-    Token.Comment.Hashbang:     (0, 128, 0),
-    Token.Operator.Word:        (0, 0, 200),         # blue (and, or, not, in)
+    Token.Comment: (0, 128, 0),  # green
+    Token.Comment.Single: (0, 128, 0),
+    Token.Comment.Hashbang: (0, 128, 0),
+    Token.Operator.Word: (0, 0, 200),  # blue (and, or, not, in)
 }
 _DEFAULT_TOKEN_COLOR = (30, 30, 30)
 
 # Map language labels to Pygments lexer names
 _LANG_TO_LEXER = {
-    "python":     "python",
-    "pyspark":    "python",
-    "airflow":    "python",
-    "sql":        "sql",
-    "yaml":       "yaml",
-    "hcl":        "hcl",
-    "bash":       "bash",
+    "python": "python",
+    "pyspark": "python",
+    "airflow": "python",
+    "sql": "sql",
+    "yaml": "yaml",
+    "hcl": "hcl",
+    "bash": "bash",
     "dockerfile": "docker",
-    "docker":     "bash",
-    "toml":       "toml",
-    "jinja":      "jinja",
-    "git":        "bash",
-    "data":       "python",
+    "docker": "bash",
+    "toml": "toml",
+    "jinja": "jinja",
+    "git": "bash",
+    "data": "python",
     "architecture": None,
-    "project":    None,
+    "project": None,
 }
 
 
@@ -431,6 +431,7 @@ class RoadmapPDF(FPDF):
 # DEEP-DIVE CONTENT: code examples + diagrams per week
 # ═══════════════════════════════════════════════════════════════
 
+
 def _week1_deep_dive(pdf):
     """Week 1 deep-dive: Python for Data Engineering."""
     pdf.add_page()
@@ -438,78 +439,78 @@ def _week1_deep_dive(pdf):
 
     pdf.sub_heading("Project Structure")
     pdf.diagram_block(
-        '  taxi-ingestion/\n'
-        '  +-- pyproject.toml          # project metadata + deps\n'
-        '  +-- src/\n'
-        '  |   +-- taxi_ingestion/\n'
-        '  |       +-- __init__.py\n'
-        '  |       +-- app.py          # FastAPI application\n'
-        '  |       +-- config.py       # pydantic-settings\n'
-        '  |       +-- logging_config.py\n'
-        '  |       +-- ingestion.py    # download logic\n'
-        '  |       +-- models.py       # data contracts\n'
-        '  +-- tests/\n'
-        '  |   +-- test_app.py\n'
-        '  |   +-- test_ingestion.py\n'
-        '  |   +-- conftest.py\n'
-        '  +-- data/\n'
-        '  |   +-- raw/                # downloaded files land here\n'
-        '  +-- .env                    # local overrides\n'
-        '  +-- Dockerfile'
+        "  taxi-ingestion/\n"
+        "  +-- pyproject.toml          # project metadata + deps\n"
+        "  +-- src/\n"
+        "  |   +-- taxi_ingestion/\n"
+        "  |       +-- __init__.py\n"
+        "  |       +-- app.py          # FastAPI application\n"
+        "  |       +-- config.py       # pydantic-settings\n"
+        "  |       +-- logging_config.py\n"
+        "  |       +-- ingestion.py    # download logic\n"
+        "  |       +-- models.py       # data contracts\n"
+        "  +-- tests/\n"
+        "  |   +-- test_app.py\n"
+        "  |   +-- test_ingestion.py\n"
+        "  |   +-- conftest.py\n"
+        "  +-- data/\n"
+        "  |   +-- raw/                # downloaded files land here\n"
+        "  +-- .env                    # local overrides\n"
+        "  +-- Dockerfile"
     )
 
     pdf.tool_heading("pyproject.toml", "Modern Python project configuration")
     pdf.code_block(
-        '[build-system]\n'
+        "[build-system]\n"
         'requires = ["hatchling"]\n'
         'build-backend = "hatchling.build"\n'
-        '\n'
-        '[project]\n'
+        "\n"
+        "[project]\n"
         'name = "taxi-ingestion"\n'
         'version = "0.1.0"\n'
         'requires-python = ">=3.11"\n'
-        'dependencies = [\n'
+        "dependencies = [\n"
         '    "httpx>=0.27",\n'
         '    "fastapi>=0.110",\n'
         '    "uvicorn[standard]>=0.29",\n'
         '    "pydantic-settings>=2.2",\n'
-        ']\n'
-        '\n'
-        '[project.optional-dependencies]\n'
+        "]\n"
+        "\n"
+        "[project.optional-dependencies]\n"
         'dev = ["pytest>=8.0", "ruff>=0.4", "pytest-cov"]\n'
-        '\n'
-        '[project.scripts]\n'
+        "\n"
+        "[project.scripts]\n"
         'taxi-ingest = "taxi_ingestion.app:main"\n'
-        '\n'
-        '[tool.ruff]\n'
-        'line-length = 100\n'
+        "\n"
+        "[tool.ruff]\n"
+        "line-length = 100\n"
         'target-version = "py311"',
         "pyproject.toml",
     )
 
     pdf.tool_heading("Structured Logging", "Replace print() with proper logging")
     pdf.code_block(
-        'import logging\n'
-        'import json\n'
-        'import sys\n'
-        '\n'
-        'class JSONFormatter(logging.Formatter):\n'
-        '    def format(self, record):\n'
-        '        return json.dumps({\n'
+        "import logging\n"
+        "import json\n"
+        "import sys\n"
+        "\n"
+        "class JSONFormatter(logging.Formatter):\n"
+        "    def format(self, record):\n"
+        "        return json.dumps({\n"
         '            "ts": self.formatTime(record),\n'
         '            "level": record.levelname,\n'
         '            "module": record.module,\n'
         '            "msg": record.getMessage(),\n'
-        '        })\n'
-        '\n'
-        'def get_logger(name: str) -> logging.Logger:\n'
-        '    logger = logging.getLogger(name)\n'
-        '    handler = logging.StreamHandler(sys.stdout)\n'
-        '    handler.setFormatter(JSONFormatter())\n'
-        '    logger.addHandler(handler)\n'
-        '    logger.setLevel(logging.INFO)\n'
-        '    return logger\n'
-        '\n'
+        "        })\n"
+        "\n"
+        "def get_logger(name: str) -> logging.Logger:\n"
+        "    logger = logging.getLogger(name)\n"
+        "    handler = logging.StreamHandler(sys.stdout)\n"
+        "    handler.setFormatter(JSONFormatter())\n"
+        "    logger.addHandler(handler)\n"
+        "    logger.setLevel(logging.INFO)\n"
+        "    return logger\n"
+        "\n"
         'log = get_logger("ingestion")\n'
         'log.info("Pipeline started", extra={"run_id": "abc123"})',
         "Python — logging_config.py",
@@ -518,130 +519,130 @@ def _week1_deep_dive(pdf):
     pdf.add_page()
     pdf.tool_heading("FastAPI Ingestion Endpoint", "HTTP API for triggering data pulls")
     pdf.code_block(
-        'from fastapi import FastAPI, BackgroundTasks, HTTPException\n'
-        'from pydantic import BaseModel, field_validator\n'
-        'import httpx\n'
-        'from pathlib import Path\n'
-        'from datetime import datetime\n'
-        '\n'
+        "from fastapi import FastAPI, BackgroundTasks, HTTPException\n"
+        "from pydantic import BaseModel, field_validator\n"
+        "import httpx\n"
+        "from pathlib import Path\n"
+        "from datetime import datetime\n"
+        "\n"
         'app = FastAPI(title="Taxi Data Ingestion")\n'
-        '\n'
-        'class IngestRequest(BaseModel):\n'
-        '    year: int\n'
-        '    month: int\n'
-        '\n'
+        "\n"
+        "class IngestRequest(BaseModel):\n"
+        "    year: int\n"
+        "    month: int\n"
+        "\n"
         '    @field_validator("month")\n'
-        '    @classmethod\n'
-        '    def valid_month(cls, v):\n'
-        '        if not 1 <= v <= 12:\n'
+        "    @classmethod\n"
+        "    def valid_month(cls, v):\n"
+        "        if not 1 <= v <= 12:\n"
         '            raise ValueError("month must be 1-12")\n'
-        '        return v\n'
-        '\n'
-        'async def download_parquet(year: int, month: int):\n'
-        '    url = (\n'
+        "        return v\n"
+        "\n"
+        "async def download_parquet(year: int, month: int):\n"
+        "    url = (\n"
         '        f"https://d37ci6vzurychx.cloudfront.net/trip-data/"\n'
         '        f"yellow_tripdata_{year}-{month:02d}.parquet"\n'
-        '    )\n'
+        "    )\n"
         '    out = Path(f"data/raw/{year}_{month:02d}.parquet")\n'
-        '    out.parent.mkdir(parents=True, exist_ok=True)\n'
-        '    async with httpx.AsyncClient(timeout=120) as c:\n'
-        '        resp = await c.get(url)\n'
-        '        resp.raise_for_status()\n'
-        '        out.write_bytes(resp.content)\n'
-        '\n'
+        "    out.parent.mkdir(parents=True, exist_ok=True)\n"
+        "    async with httpx.AsyncClient(timeout=120) as c:\n"
+        "        resp = await c.get(url)\n"
+        "        resp.raise_for_status()\n"
+        "        out.write_bytes(resp.content)\n"
+        "\n"
         '@app.post("/ingest")\n'
-        'async def ingest(req: IngestRequest, bg: BackgroundTasks):\n'
-        '    bg.add_task(download_parquet, req.year, req.month)\n'
+        "async def ingest(req: IngestRequest, bg: BackgroundTasks):\n"
+        "    bg.add_task(download_parquet, req.year, req.month)\n"
         '    return {"status": "accepted", "period": f"{req.year}-{req.month:02d}"}\n'
-        '\n'
+        "\n"
         '@app.get("/health")\n'
-        'async def health():\n'
+        "async def health():\n"
         '    return {"status": "ok"}',
         "Python — app.py",
     )
 
     pdf.tool_heading("Data Contracts with Dataclasses", "Typed records for pipeline data")
     pdf.code_block(
-        'from dataclasses import dataclass, asdict\n'
-        'from datetime import datetime\n'
-        'from typing import Optional\n'
-        '\n'
-        '@dataclass(frozen=True)\n'
-        'class TaxiTrip:\n'
-        '    pickup_datetime: datetime\n'
-        '    dropoff_datetime: datetime\n'
-        '    passenger_count: int\n'
-        '    trip_distance: float\n'
-        '    fare_amount: float\n'
-        '    tip_amount: float\n'
-        '    total_amount: float\n'
-        '    payment_type: Optional[str] = None\n'
-        '\n'
-        '    def to_dict(self) -> dict:\n'
-        '        return asdict(self)\n'
-        '\n'
-        '    @property\n'
-        '    def duration_minutes(self) -> float:\n'
-        '        delta = self.dropoff_datetime - self.pickup_datetime\n'
-        '        return delta.total_seconds() / 60',
+        "from dataclasses import dataclass, asdict\n"
+        "from datetime import datetime\n"
+        "from typing import Optional\n"
+        "\n"
+        "@dataclass(frozen=True)\n"
+        "class TaxiTrip:\n"
+        "    pickup_datetime: datetime\n"
+        "    dropoff_datetime: datetime\n"
+        "    passenger_count: int\n"
+        "    trip_distance: float\n"
+        "    fare_amount: float\n"
+        "    tip_amount: float\n"
+        "    total_amount: float\n"
+        "    payment_type: Optional[str] = None\n"
+        "\n"
+        "    def to_dict(self) -> dict:\n"
+        "        return asdict(self)\n"
+        "\n"
+        "    @property\n"
+        "    def duration_minutes(self) -> float:\n"
+        "        delta = self.dropoff_datetime - self.pickup_datetime\n"
+        "        return delta.total_seconds() / 60",
         "Python — models.py",
     )
 
     pdf.add_page()
     pdf.tool_heading("httpx Ingestion with Retry", "Resilient HTTP downloads")
     pdf.code_block(
-        'import httpx\n'
-        'from tenacity import retry, stop_after_attempt, wait_exponential\n'
-        'from pathlib import Path\n'
-        'from logging_config import get_logger\n'
-        '\n'
+        "import httpx\n"
+        "from tenacity import retry, stop_after_attempt, wait_exponential\n"
+        "from pathlib import Path\n"
+        "from logging_config import get_logger\n"
+        "\n"
         'log = get_logger("ingestion")\n'
-        '\n'
-        '@retry(\n'
-        '    stop=stop_after_attempt(3),\n'
-        '    wait=wait_exponential(multiplier=1, min=2, max=30),\n'
-        '    reraise=True,\n'
-        ')\n'
-        'def download_file(url: str, dest: Path) -> Path:\n'
+        "\n"
+        "@retry(\n"
+        "    stop=stop_after_attempt(3),\n"
+        "    wait=wait_exponential(multiplier=1, min=2, max=30),\n"
+        "    reraise=True,\n"
+        ")\n"
+        "def download_file(url: str, dest: Path) -> Path:\n"
         '    log.info(f"Downloading {url}")\n'
-        '    dest.parent.mkdir(parents=True, exist_ok=True)\n'
-        '    with httpx.Client(timeout=120, follow_redirects=True) as c:\n'
+        "    dest.parent.mkdir(parents=True, exist_ok=True)\n"
+        "    with httpx.Client(timeout=120, follow_redirects=True) as c:\n"
         '        with c.stream("GET", url) as resp:\n'
-        '            resp.raise_for_status()\n'
+        "            resp.raise_for_status()\n"
         '            with open(dest, "wb") as f:\n'
-        '                for chunk in resp.iter_bytes(chunk_size=8192):\n'
-        '                    f.write(chunk)\n'
+        "                for chunk in resp.iter_bytes(chunk_size=8192):\n"
+        "                    f.write(chunk)\n"
         '    log.info(f"Saved {dest} ({dest.stat().st_size:,} bytes)")\n'
-        '    return dest',
+        "    return dest",
         "Python — ingestion.py",
     )
 
     pdf.tool_heading("Pytest Tests", "Testing the ingestion logic")
     pdf.code_block(
-        'import pytest\n'
-        'from httpx import AsyncClient\n'
-        'from unittest.mock import patch, AsyncMock\n'
-        'from app import app\n'
-        '\n'
-        '@pytest.mark.anyio\n'
-        'async def test_ingest_returns_accepted():\n'
+        "import pytest\n"
+        "from httpx import AsyncClient\n"
+        "from unittest.mock import patch, AsyncMock\n"
+        "from app import app\n"
+        "\n"
+        "@pytest.mark.anyio\n"
+        "async def test_ingest_returns_accepted():\n"
         '    async with AsyncClient(app=app, base_url="http://test") as c:\n'
         '        resp = await c.post("/ingest",\n'
         '            json={"year": 2024, "month": 1})\n'
-        '        assert resp.status_code == 200\n'
-        '        data = resp.json()\n'
+        "        assert resp.status_code == 200\n"
+        "        data = resp.json()\n"
         '        assert data["status"] == "accepted"\n'
         '        assert data["period"] == "2024-01"\n'
-        '\n'
-        '@pytest.mark.anyio\n'
-        'async def test_ingest_validates_month():\n'
+        "\n"
+        "@pytest.mark.anyio\n"
+        "async def test_ingest_validates_month():\n"
         '    async with AsyncClient(app=app, base_url="http://test") as c:\n'
         '        resp = await c.post("/ingest",\n'
         '            json={"year": 2024, "month": 13})\n'
-        '        assert resp.status_code == 422\n'
-        '\n'
-        '@pytest.mark.anyio\n'
-        'async def test_health():\n'
+        "        assert resp.status_code == 422\n"
+        "\n"
+        "@pytest.mark.anyio\n"
+        "async def test_health():\n"
         '    async with AsyncClient(app=app, base_url="http://test") as c:\n'
         '        resp = await c.get("/health")\n'
         '        assert resp.json()["status"] == "ok"',
@@ -650,17 +651,17 @@ def _week1_deep_dive(pdf):
 
     pdf.tool_heading("Config with pydantic-settings", "Environment-driven configuration")
     pdf.code_block(
-        'from pydantic_settings import BaseSettings\n'
-        '\n'
-        'class Settings(BaseSettings):\n'
+        "from pydantic_settings import BaseSettings\n"
+        "\n"
+        "class Settings(BaseSettings):\n"
         '    api_base_url: str = "https://d37ci6vzurychx.cloudfront.net"\n'
         '    data_dir: str = "data/raw"\n'
         '    log_level: str = "INFO"\n'
-        '    max_retries: int = 3\n'
-        '\n'
+        "    max_retries: int = 3\n"
+        "\n"
         '    model_config = {"env_prefix": "TAXI_"}\n'
-        '\n'
-        'settings = Settings()  # reads TAXI_API_BASE_URL, TAXI_DATA_DIR, etc.',
+        "\n"
+        "settings = Settings()  # reads TAXI_API_BASE_URL, TAXI_DATA_DIR, etc.",
         "Python — config.py",
     )
 
@@ -672,177 +673,177 @@ def _week2_deep_dive(pdf):
 
     pdf.tool_heading("Window Functions", "Analytics beyond GROUP BY")
     pdf.code_block(
-        '-- Rank trips by fare within each day\n'
-        'SELECT\n'
-        '    pickup_date,\n'
-        '    trip_id,\n'
-        '    fare_amount,\n'
-        '    ROW_NUMBER() OVER (\n'
-        '        PARTITION BY pickup_date\n'
-        '        ORDER BY fare_amount DESC\n'
-        '    ) AS fare_rank,\n'
-        '    LAG(fare_amount) OVER (\n'
-        '        PARTITION BY pickup_date\n'
-        '        ORDER BY pickup_datetime\n'
-        '    ) AS prev_fare,\n'
-        '    SUM(fare_amount) OVER (\n'
-        '        PARTITION BY pickup_date\n'
-        '        ORDER BY pickup_datetime\n'
-        '        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\n'
-        '    ) AS running_total\n'
-        'FROM trips\n'
-        'WHERE pickup_date = \'2024-01-15\';',
+        "-- Rank trips by fare within each day\n"
+        "SELECT\n"
+        "    pickup_date,\n"
+        "    trip_id,\n"
+        "    fare_amount,\n"
+        "    ROW_NUMBER() OVER (\n"
+        "        PARTITION BY pickup_date\n"
+        "        ORDER BY fare_amount DESC\n"
+        "    ) AS fare_rank,\n"
+        "    LAG(fare_amount) OVER (\n"
+        "        PARTITION BY pickup_date\n"
+        "        ORDER BY pickup_datetime\n"
+        "    ) AS prev_fare,\n"
+        "    SUM(fare_amount) OVER (\n"
+        "        PARTITION BY pickup_date\n"
+        "        ORDER BY pickup_datetime\n"
+        "        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\n"
+        "    ) AS running_total\n"
+        "FROM trips\n"
+        "WHERE pickup_date = '2024-01-15';",
         "SQL — Window functions",
     )
 
     pdf.tool_heading("CTEs for Readable Queries", "Break complex logic into named steps")
     pdf.code_block(
-        'WITH daily_stats AS (\n'
-        '    SELECT\n'
-        '        pickup_date,\n'
-        '        COUNT(*) AS trip_count,\n'
-        '        AVG(fare_amount) AS avg_fare,\n'
-        '        PERCENTILE_CONT(0.5) WITHIN GROUP\n'
-        '            (ORDER BY fare_amount) AS median_fare\n'
-        '    FROM trips\n'
-        '    GROUP BY pickup_date\n'
-        '),\n'
-        'ranked AS (\n'
-        '    SELECT *,\n'
-        '        RANK() OVER (ORDER BY trip_count DESC) AS busiest\n'
-        '    FROM daily_stats\n'
-        ')\n'
-        'SELECT * FROM ranked WHERE busiest <= 10;',
+        "WITH daily_stats AS (\n"
+        "    SELECT\n"
+        "        pickup_date,\n"
+        "        COUNT(*) AS trip_count,\n"
+        "        AVG(fare_amount) AS avg_fare,\n"
+        "        PERCENTILE_CONT(0.5) WITHIN GROUP\n"
+        "            (ORDER BY fare_amount) AS median_fare\n"
+        "    FROM trips\n"
+        "    GROUP BY pickup_date\n"
+        "),\n"
+        "ranked AS (\n"
+        "    SELECT *,\n"
+        "        RANK() OVER (ORDER BY trip_count DESC) AS busiest\n"
+        "    FROM daily_stats\n"
+        ")\n"
+        "SELECT * FROM ranked WHERE busiest <= 10;",
         "SQL — CTEs",
     )
 
     pdf.add_page()
     pdf.tool_heading("Star Schema DDL", "Dimensional modeling in PostgreSQL")
     pdf.code_block(
-        '-- Dimension: date\n'
-        'CREATE TABLE dim_date (\n'
-        '    date_key     INT PRIMARY KEY,\n'
-        '    full_date    DATE NOT NULL,\n'
-        '    year         SMALLINT,\n'
-        '    quarter      SMALLINT,\n'
-        '    month        SMALLINT,\n'
-        '    day_of_week  VARCHAR(10),\n'
-        '    is_weekend   BOOLEAN\n'
-        ');\n'
-        '\n'
-        '-- Dimension: location\n'
-        'CREATE TABLE dim_location (\n'
-        '    location_key  SERIAL PRIMARY KEY,\n'
-        '    zone_name     VARCHAR(100),\n'
-        '    borough       VARCHAR(50),\n'
-        '    service_zone  VARCHAR(50)\n'
-        ');\n'
-        '\n'
-        '-- Fact: trips (grain = one taxi trip)\n'
-        'CREATE TABLE fact_trips (\n'
-        '    trip_key         BIGSERIAL PRIMARY KEY,\n'
-        '    date_key         INT REFERENCES dim_date,\n'
-        '    pickup_loc_key   INT REFERENCES dim_location,\n'
-        '    dropoff_loc_key  INT REFERENCES dim_location,\n'
-        '    passenger_count  SMALLINT,\n'
-        '    trip_distance    NUMERIC(8,2),\n'
-        '    fare_amount      NUMERIC(8,2),\n'
-        '    tip_amount       NUMERIC(8,2),\n'
-        '    total_amount     NUMERIC(8,2)\n'
-        ');\n'
-        '\n'
-        'CREATE INDEX idx_fact_date ON fact_trips(date_key);\n'
-        'CREATE INDEX idx_fact_pickup ON fact_trips(pickup_loc_key);',
+        "-- Dimension: date\n"
+        "CREATE TABLE dim_date (\n"
+        "    date_key     INT PRIMARY KEY,\n"
+        "    full_date    DATE NOT NULL,\n"
+        "    year         SMALLINT,\n"
+        "    quarter      SMALLINT,\n"
+        "    month        SMALLINT,\n"
+        "    day_of_week  VARCHAR(10),\n"
+        "    is_weekend   BOOLEAN\n"
+        ");\n"
+        "\n"
+        "-- Dimension: location\n"
+        "CREATE TABLE dim_location (\n"
+        "    location_key  SERIAL PRIMARY KEY,\n"
+        "    zone_name     VARCHAR(100),\n"
+        "    borough       VARCHAR(50),\n"
+        "    service_zone  VARCHAR(50)\n"
+        ");\n"
+        "\n"
+        "-- Fact: trips (grain = one taxi trip)\n"
+        "CREATE TABLE fact_trips (\n"
+        "    trip_key         BIGSERIAL PRIMARY KEY,\n"
+        "    date_key         INT REFERENCES dim_date,\n"
+        "    pickup_loc_key   INT REFERENCES dim_location,\n"
+        "    dropoff_loc_key  INT REFERENCES dim_location,\n"
+        "    passenger_count  SMALLINT,\n"
+        "    trip_distance    NUMERIC(8,2),\n"
+        "    fare_amount      NUMERIC(8,2),\n"
+        "    tip_amount       NUMERIC(8,2),\n"
+        "    total_amount     NUMERIC(8,2)\n"
+        ");\n"
+        "\n"
+        "CREATE INDEX idx_fact_date ON fact_trips(date_key);\n"
+        "CREATE INDEX idx_fact_pickup ON fact_trips(pickup_loc_key);",
         "SQL — Star schema DDL",
     )
 
     pdf.tool_heading("EXPLAIN ANALYZE", "Query performance analysis")
     pdf.code_block(
-        'EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)\n'
-        'SELECT\n'
-        '    d.full_date,\n'
-        '    l.borough,\n'
-        '    COUNT(*) AS trips,\n'
-        '    AVG(f.fare_amount) AS avg_fare\n'
-        'FROM fact_trips f\n'
-        'JOIN dim_date d ON f.date_key = d.date_key\n'
-        'JOIN dim_location l ON f.pickup_loc_key = l.location_key\n'
-        'WHERE d.year = 2024 AND d.quarter = 1\n'
-        'GROUP BY d.full_date, l.borough\n'
-        'ORDER BY trips DESC;',
+        "EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)\n"
+        "SELECT\n"
+        "    d.full_date,\n"
+        "    l.borough,\n"
+        "    COUNT(*) AS trips,\n"
+        "    AVG(f.fare_amount) AS avg_fare\n"
+        "FROM fact_trips f\n"
+        "JOIN dim_date d ON f.date_key = d.date_key\n"
+        "JOIN dim_location l ON f.pickup_loc_key = l.location_key\n"
+        "WHERE d.year = 2024 AND d.quarter = 1\n"
+        "GROUP BY d.full_date, l.borough\n"
+        "ORDER BY trips DESC;",
         "SQL — EXPLAIN ANALYZE",
     )
 
     pdf.add_page()
     pdf.tool_heading("SCD Type 2", "Track dimension history with effective dates")
     pdf.code_block(
-        '-- SCD Type 2: keep full history of dimension changes\n'
-        'CREATE TABLE dim_location_scd2 (\n'
-        '    location_sk    SERIAL PRIMARY KEY,   -- surrogate key\n'
-        '    location_id    INT NOT NULL,          -- natural key\n'
-        '    zone_name      VARCHAR(100),\n'
-        '    borough        VARCHAR(50),\n'
-        '    service_zone   VARCHAR(50),\n'
-        '    effective_from DATE NOT NULL,\n'
-        '    effective_to   DATE DEFAULT \'9999-12-31\',\n'
-        '    is_current     BOOLEAN DEFAULT TRUE\n'
-        ');\n'
-        '\n'
-        '-- Close old record and insert new one on change\n'
-        'UPDATE dim_location_scd2\n'
-        'SET effective_to = CURRENT_DATE - 1,\n'
-        '    is_current = FALSE\n'
-        'WHERE location_id = 42 AND is_current = TRUE;\n'
-        '\n'
-        'INSERT INTO dim_location_scd2\n'
-        '    (location_id, zone_name, borough, service_zone, effective_from)\n'
-        'VALUES (42, \'New Name\', \'Manhattan\', \'Yellow Zone\', CURRENT_DATE);',
+        "-- SCD Type 2: keep full history of dimension changes\n"
+        "CREATE TABLE dim_location_scd2 (\n"
+        "    location_sk    SERIAL PRIMARY KEY,   -- surrogate key\n"
+        "    location_id    INT NOT NULL,          -- natural key\n"
+        "    zone_name      VARCHAR(100),\n"
+        "    borough        VARCHAR(50),\n"
+        "    service_zone   VARCHAR(50),\n"
+        "    effective_from DATE NOT NULL,\n"
+        "    effective_to   DATE DEFAULT '9999-12-31',\n"
+        "    is_current     BOOLEAN DEFAULT TRUE\n"
+        ");\n"
+        "\n"
+        "-- Close old record and insert new one on change\n"
+        "UPDATE dim_location_scd2\n"
+        "SET effective_to = CURRENT_DATE - 1,\n"
+        "    is_current = FALSE\n"
+        "WHERE location_id = 42 AND is_current = TRUE;\n"
+        "\n"
+        "INSERT INTO dim_location_scd2\n"
+        "    (location_id, zone_name, borough, service_zone, effective_from)\n"
+        "VALUES (42, 'New Name', 'Manhattan', 'Yellow Zone', CURRENT_DATE);",
         "SQL — SCD Type 2",
     )
 
     pdf.tool_heading("Materialized Views", "Pre-computed query results in PostgreSQL")
     pdf.code_block(
-        'CREATE MATERIALIZED VIEW mv_daily_borough_stats AS\n'
-        'SELECT\n'
-        '    d.full_date,\n'
-        '    l.borough,\n'
-        '    COUNT(*)             AS trip_count,\n'
-        '    ROUND(AVG(f.fare_amount), 2) AS avg_fare,\n'
-        '    ROUND(AVG(f.trip_distance), 2) AS avg_distance\n'
-        'FROM fact_trips f\n'
-        'JOIN dim_date d ON f.date_key = d.date_key\n'
-        'JOIN dim_location l ON f.pickup_loc_key = l.location_key\n'
-        'GROUP BY d.full_date, l.borough;\n'
-        '\n'
-        'CREATE UNIQUE INDEX idx_mv_daily_borough\n'
-        '    ON mv_daily_borough_stats (full_date, borough);\n'
-        '\n'
-        '-- Refresh without locking reads\n'
-        'REFRESH MATERIALIZED VIEW CONCURRENTLY mv_daily_borough_stats;',
+        "CREATE MATERIALIZED VIEW mv_daily_borough_stats AS\n"
+        "SELECT\n"
+        "    d.full_date,\n"
+        "    l.borough,\n"
+        "    COUNT(*)             AS trip_count,\n"
+        "    ROUND(AVG(f.fare_amount), 2) AS avg_fare,\n"
+        "    ROUND(AVG(f.trip_distance), 2) AS avg_distance\n"
+        "FROM fact_trips f\n"
+        "JOIN dim_date d ON f.date_key = d.date_key\n"
+        "JOIN dim_location l ON f.pickup_loc_key = l.location_key\n"
+        "GROUP BY d.full_date, l.borough;\n"
+        "\n"
+        "CREATE UNIQUE INDEX idx_mv_daily_borough\n"
+        "    ON mv_daily_borough_stats (full_date, borough);\n"
+        "\n"
+        "-- Refresh without locking reads\n"
+        "REFRESH MATERIALIZED VIEW CONCURRENTLY mv_daily_borough_stats;",
         "SQL — Materialized views",
     )
 
     pdf.tool_heading("JSONB Queries", "Semi-structured data in PostgreSQL")
     pdf.code_block(
-        '-- Store flexible metadata as JSONB\n'
-        'CREATE TABLE events (\n'
-        '    id BIGSERIAL PRIMARY KEY,\n'
-        '    event_type VARCHAR(50),\n'
-        '    payload JSONB NOT NULL,\n'
-        '    created_at TIMESTAMPTZ DEFAULT NOW()\n'
-        ');\n'
-        '\n'
-        '-- Query nested fields\n'
-        'SELECT\n'
-        '    payload->>\'user_id\' AS user_id,\n'
-        '    payload->\'location\'->>\'city\' AS city,\n'
-        '    (payload->>\'amount\')::numeric AS amount\n'
-        'FROM events\n'
+        "-- Store flexible metadata as JSONB\n"
+        "CREATE TABLE events (\n"
+        "    id BIGSERIAL PRIMARY KEY,\n"
+        "    event_type VARCHAR(50),\n"
+        "    payload JSONB NOT NULL,\n"
+        "    created_at TIMESTAMPTZ DEFAULT NOW()\n"
+        ");\n"
+        "\n"
+        "-- Query nested fields\n"
+        "SELECT\n"
+        "    payload->>'user_id' AS user_id,\n"
+        "    payload->'location'->>'city' AS city,\n"
+        "    (payload->>'amount')::numeric AS amount\n"
+        "FROM events\n"
         'WHERE payload @> \'{"status": "completed"}\'\n'
-        '  AND created_at > NOW() - INTERVAL \'1 day\';\n'
-        '\n'
-        '-- GIN index for fast JSONB lookups\n'
-        'CREATE INDEX idx_events_payload ON events USING GIN (payload);',
+        "  AND created_at > NOW() - INTERVAL '1 day';\n"
+        "\n"
+        "-- GIN index for fast JSONB lookups\n"
+        "CREATE INDEX idx_events_payload ON events USING GIN (payload);",
         "SQL — JSONB",
     )
 
@@ -854,160 +855,153 @@ def _week3_deep_dive(pdf):
 
     pdf.tool_heading("Multi-Stage Dockerfile", "Slim production images")
     pdf.code_block(
-        '# Stage 1: build dependencies\n'
-        'FROM python:3.11-slim AS builder\n'
-        'WORKDIR /app\n'
-        'COPY pyproject.toml .\n'
-        'RUN pip install --no-cache-dir --prefix=/install .\n'
-        '\n'
-        '# Stage 2: runtime\n'
-        'FROM python:3.11-slim\n'
-        'RUN useradd -m appuser\n'
-        'COPY --from=builder /install /usr/local\n'
-        'COPY src/ /app/src/\n'
-        'WORKDIR /app\n'
-        'USER appuser\n'
-        'EXPOSE 8000\n'
+        "# Stage 1: build dependencies\n"
+        "FROM python:3.11-slim AS builder\n"
+        "WORKDIR /app\n"
+        "COPY pyproject.toml .\n"
+        "RUN pip install --no-cache-dir --prefix=/install .\n"
+        "\n"
+        "# Stage 2: runtime\n"
+        "FROM python:3.11-slim\n"
+        "RUN useradd -m appuser\n"
+        "COPY --from=builder /install /usr/local\n"
+        "COPY src/ /app/src/\n"
+        "WORKDIR /app\n"
+        "USER appuser\n"
+        "EXPOSE 8000\n"
         'CMD ["uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8000"]',
         "Dockerfile",
     )
 
     pdf.tool_heading("Docker Compose Stack", "Multi-container data platform")
     pdf.code_block(
-        'services:\n'
-        '  postgres:\n'
-        '    image: postgres:16-alpine\n'
-        '    environment:\n'
-        '      POSTGRES_DB: warehouse\n'
-        '      POSTGRES_USER: de_user\n'
-        '      POSTGRES_PASSWORD: ${PG_PASSWORD}\n'
-        '    volumes:\n'
-        '      - pg_data:/var/lib/postgresql/data\n'
+        "services:\n"
+        "  postgres:\n"
+        "    image: postgres:16-alpine\n"
+        "    environment:\n"
+        "      POSTGRES_DB: warehouse\n"
+        "      POSTGRES_USER: de_user\n"
+        "      POSTGRES_PASSWORD: ${PG_PASSWORD}\n"
+        "    volumes:\n"
+        "      - pg_data:/var/lib/postgresql/data\n"
         '    ports: ["5432:5432"]\n'
-        '    healthcheck:\n'
+        "    healthcheck:\n"
         '      test: ["CMD-SHELL", "pg_isready -U de_user"]\n'
-        '      interval: 5s\n'
-        '      retries: 5\n'
-        '\n'
-        '  pgadmin:\n'
-        '    image: dpage/pgadmin4:latest\n'
-        '    environment:\n'
-        '      PGADMIN_DEFAULT_EMAIL: admin@local.dev\n'
-        '      PGADMIN_DEFAULT_PASSWORD: admin\n'
+        "      interval: 5s\n"
+        "      retries: 5\n"
+        "\n"
+        "  pgadmin:\n"
+        "    image: dpage/pgadmin4:latest\n"
+        "    environment:\n"
+        "      PGADMIN_DEFAULT_EMAIL: admin@local.dev\n"
+        "      PGADMIN_DEFAULT_PASSWORD: admin\n"
         '    ports: ["8080:80"]\n'
-        '    depends_on:\n'
-        '      postgres: { condition: service_healthy }\n'
-        '\n'
-        '  ingestion:\n'
-        '    build: .\n'
-        '    environment:\n'
-        '      DATABASE_URL: postgresql://de_user:${PG_PASSWORD}@postgres/warehouse\n'
-        '    depends_on:\n'
-        '      postgres: { condition: service_healthy }\n'
-        '\n'
-        'volumes:\n'
-        '  pg_data:',
+        "    depends_on:\n"
+        "      postgres: { condition: service_healthy }\n"
+        "\n"
+        "  ingestion:\n"
+        "    build: .\n"
+        "    environment:\n"
+        "      DATABASE_URL: postgresql://de_user:${PG_PASSWORD}@postgres/warehouse\n"
+        "    depends_on:\n"
+        "      postgres: { condition: service_healthy }\n"
+        "\n"
+        "volumes:\n"
+        "  pg_data:",
         "docker-compose.yml",
     )
 
     pdf.add_page()
     pdf.tool_heading(".dockerignore", "Keep images lean")
     pdf.code_block(
-        '__pycache__/\n'
-        '*.pyc\n'
-        '.venv/\n'
-        '.git/\n'
-        '.env\n'
-        'data/\n'
-        '*.md\n'
-        'tests/',
+        "__pycache__/\n*.pyc\n.venv/\n.git/\n.env\ndata/\n*.md\ntests/",
         ".dockerignore",
     )
 
     pdf.sub_heading("Architecture Diagram: Container Stack")
     pdf.diagram_block(
-        '  +--------------------------------------------------+\n'
-        '  |              Docker Compose Network               |\n'
-        '  |                                                    |\n'
-        '  |  +-----------+  +-----------+  +---------------+  |\n'
-        '  |  | postgres  |  | pgadmin   |  |  ingestion    |  |\n'
-        '  |  | :5432     |  | :80       |  |  :8000        |  |\n'
-        '  |  |           |  |           |  |               |  |\n'
-        '  |  | pg_data   |  | (web UI)  |  | FastAPI app   |  |\n'
-        '  |  | volume    |  |           |  | downloads +   |  |\n'
-        '  |  |           |  |           |  | loads data    |  |\n'
-        '  |  +-----------+  +-----------+  +---------------+  |\n'
-        '  |       ^               |               |            |\n'
-        '  |       |     connects  |   writes to   |            |\n'
-        '  |       +---------------+---------------+            |\n'
-        '  +--------------------------------------------------+\n'
-        '         :5432           :8080           :8000\n'
-        '     (host ports exposed to localhost)'
+        "  +--------------------------------------------------+\n"
+        "  |              Docker Compose Network               |\n"
+        "  |                                                    |\n"
+        "  |  +-----------+  +-----------+  +---------------+  |\n"
+        "  |  | postgres  |  | pgadmin   |  |  ingestion    |  |\n"
+        "  |  | :5432     |  | :80       |  |  :8000        |  |\n"
+        "  |  |           |  |           |  |               |  |\n"
+        "  |  | pg_data   |  | (web UI)  |  | FastAPI app   |  |\n"
+        "  |  | volume    |  |           |  | downloads +   |  |\n"
+        "  |  |           |  |           |  | loads data    |  |\n"
+        "  |  +-----------+  +-----------+  +---------------+  |\n"
+        "  |       ^               |               |            |\n"
+        "  |       |     connects  |   writes to   |            |\n"
+        "  |       +---------------+---------------+            |\n"
+        "  +--------------------------------------------------+\n"
+        "         :5432           :8080           :8000\n"
+        "     (host ports exposed to localhost)"
     )
 
     pdf.add_page()
     pdf.tool_heading("Health Checks", "Ensure services are ready before dependents start")
     pdf.code_block(
-        '# In docker-compose.yml\n'
-        'services:\n'
-        '  postgres:\n'
-        '    healthcheck:\n'
+        "# In docker-compose.yml\n"
+        "services:\n"
+        "  postgres:\n"
+        "    healthcheck:\n"
         '      test: ["CMD-SHELL", "pg_isready -U de_user -d warehouse"]\n'
-        '      interval: 5s\n'
-        '      timeout: 3s\n'
-        '      retries: 5\n'
-        '      start_period: 10s\n'
-        '\n'
-        '  app:\n'
-        '    depends_on:\n'
-        '      postgres:\n'
-        '        condition: service_healthy\n'
-        '\n'
-        '# In Dockerfile (HTTP health check)\n'
-        'HEALTHCHECK --interval=30s --timeout=3s --retries=3 \\\n'
-        '    CMD curl -f http://localhost:8000/health || exit 1',
+        "      interval: 5s\n"
+        "      timeout: 3s\n"
+        "      retries: 5\n"
+        "      start_period: 10s\n"
+        "\n"
+        "  app:\n"
+        "    depends_on:\n"
+        "      postgres:\n"
+        "        condition: service_healthy\n"
+        "\n"
+        "# In Dockerfile (HTTP health check)\n"
+        "HEALTHCHECK --interval=30s --timeout=3s --retries=3 \\\n"
+        "    CMD curl -f http://localhost:8000/health || exit 1",
         "YAML / Dockerfile — health checks",
     )
 
     pdf.tool_heading("Docker Networking", "How containers find each other")
     pdf.code_block(
-        '# Custom network with explicit subnet\n'
-        'networks:\n'
-        '  data-net:\n'
-        '    driver: bridge\n'
-        '    ipam:\n'
-        '      config:\n'
-        '        - subnet: 172.28.0.0/16\n'
-        '\n'
-        'services:\n'
-        '  postgres:\n'
-        '    networks: [data-net]\n'
-        '  app:\n'
-        '    networks: [data-net]\n'
-        '    # connect using service name as hostname:\n'
-        '    # postgres://de_user:pass@postgres:5432/warehouse\n'
-        '    # NOT localhost! Services use container names.',
+        "# Custom network with explicit subnet\n"
+        "networks:\n"
+        "  data-net:\n"
+        "    driver: bridge\n"
+        "    ipam:\n"
+        "      config:\n"
+        "        - subnet: 172.28.0.0/16\n"
+        "\n"
+        "services:\n"
+        "  postgres:\n"
+        "    networks: [data-net]\n"
+        "  app:\n"
+        "    networks: [data-net]\n"
+        "    # connect using service name as hostname:\n"
+        "    # postgres://de_user:pass@postgres:5432/warehouse\n"
+        "    # NOT localhost! Services use container names.",
         "YAML — docker-compose networking",
     )
 
     pdf.tool_heading("Volume Management", "Persist data across container restarts")
     pdf.code_block(
-        '# Named volume (Docker manages location)\n'
-        'volumes:\n'
-        '  pg_data:\n'
-        '\n'
-        'services:\n'
-        '  postgres:\n'
-        '    volumes:\n'
-        '      - pg_data:/var/lib/postgresql/data    # named volume\n'
-        '      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # bind mount\n'
-        '\n'
-        '# Inspect volume\n'
-        '# docker volume inspect pg_data\n'
-        '\n'
-        '# Backup a volume\n'
-        '# docker run --rm -v pg_data:/data -v $(pwd):/backup \\\n'
-        '#     alpine tar czf /backup/pg_backup.tar.gz /data',
+        "# Named volume (Docker manages location)\n"
+        "volumes:\n"
+        "  pg_data:\n"
+        "\n"
+        "services:\n"
+        "  postgres:\n"
+        "    volumes:\n"
+        "      - pg_data:/var/lib/postgresql/data    # named volume\n"
+        "      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # bind mount\n"
+        "\n"
+        "# Inspect volume\n"
+        "# docker volume inspect pg_data\n"
+        "\n"
+        "# Backup a volume\n"
+        "# docker run --rm -v pg_data:/data -v $(pwd):/backup \\\n"
+        "#     alpine tar czf /backup/pg_backup.tar.gz /data",
         "YAML / Bash — volumes",
     )
 
@@ -1019,204 +1013,204 @@ def _week4_deep_dive(pdf):
 
     pdf.tool_heading("Complete ETL DAG", "Download -> Transform -> Load pipeline")
     pdf.code_block(
-        'from airflow import DAG\n'
-        'from airflow.operators.python import PythonOperator\n'
-        'from airflow.providers.postgres.operators.postgres import PostgresOperator\n'
-        'from datetime import datetime, timedelta\n'
-        'import pandas as pd\n'
-        'import httpx\n'
-        '\n'
-        'default_args = {\n'
+        "from airflow import DAG\n"
+        "from airflow.operators.python import PythonOperator\n"
+        "from airflow.providers.postgres.operators.postgres import PostgresOperator\n"
+        "from datetime import datetime, timedelta\n"
+        "import pandas as pd\n"
+        "import httpx\n"
+        "\n"
+        "default_args = {\n"
         '    "owner": "data-eng",\n'
         '    "retries": 3,\n'
         '    "retry_delay": timedelta(minutes=5),\n'
         '    "retry_exponential_backoff": True,\n'
         '    "email_on_failure": True,\n'
-        '}\n'
-        '\n'
-        'def download_taxi_data(**ctx):\n'
+        "}\n"
+        "\n"
+        "def download_taxi_data(**ctx):\n"
         '    ds = ctx["ds"]  # e.g. "2024-01-01"\n'
-        '    year, month = ds[:4], ds[5:7]\n'
+        "    year, month = ds[:4], ds[5:7]\n"
         '    url = (f"https://d37ci6vzurychx.cloudfront.net/"\n'
         '           f"trip-data/yellow_tripdata_{year}-{month}.parquet")\n'
         '    path = f"/tmp/taxi_{year}_{month}.parquet"\n'
-        '    resp = httpx.get(url, timeout=120)\n'
-        '    resp.raise_for_status()\n'
+        "    resp = httpx.get(url, timeout=120)\n"
+        "    resp.raise_for_status()\n"
         '    with open(path, "wb") as f:\n'
-        '        f.write(resp.content)\n'
-        '    return path\n'
-        '\n'
-        'def transform(**ctx):\n'
+        "        f.write(resp.content)\n"
+        "    return path\n"
+        "\n"
+        "def transform(**ctx):\n"
         '    path = ctx["ti"].xcom_pull(task_ids="download")\n'
-        '    df = pd.read_parquet(path)\n'
+        "    df = pd.read_parquet(path)\n"
         '    df = df.dropna(subset=["fare_amount"])\n'
         '    df = df[df["fare_amount"] > 0]\n'
         '    out = path.replace(".parquet", "_clean.parquet")\n'
-        '    df.to_parquet(out, index=False)\n'
-        '    return out',
+        "    df.to_parquet(out, index=False)\n"
+        "    return out",
         "Python — dags/taxi_etl.py (part 1)",
     )
 
     pdf.code_block(
-        'with DAG(\n'
+        "with DAG(\n"
         '    dag_id="taxi_etl_monthly",\n'
-        '    default_args=default_args,\n'
+        "    default_args=default_args,\n"
         '    schedule="@monthly",\n'
-        '    start_date=datetime(2024, 1, 1),\n'
-        '    catchup=True,\n'
-        '    max_active_runs=2,\n'
+        "    start_date=datetime(2024, 1, 1),\n"
+        "    catchup=True,\n"
+        "    max_active_runs=2,\n"
         '    tags=["taxi", "etl"],\n'
-        ') as dag:\n'
-        '\n'
-        '    download = PythonOperator(\n'
+        ") as dag:\n"
+        "\n"
+        "    download = PythonOperator(\n"
         '        task_id="download",\n'
-        '        python_callable=download_taxi_data,\n'
-        '    )\n'
-        '\n'
-        '    clean = PythonOperator(\n'
+        "        python_callable=download_taxi_data,\n"
+        "    )\n"
+        "\n"
+        "    clean = PythonOperator(\n"
         '        task_id="transform",\n'
-        '        python_callable=transform,\n'
-        '    )\n'
-        '\n'
-        '    create_table = PostgresOperator(\n'
+        "        python_callable=transform,\n"
+        "    )\n"
+        "\n"
+        "    create_table = PostgresOperator(\n"
         '        task_id="create_table",\n'
         '        postgres_conn_id="warehouse",\n'
         '        sql="""\n'
-        '            CREATE TABLE IF NOT EXISTS taxi_trips (\n'
-        '                pickup_datetime TIMESTAMP,\n'
-        '                dropoff_datetime TIMESTAMP,\n'
-        '                passenger_count INT,\n'
-        '                trip_distance FLOAT,\n'
-        '                fare_amount FLOAT\n'
-        '            );\n'
+        "            CREATE TABLE IF NOT EXISTS taxi_trips (\n"
+        "                pickup_datetime TIMESTAMP,\n"
+        "                dropoff_datetime TIMESTAMP,\n"
+        "                passenger_count INT,\n"
+        "                trip_distance FLOAT,\n"
+        "                fare_amount FLOAT\n"
+        "            );\n"
         '        """,\n'
-        '    )\n'
-        '\n'
-        '    download >> clean >> create_table',
+        "    )\n"
+        "\n"
+        "    download >> clean >> create_table",
         "Python — dags/taxi_etl.py (part 2)",
     )
 
     pdf.add_page()
     pdf.sub_heading("Architecture Diagram: Airflow DAG Flow")
     pdf.diagram_block(
-        '    +------------+     +-------------+     +--------------+\n'
-        '    |  download  | --> |  transform   | --> | create_table |\n'
-        '    |            |     |              |     |              |\n'
-        '    | httpx GET  |     | pandas clean |     | PostgresOp   |\n'
-        '    | .parquet   |     | drop nulls   |     | CREATE TABLE |\n'
-        '    +------------+     +-------------+     +--------------+\n'
-        '          |                   |                    |\n'
-        '          v                   v                    v\n'
-        '    XCom: file path     XCom: clean path     SQL executed\n'
-        '\n'
-        '    Schedule: @monthly    Retries: 3    Catchup: enabled\n'
-        '    Max active runs: 2   Backfill: airflow dags backfill'
+        "    +------------+     +-------------+     +--------------+\n"
+        "    |  download  | --> |  transform   | --> | create_table |\n"
+        "    |            |     |              |     |              |\n"
+        "    | httpx GET  |     | pandas clean |     | PostgresOp   |\n"
+        "    | .parquet   |     | drop nulls   |     | CREATE TABLE |\n"
+        "    +------------+     +-------------+     +--------------+\n"
+        "          |                   |                    |\n"
+        "          v                   v                    v\n"
+        "    XCom: file path     XCom: clean path     SQL executed\n"
+        "\n"
+        "    Schedule: @monthly    Retries: 3    Catchup: enabled\n"
+        "    Max active runs: 2   Backfill: airflow dags backfill"
     )
 
     pdf.tool_heading("Airflow Connections", "Managing external credentials")
     pdf.code_block(
-        '# Set via CLI (preferred for automation)\n'
-        'airflow connections add warehouse \\\n'
-        '    --conn-type postgres \\\n'
-        '    --conn-host postgres \\\n'
-        '    --conn-port 5432 \\\n'
-        '    --conn-login de_user \\\n'
+        "# Set via CLI (preferred for automation)\n"
+        "airflow connections add warehouse \\\n"
+        "    --conn-type postgres \\\n"
+        "    --conn-host postgres \\\n"
+        "    --conn-port 5432 \\\n"
+        "    --conn-login de_user \\\n"
         '    --conn-password "${PG_PASSWORD}" \\\n'
-        '    --conn-schema warehouse\n'
-        '\n'
-        '# Or via environment variable\n'
-        'export AIRFLOW_CONN_WAREHOUSE=\\\n'
+        "    --conn-schema warehouse\n"
+        "\n"
+        "# Or via environment variable\n"
+        "export AIRFLOW_CONN_WAREHOUSE=\\\n"
         '    "postgresql://de_user:pass@postgres:5432/warehouse"',
         "Bash — connection setup",
     )
 
     pdf.tool_heading("Backfill", "Re-run historical DAG runs")
     pdf.code_block(
-        '# Backfill 6 months of taxi data\n'
-        'airflow dags backfill taxi_etl_monthly \\\n'
-        '    --start-date 2024-01-01 \\\n'
-        '    --end-date 2024-06-30 \\\n'
-        '    --reset-dagruns',
+        "# Backfill 6 months of taxi data\n"
+        "airflow dags backfill taxi_etl_monthly \\\n"
+        "    --start-date 2024-01-01 \\\n"
+        "    --end-date 2024-06-30 \\\n"
+        "    --reset-dagruns",
         "Bash",
     )
 
     pdf.add_page()
     pdf.tool_heading("XCom: Inter-Task Communication", "Pass data between tasks")
     pdf.code_block(
-        '# Push a value (implicit via return)\n'
-        'def extract(**ctx):\n'
+        "# Push a value (implicit via return)\n"
+        "def extract(**ctx):\n"
         '    path = "/tmp/data_2024_01.parquet"\n'
-        '    download(path)\n'
-        '    return path  # auto-pushed to XCom\n'
-        '\n'
-        '# Pull a value in another task\n'
-        'def transform(**ctx):\n'
+        "    download(path)\n"
+        "    return path  # auto-pushed to XCom\n"
+        "\n"
+        "# Pull a value in another task\n"
+        "def transform(**ctx):\n"
         '    path = ctx["ti"].xcom_pull(task_ids="extract")\n'
-        '    df = pd.read_parquet(path)\n'
-        '    # ... transform ...\n'
-        '\n'
-        '# Push multiple values with explicit keys\n'
-        'def extract_multi(**ctx):\n'
+        "    df = pd.read_parquet(path)\n"
+        "    # ... transform ...\n"
+        "\n"
+        "# Push multiple values with explicit keys\n"
+        "def extract_multi(**ctx):\n"
         '    ctx["ti"].xcom_push(key="row_count", value=10_000)\n'
         '    ctx["ti"].xcom_push(key="file_path", value="/tmp/data.parquet")\n'
-        '\n'
-        '# Pull specific key\n'
-        'def load(**ctx):\n'
+        "\n"
+        "# Pull specific key\n"
+        "def load(**ctx):\n"
         '    count = ctx["ti"].xcom_pull(\n'
         '        task_ids="extract_multi", key="row_count")\n'
-        '\n'
-        '# WARNING: XCom is stored in metadata DB\n'
-        '# Never pass large data (DataFrames, files)\n'
-        '# Pass file paths or S3 URIs instead',
+        "\n"
+        "# WARNING: XCom is stored in metadata DB\n"
+        "# Never pass large data (DataFrames, files)\n"
+        "# Pass file paths or S3 URIs instead",
         "Python — XCom patterns",
     )
 
     pdf.tool_heading("Sensor: Wait for File", "Event-driven pipeline triggering")
     pdf.code_block(
-        'from airflow.sensors.filesystem import FileSensor\n'
-        'from airflow.operators.python import PythonOperator\n'
-        '\n'
-        'wait_for_file = FileSensor(\n'
+        "from airflow.sensors.filesystem import FileSensor\n"
+        "from airflow.operators.python import PythonOperator\n"
+        "\n"
+        "wait_for_file = FileSensor(\n"
         '    task_id="wait_for_data",\n'
         '    filepath="/data/incoming/trades_{{ ds }}.csv",\n'
-        '    poke_interval=60,     # check every 60 seconds\n'
-        '    timeout=3600,         # give up after 1 hour\n'
+        "    poke_interval=60,     # check every 60 seconds\n"
+        "    timeout=3600,         # give up after 1 hour\n"
         '    mode="reschedule",    # free worker slot between checks\n'
-        ')\n'
-        '\n'
-        'process = PythonOperator(\n'
+        ")\n"
+        "\n"
+        "process = PythonOperator(\n"
         '    task_id="process_data",\n'
-        '    python_callable=process_trades,\n'
-        ')\n'
-        '\n'
-        'wait_for_file >> process',
+        "    python_callable=process_trades,\n"
+        ")\n"
+        "\n"
+        "wait_for_file >> process",
         "Python — sensor DAG",
     )
 
     pdf.tool_heading("Custom Operator", "Encapsulate reusable pipeline logic")
     pdf.code_block(
-        'from airflow.models import BaseOperator\n'
-        'from airflow.utils.context import Context\n'
-        'import httpx\n'
-        'from pathlib import Path\n'
-        '\n'
-        'class DownloadOperator(BaseOperator):\n'
+        "from airflow.models import BaseOperator\n"
+        "from airflow.utils.context import Context\n"
+        "import httpx\n"
+        "from pathlib import Path\n"
+        "\n"
+        "class DownloadOperator(BaseOperator):\n"
         '    """Download a file from a URL and save locally."""\n'
-        '\n'
+        "\n"
         '    template_fields = ("url", "dest_path")\n'
-        '\n'
-        '    def __init__(self, url: str, dest_path: str, **kwargs):\n'
-        '        super().__init__(**kwargs)\n'
-        '        self.url = url\n'
-        '        self.dest_path = dest_path\n'
-        '\n'
-        '    def execute(self, context: Context):\n'
+        "\n"
+        "    def __init__(self, url: str, dest_path: str, **kwargs):\n"
+        "        super().__init__(**kwargs)\n"
+        "        self.url = url\n"
+        "        self.dest_path = dest_path\n"
+        "\n"
+        "    def execute(self, context: Context):\n"
         '        self.log.info(f"Downloading {self.url}")\n'
-        '        resp = httpx.get(self.url, timeout=120)\n'
-        '        resp.raise_for_status()\n'
-        '        Path(self.dest_path).write_bytes(resp.content)\n'
+        "        resp = httpx.get(self.url, timeout=120)\n"
+        "        resp.raise_for_status()\n"
+        "        Path(self.dest_path).write_bytes(resp.content)\n"
         '        self.log.info(f"Saved to {self.dest_path}")\n'
-        '        return self.dest_path',
+        "        return self.dest_path",
         "Python — custom operator",
     )
 
@@ -1228,112 +1222,112 @@ def _week5_deep_dive(pdf):
 
     pdf.tool_heading("dbt_project.yml", "Project-level configuration")
     pdf.code_block(
-        'name: taxi_analytics\n'
+        "name: taxi_analytics\n"
         'version: "1.0.0"\n'
-        'profile: taxi\n'
-        '\n'
+        "profile: taxi\n"
+        "\n"
         'model-paths: ["models"]\n'
         'test-paths: ["tests"]\n'
         'macro-paths: ["macros"]\n'
         'seed-paths: ["seeds"]\n'
-        '\n'
-        'models:\n'
-        '  taxi_analytics:\n'
-        '    staging:\n'
-        '      +materialized: view\n'
-        '      +schema: staging\n'
-        '    intermediate:\n'
-        '      +materialized: ephemeral\n'
-        '    marts:\n'
-        '      +materialized: table\n'
-        '      +schema: analytics',
+        "\n"
+        "models:\n"
+        "  taxi_analytics:\n"
+        "    staging:\n"
+        "      +materialized: view\n"
+        "      +schema: staging\n"
+        "    intermediate:\n"
+        "      +materialized: ephemeral\n"
+        "    marts:\n"
+        "      +materialized: table\n"
+        "      +schema: analytics",
         "YAML — dbt_project.yml",
     )
 
     pdf.tool_heading("Staging Model", "Clean raw data with consistent naming")
     pdf.code_block(
-        '-- models/staging/stg_taxi_trips.sql\n'
-        'WITH source AS (\n'
+        "-- models/staging/stg_taxi_trips.sql\n"
+        "WITH source AS (\n"
         '    SELECT * FROM {{ source("raw", "taxi_trips") }}\n'
-        '),\n'
-        'renamed AS (\n'
-        '    SELECT\n'
-        '        tpep_pickup_datetime   AS pickup_at,\n'
-        '        tpep_dropoff_datetime  AS dropoff_at,\n'
-        '        passenger_count,\n'
-        '        trip_distance,\n'
-        '        fare_amount,\n'
-        '        tip_amount,\n'
-        '        total_amount,\n'
-        '        payment_type,\n'
-        '        pulocationid           AS pickup_zone_id,\n'
-        '        dolocationid           AS dropoff_zone_id\n'
-        '    FROM source\n'
-        '    WHERE fare_amount > 0\n'
-        '      AND trip_distance > 0\n'
-        ')\n'
-        'SELECT * FROM renamed',
+        "),\n"
+        "renamed AS (\n"
+        "    SELECT\n"
+        "        tpep_pickup_datetime   AS pickup_at,\n"
+        "        tpep_dropoff_datetime  AS dropoff_at,\n"
+        "        passenger_count,\n"
+        "        trip_distance,\n"
+        "        fare_amount,\n"
+        "        tip_amount,\n"
+        "        total_amount,\n"
+        "        payment_type,\n"
+        "        pulocationid           AS pickup_zone_id,\n"
+        "        dolocationid           AS dropoff_zone_id\n"
+        "    FROM source\n"
+        "    WHERE fare_amount > 0\n"
+        "      AND trip_distance > 0\n"
+        ")\n"
+        "SELECT * FROM renamed",
         "SQL — stg_taxi_trips.sql",
     )
 
     pdf.tool_heading("Mart Model", "Business-ready aggregation")
     pdf.code_block(
-        '-- models/marts/fct_daily_trips.sql\n'
-        'WITH trips AS (\n'
+        "-- models/marts/fct_daily_trips.sql\n"
+        "WITH trips AS (\n"
         '    SELECT * FROM {{ ref("stg_taxi_trips") }}\n'
-        ')\n'
-        'SELECT\n'
-        '    DATE_TRUNC(\'day\', pickup_at) AS trip_date,\n'
-        '    pickup_zone_id,\n'
-        '    COUNT(*)               AS total_trips,\n'
-        '    AVG(fare_amount)       AS avg_fare,\n'
-        '    AVG(trip_distance)     AS avg_distance,\n'
-        '    SUM(tip_amount)        AS total_tips,\n'
-        '    AVG(tip_amount / NULLIF(fare_amount, 0))\n'
-        '                           AS avg_tip_pct\n'
-        'FROM trips\n'
-        'GROUP BY 1, 2',
+        ")\n"
+        "SELECT\n"
+        "    DATE_TRUNC('day', pickup_at) AS trip_date,\n"
+        "    pickup_zone_id,\n"
+        "    COUNT(*)               AS total_trips,\n"
+        "    AVG(fare_amount)       AS avg_fare,\n"
+        "    AVG(trip_distance)     AS avg_distance,\n"
+        "    SUM(tip_amount)        AS total_tips,\n"
+        "    AVG(tip_amount / NULLIF(fare_amount, 0))\n"
+        "                           AS avg_tip_pct\n"
+        "FROM trips\n"
+        "GROUP BY 1, 2",
         "SQL — fct_daily_trips.sql",
     )
 
     pdf.add_page()
     pdf.tool_heading("Schema Tests", "Automated data quality in dbt")
     pdf.code_block(
-        '# models/staging/schema.yml\n'
-        'version: 2\n'
-        '\n'
-        'sources:\n'
-        '  - name: raw\n'
-        '    schema: public\n'
-        '    tables:\n'
-        '      - name: taxi_trips\n'
-        '        loaded_at_field: tpep_pickup_datetime\n'
-        '        freshness:\n'
-        '          warn_after: {count: 24, period: hour}\n'
-        '          error_after: {count: 48, period: hour}\n'
-        '\n'
-        'models:\n'
-        '  - name: stg_taxi_trips\n'
-        '    columns:\n'
-        '      - name: pickup_at\n'
-        '        tests: [not_null]\n'
-        '      - name: fare_amount\n'
-        '        tests:\n'
-        '          - not_null\n'
-        '          - dbt_utils.accepted_range:\n'
-        '              min_value: 0\n'
-        '              max_value: 1000',
+        "# models/staging/schema.yml\n"
+        "version: 2\n"
+        "\n"
+        "sources:\n"
+        "  - name: raw\n"
+        "    schema: public\n"
+        "    tables:\n"
+        "      - name: taxi_trips\n"
+        "        loaded_at_field: tpep_pickup_datetime\n"
+        "        freshness:\n"
+        "          warn_after: {count: 24, period: hour}\n"
+        "          error_after: {count: 48, period: hour}\n"
+        "\n"
+        "models:\n"
+        "  - name: stg_taxi_trips\n"
+        "    columns:\n"
+        "      - name: pickup_at\n"
+        "        tests: [not_null]\n"
+        "      - name: fare_amount\n"
+        "        tests:\n"
+        "          - not_null\n"
+        "          - dbt_utils.accepted_range:\n"
+        "              min_value: 0\n"
+        "              max_value: 1000",
         "YAML — schema.yml",
     )
 
     pdf.tool_heading("Jinja Macro", "Reusable transformation patterns")
     pdf.code_block(
-        '-- macros/cents_to_dollars.sql\n'
-        '{% macro cents_to_dollars(column_name) %}\n'
-        '    ROUND({{ column_name }} / 100.0, 2)\n'
-        '{% endmacro %}\n'
-        '\n'
-        '-- Usage in a model:\n'
+        "-- macros/cents_to_dollars.sql\n"
+        "{% macro cents_to_dollars(column_name) %}\n"
+        "    ROUND({{ column_name }} / 100.0, 2)\n"
+        "{% endmacro %}\n"
+        "\n"
+        "-- Usage in a model:\n"
         '-- SELECT {{ cents_to_dollars("fare_cents") }} AS fare_dollars',
         "SQL + Jinja",
     )
@@ -1341,87 +1335,87 @@ def _week5_deep_dive(pdf):
     pdf.add_page()
     pdf.tool_heading("Incremental Model", "Process only new data (not full table)")
     pdf.code_block(
-        '-- models/marts/fct_trips_incremental.sql\n'
-        '{{ config(\n'
+        "-- models/marts/fct_trips_incremental.sql\n"
+        "{{ config(\n"
         '    materialized="incremental",\n'
         '    unique_key="trip_id",\n'
         '    incremental_strategy="merge"\n'
-        ') }}\n'
-        '\n'
-        'WITH new_trips AS (\n'
+        ") }}\n"
+        "\n"
+        "WITH new_trips AS (\n"
         '    SELECT * FROM {{ ref("stg_taxi_trips") }}\n'
-        '    {% if is_incremental() %}\n'
-        '    WHERE pickup_at > (\n'
-        '        SELECT MAX(pickup_at) FROM {{ this }}\n'
-        '    )\n'
-        '    {% endif %}\n'
-        ')\n'
-        'SELECT\n'
-        '    {{ dbt_utils.generate_surrogate_key(\n'
+        "    {% if is_incremental() %}\n"
+        "    WHERE pickup_at > (\n"
+        "        SELECT MAX(pickup_at) FROM {{ this }}\n"
+        "    )\n"
+        "    {% endif %}\n"
+        ")\n"
+        "SELECT\n"
+        "    {{ dbt_utils.generate_surrogate_key(\n"
         '        ["pickup_at", "pickup_zone_id", "fare_amount"]\n'
-        '    ) }} AS trip_id,\n'
-        '    *\n'
-        'FROM new_trips',
+        "    ) }} AS trip_id,\n"
+        "    *\n"
+        "FROM new_trips",
         "SQL — incremental model",
     )
 
     pdf.tool_heading("Sources and Freshness", "Track raw data arrival")
     pdf.code_block(
-        '# models/staging/sources.yml\n'
-        'version: 2\n'
-        '\n'
-        'sources:\n'
-        '  - name: raw\n'
-        '    schema: public\n'
-        '    tables:\n'
-        '      - name: taxi_trips\n'
-        '        loaded_at_field: tpep_pickup_datetime\n'
-        '        freshness:\n'
-        '          warn_after: {count: 24, period: hour}\n'
-        '          error_after: {count: 48, period: hour}\n'
-        '      - name: taxi_zones\n'
-        '        freshness: null  # static reference data\n'
-        '\n'
-        '# Check freshness: dbt source freshness',
+        "# models/staging/sources.yml\n"
+        "version: 2\n"
+        "\n"
+        "sources:\n"
+        "  - name: raw\n"
+        "    schema: public\n"
+        "    tables:\n"
+        "      - name: taxi_trips\n"
+        "        loaded_at_field: tpep_pickup_datetime\n"
+        "        freshness:\n"
+        "          warn_after: {count: 24, period: hour}\n"
+        "          error_after: {count: 48, period: hour}\n"
+        "      - name: taxi_zones\n"
+        "        freshness: null  # static reference data\n"
+        "\n"
+        "# Check freshness: dbt source freshness",
         "YAML — sources.yml",
     )
 
     pdf.tool_heading("dbt Snapshot", "SCD Type 2 built into dbt")
     pdf.code_block(
-        '-- snapshots/taxi_zones_snapshot.sql\n'
-        '{% snapshot taxi_zones_snapshot %}\n'
-        '{{ config(\n'
+        "-- snapshots/taxi_zones_snapshot.sql\n"
+        "{% snapshot taxi_zones_snapshot %}\n"
+        "{{ config(\n"
         '    target_schema="snapshots",\n'
         '    unique_key="zone_id",\n'
         '    strategy="check",\n'
         '    check_cols=["zone_name", "borough"],\n'
-        ') }}\n'
-        '\n'
+        ") }}\n"
+        "\n"
         'SELECT * FROM {{ source("raw", "taxi_zones") }}\n'
-        '\n'
-        '{% endsnapshot %}',
+        "\n"
+        "{% endsnapshot %}",
         "SQL — dbt snapshot",
     )
 
     pdf.sub_heading("Architecture Diagram: dbt Model Layers")
     pdf.diagram_block(
-        '  RAW (PostgreSQL)        STAGING (views)         MARTS (tables)\n'
-        '\n'
-        '  +---------------+     +------------------+     +------------------+\n'
-        '  | raw.taxi_trips| --> | stg_taxi_trips   | --> | fct_daily_trips  |\n'
-        '  | (as loaded by |     | (renamed cols,   |     | (aggregated by   |\n'
-        '  |  Airflow)     |     |  filtered nulls, |     |  date + zone,    |\n'
-        '  +---------------+     |  typed)          |     |  avg fare, etc.) |\n'
-        '                        +------------------+     +------------------+\n'
-        '  +---------------+     +------------------+     +------------------+\n'
-        '  | raw.taxi_zones| --> | stg_taxi_zones   | --> | dim_zone         |\n'
-        '  | (lookup table)|     | (renamed, clean) |     | (enriched)       |\n'
-        '  +---------------+     +------------------+     +------------------+\n'
-        '\n'
-        '  Materialization:       view (cheap, always    table (fast queries,\n'
-        '                          fresh)                 refreshed on dbt run)\n'
-        '\n'
-        '  Tests at every layer: not_null, unique, accepted_values, freshness'
+        "  RAW (PostgreSQL)        STAGING (views)         MARTS (tables)\n"
+        "\n"
+        "  +---------------+     +------------------+     +------------------+\n"
+        "  | raw.taxi_trips| --> | stg_taxi_trips   | --> | fct_daily_trips  |\n"
+        "  | (as loaded by |     | (renamed cols,   |     | (aggregated by   |\n"
+        "  |  Airflow)     |     |  filtered nulls, |     |  date + zone,    |\n"
+        "  +---------------+     |  typed)          |     |  avg fare, etc.) |\n"
+        "                        +------------------+     +------------------+\n"
+        "  +---------------+     +------------------+     +------------------+\n"
+        "  | raw.taxi_zones| --> | stg_taxi_zones   | --> | dim_zone         |\n"
+        "  | (lookup table)|     | (renamed, clean) |     | (enriched)       |\n"
+        "  +---------------+     +------------------+     +------------------+\n"
+        "\n"
+        "  Materialization:       view (cheap, always    table (fast queries,\n"
+        "                          fresh)                 refreshed on dbt run)\n"
+        "\n"
+        "  Tests at every layer: not_null, unique, accepted_values, freshness"
     )
 
 
@@ -1432,37 +1426,37 @@ def _week6_deep_dive(pdf):
 
     pdf.tool_heading("PySpark: Read + Transform", "DataFrame API basics")
     pdf.code_block(
-        'from pyspark.sql import SparkSession\n'
-        'from pyspark.sql import functions as F\n'
-        '\n'
-        'spark = SparkSession.builder \\\n'
+        "from pyspark.sql import SparkSession\n"
+        "from pyspark.sql import functions as F\n"
+        "\n"
+        "spark = SparkSession.builder \\\n"
         '    .appName("taxi-lakehouse") \\\n'
         '    .config("spark.jars.packages",\n'
         '            "io.delta:delta-spark_2.12:3.1.0") \\\n'
         '    .config("spark.sql.extensions",\n'
         '            "io.delta.sql.DeltaSparkSessionExtension") \\\n'
-        '    .getOrCreate()\n'
-        '\n'
-        '# Read raw CSV\n'
+        "    .getOrCreate()\n"
+        "\n"
+        "# Read raw CSV\n"
         'raw = spark.read.csv("data/raw/flights.csv",\n'
-        '                     header=True, inferSchema=True)\n'
-        '\n'
-        '# Transform\n'
-        'cleaned = (\n'
-        '    raw\n'
+        "                     header=True, inferSchema=True)\n"
+        "\n"
+        "# Transform\n"
+        "cleaned = (\n"
+        "    raw\n"
         '    .filter(F.col("DEP_DELAY").isNotNull())\n'
         '    .withColumn("flight_date",\n'
         '        F.to_date(F.col("FL_DATE")))\n'
         '    .withColumn("is_delayed",\n'
         '        F.when(F.col("DEP_DELAY") > 15, True)\n'
-        '         .otherwise(False))\n'
+        "         .otherwise(False))\n"
         '    .select("flight_date", "CARRIER", "ORIGIN",\n'
         '            "DEST", "DEP_DELAY", "ARR_DELAY",\n'
         '            "is_delayed")\n'
-        ')\n'
-        '\n'
-        '# Write as Delta Lake table (partitioned)\n'
-        'cleaned.write \\\n'
+        ")\n"
+        "\n"
+        "# Write as Delta Lake table (partitioned)\n"
+        "cleaned.write \\\n"
         '    .format("delta") \\\n'
         '    .partitionBy("flight_date") \\\n'
         '    .mode("overwrite") \\\n'
@@ -1472,24 +1466,24 @@ def _week6_deep_dive(pdf):
 
     pdf.tool_heading("Delta Lake Time Travel", "Query historical versions")
     pdf.code_block(
-        '# Read the latest version\n'
+        "# Read the latest version\n"
         'current = spark.read.format("delta") \\\n'
         '    .load("data/lakehouse/silver/flights")\n'
-        '\n'
-        '# Read version 0 (initial load)\n'
+        "\n"
+        "# Read version 0 (initial load)\n"
         'v0 = spark.read.format("delta") \\\n'
         '    .option("versionAsOf", 0) \\\n'
         '    .load("data/lakehouse/silver/flights")\n'
-        '\n'
-        '# Read as of a timestamp\n'
+        "\n"
+        "# Read as of a timestamp\n"
         'yesterday = spark.read.format("delta") \\\n'
         '    .option("timestampAsOf", "2024-06-14") \\\n'
         '    .load("data/lakehouse/silver/flights")\n'
-        '\n'
-        '# Show version history\n'
-        'from delta.tables import DeltaTable\n'
+        "\n"
+        "# Show version history\n"
+        "from delta.tables import DeltaTable\n"
         'dt = DeltaTable.forPath(spark, "data/lakehouse/silver/flights")\n'
-        'dt.history().show(truncate=False)',
+        "dt.history().show(truncate=False)",
         "Python — time_travel.py",
     )
 
@@ -1497,68 +1491,68 @@ def _week6_deep_dive(pdf):
     pdf.tool_heading("Spark SQL Analytics", "SQL interface on Delta tables")
     pdf.code_block(
         'spark.sql("""\n'
-        '    SELECT\n'
-        '        CARRIER,\n'
-        '        COUNT(*) AS flights,\n'
-        '        ROUND(AVG(DEP_DELAY), 1) AS avg_delay,\n'
-        '        ROUND(SUM(CASE WHEN is_delayed THEN 1 ELSE 0 END)\n'
-        '              * 100.0 / COUNT(*), 1) AS delay_pct\n'
-        '    FROM delta.`data/lakehouse/silver/flights`\n'
-        '    GROUP BY CARRIER\n'
-        '    ORDER BY delay_pct DESC\n'
-        '    LIMIT 10\n'
+        "    SELECT\n"
+        "        CARRIER,\n"
+        "        COUNT(*) AS flights,\n"
+        "        ROUND(AVG(DEP_DELAY), 1) AS avg_delay,\n"
+        "        ROUND(SUM(CASE WHEN is_delayed THEN 1 ELSE 0 END)\n"
+        "              * 100.0 / COUNT(*), 1) AS delay_pct\n"
+        "    FROM delta.`data/lakehouse/silver/flights`\n"
+        "    GROUP BY CARRIER\n"
+        "    ORDER BY delay_pct DESC\n"
+        "    LIMIT 10\n"
         '""").show()',
         "Python — spark_analytics.py",
     )
 
     pdf.sub_heading("Architecture Diagram: Medallion Lakehouse")
     pdf.diagram_block(
-        '  RAW FILES          BRONZE              SILVER              GOLD\n'
-        '  (CSV/JSON)       (raw Delta)        (cleaned Delta)    (aggregated)\n'
-        '\n'
-        '  +----------+     +-----------+     +-------------+    +----------+\n'
-        '  | flights  | --> | raw_      | --> | flights     | -> | daily_   |\n'
-        '  | .csv     |     | flights   |     | (deduped,   |    | flight_  |\n'
-        '  +----------+     | (as-is,   |     |  typed,     |    | stats    |\n'
-        '                   |  append)  |     |  filtered)  |    +----------+\n'
-        '  +----------+     +-----------+     +-------------+    +----------+\n'
-        '  | weather  | --> | raw_      | --> | weather     | -> | carrier_ |\n'
-        '  | .json    |     | weather   |     | (joined,    |    | perf     |\n'
-        '  +----------+     +-----------+     |  enriched)  |    +----------+\n'
-        '                                     +-------------+\n'
-        '\n'
-        '  Storage: local filesystem or S3\n'
-        '  Format:  Delta Lake (Parquet + transaction log)\n'
-        '  Engine:  Apache Spark 3.5 / Delta 3.1'
+        "  RAW FILES          BRONZE              SILVER              GOLD\n"
+        "  (CSV/JSON)       (raw Delta)        (cleaned Delta)    (aggregated)\n"
+        "\n"
+        "  +----------+     +-----------+     +-------------+    +----------+\n"
+        "  | flights  | --> | raw_      | --> | flights     | -> | daily_   |\n"
+        "  | .csv     |     | flights   |     | (deduped,   |    | flight_  |\n"
+        "  +----------+     | (as-is,   |     |  typed,     |    | stats    |\n"
+        "                   |  append)  |     |  filtered)  |    +----------+\n"
+        "  +----------+     +-----------+     +-------------+    +----------+\n"
+        "  | weather  | --> | raw_      | --> | weather     | -> | carrier_ |\n"
+        "  | .json    |     | weather   |     | (joined,    |    | perf     |\n"
+        "  +----------+     +-----------+     |  enriched)  |    +----------+\n"
+        "                                     +-------------+\n"
+        "\n"
+        "  Storage: local filesystem or S3\n"
+        "  Format:  Delta Lake (Parquet + transaction log)\n"
+        "  Engine:  Apache Spark 3.5 / Delta 3.1"
     )
 
     pdf.add_page()
     pdf.tool_heading("Performance Tuning", "Making Spark jobs faster")
     pdf.code_block(
-        '# Tune shuffle partitions (default 200 is too many for small data)\n'
+        "# Tune shuffle partitions (default 200 is too many for small data)\n"
         'spark.conf.set("spark.sql.shuffle.partitions", "50")\n'
-        '\n'
-        '# Broadcast small dimension tables for efficient joins\n'
-        'from pyspark.sql.functions import broadcast\n'
-        'joined = flights.join(\n'
-        '    broadcast(airports),  # small table < 10MB\n'
-        '    flights.ORIGIN == airports.IATA,\n'
+        "\n"
+        "# Broadcast small dimension tables for efficient joins\n"
+        "from pyspark.sql.functions import broadcast\n"
+        "joined = flights.join(\n"
+        "    broadcast(airports),  # small table < 10MB\n"
+        "    flights.ORIGIN == airports.IATA,\n"
         '    "left"\n'
-        ')\n'
-        '\n'
-        '# Cache intermediate results used multiple times\n'
+        ")\n"
+        "\n"
+        "# Cache intermediate results used multiple times\n"
         'silver = spark.read.format("delta") \\\n'
         '    .load("data/lakehouse/silver/flights")\n'
-        'silver.cache()  # keep in memory\n'
-        'silver.count()  # trigger caching\n'
-        '\n'
-        '# Partition pruning: filter on partition column\n'
-        '# Spark reads only matching partitions from disk\n'
-        'recent = silver.filter(\n'
+        "silver.cache()  # keep in memory\n"
+        "silver.count()  # trigger caching\n"
+        "\n"
+        "# Partition pruning: filter on partition column\n"
+        "# Spark reads only matching partitions from disk\n"
+        "recent = silver.filter(\n"
         '    F.col("flight_date") >= "2024-01-01"\n'
-        ')\n'
-        '\n'
-        '# Adaptive Query Execution (Spark 3.x default)\n'
+        ")\n"
+        "\n"
+        "# Adaptive Query Execution (Spark 3.x default)\n"
         'spark.conf.set("spark.sql.adaptive.enabled", "true")\n'
         'spark.conf.set("spark.sql.adaptive.coalescePartitions.enabled", "true")',
         "Python — Spark tuning",
@@ -1566,27 +1560,27 @@ def _week6_deep_dive(pdf):
 
     pdf.tool_heading("Delta Lake MERGE", "Upsert pattern for lakehouse")
     pdf.code_block(
-        'from delta.tables import DeltaTable\n'
-        '\n'
-        '# Target: existing silver table\n'
+        "from delta.tables import DeltaTable\n"
+        "\n"
+        "# Target: existing silver table\n"
         'target = DeltaTable.forPath(spark, "data/lakehouse/silver/flights")\n'
-        '\n'
-        '# Source: new batch of incoming data\n'
+        "\n"
+        "# Source: new batch of incoming data\n"
         'new_data = spark.read.parquet("data/raw/flights_latest.parquet")\n'
-        '\n'
-        '# MERGE: update existing rows, insert new ones\n'
+        "\n"
+        "# MERGE: update existing rows, insert new ones\n"
         'target.alias("t").merge(\n'
         '    new_data.alias("s"),\n'
         '    "t.flight_id = s.flight_id"\n'
-        ').whenMatchedUpdateAll() \\\n'
-        ' .whenNotMatchedInsertAll() \\\n'
-        ' .execute()\n'
-        '\n'
-        '# Compact small files (maintenance)\n'
-        'target.optimize().executeCompaction()\n'
-        '\n'
-        '# Remove old versions (save storage)\n'
-        'target.vacuum(168)  # keep 7 days of history',
+        ").whenMatchedUpdateAll() \\\n"
+        " .whenNotMatchedInsertAll() \\\n"
+        " .execute()\n"
+        "\n"
+        "# Compact small files (maintenance)\n"
+        "target.optimize().executeCompaction()\n"
+        "\n"
+        "# Remove old versions (save storage)\n"
+        "target.vacuum(168)  # keep 7 days of history",
         "Python — Delta MERGE + maintenance",
     )
 
@@ -1598,100 +1592,100 @@ def _week7_deep_dive(pdf):
 
     pdf.tool_heading("Kafka Producer", "Publish events to a topic")
     pdf.code_block(
-        'from confluent_kafka import Producer\n'
-        'import json\n'
-        'import time\n'
-        'import random\n'
-        '\n'
-        'producer = Producer({\n'
+        "from confluent_kafka import Producer\n"
+        "import json\n"
+        "import time\n"
+        "import random\n"
+        "\n"
+        "producer = Producer({\n"
         '    "bootstrap.servers": "localhost:9092",\n'
         '    "acks": "all",\n'
         '    "linger.ms": 10,\n'
         '    "batch.num.messages": 100,\n'
-        '})\n'
-        '\n'
+        "})\n"
+        "\n"
         'SYMBOLS = ["AAPL", "GOOG", "MSFT", "AMZN", "TSLA"]\n'
-        '\n'
-        'def generate_trade():\n'
-        '    return {\n'
+        "\n"
+        "def generate_trade():\n"
+        "    return {\n"
         '        "symbol": random.choice(SYMBOLS),\n'
         '        "price": round(random.uniform(100, 500), 2),\n'
         '        "quantity": random.randint(1, 1000),\n'
         '        "timestamp": int(time.time() * 1000),\n'
-        '    }\n'
-        '\n'
-        'for _ in range(10_000):\n'
-        '    trade = generate_trade()\n'
-        '    producer.produce(\n'
+        "    }\n"
+        "\n"
+        "for _ in range(10_000):\n"
+        "    trade = generate_trade()\n"
+        "    producer.produce(\n"
         '        topic="trades",\n'
         '        key=trade["symbol"],\n'
-        '        value=json.dumps(trade),\n'
-        '    )\n'
-        'producer.flush()',
+        "        value=json.dumps(trade),\n"
+        "    )\n"
+        "producer.flush()",
         "Python — producer.py",
     )
 
     pdf.tool_heading("Kafka Consumer", "Read events and write to database")
     pdf.code_block(
-        'from confluent_kafka import Consumer\n'
-        'import json\n'
-        '\n'
-        'consumer = Consumer({\n'
+        "from confluent_kafka import Consumer\n"
+        "import json\n"
+        "\n"
+        "consumer = Consumer({\n"
         '    "bootstrap.servers": "localhost:9092",\n'
         '    "group.id": "trade-writer",\n'
         '    "auto.offset.reset": "earliest",\n'
         '    "enable.auto.commit": False,\n'
-        '})\n'
+        "})\n"
         'consumer.subscribe(["trades"])\n'
-        '\n'
-        'batch = []\n'
-        'try:\n'
-        '    while True:\n'
-        '        msg = consumer.poll(timeout=1.0)\n'
-        '        if msg is None:\n'
-        '            continue\n'
-        '        if msg.error():\n'
+        "\n"
+        "batch = []\n"
+        "try:\n"
+        "    while True:\n"
+        "        msg = consumer.poll(timeout=1.0)\n"
+        "        if msg is None:\n"
+        "            continue\n"
+        "        if msg.error():\n"
         '            print(f"Error: {msg.error()}")\n'
-        '            continue\n'
-        '        trade = json.loads(msg.value())\n'
-        '        batch.append(trade)\n'
-        '        if len(batch) >= 500:\n'
-        '            # insert_batch(batch)  # your DB insert\n'
-        '            consumer.commit()\n'
-        '            batch.clear()\n'
-        'finally:\n'
-        '    consumer.close()',
+        "            continue\n"
+        "        trade = json.loads(msg.value())\n"
+        "        batch.append(trade)\n"
+        "        if len(batch) >= 500:\n"
+        "            # insert_batch(batch)  # your DB insert\n"
+        "            consumer.commit()\n"
+        "            batch.clear()\n"
+        "finally:\n"
+        "    consumer.close()",
         "Python — consumer.py",
     )
 
     pdf.add_page()
     pdf.sub_heading("Architecture Diagram: Kafka Streaming Pipeline")
     pdf.diagram_block(
-        '  +------------+     +-------------------+     +-------------+\n'
-        '  |  Producer  | --> |   Kafka Broker    | --> |  Consumer   |\n'
-        '  | (Python)   |     |                   |     |  Group A    |\n'
-        '  | generate   |     |  topic: trades    |     |  (write to  |\n'
-        '  | trade      |     |  partitions: 6    |     |   Postgres) |\n'
-        '  | events     |     |  replication: 3   |     +-------------+\n'
-        '  +------------+     |                   |     +-------------+\n'
-        '                     |  topic: orders    | --> |  Consumer   |\n'
-        '                     |  partitions: 3    |     |  Group B    |\n'
-        '                     +-------------------+     |  (analytics)|\n'
-        '                            |                  +-------------+\n'
-        '                     +------v---------+\n'
-        '                     | Schema Registry|\n'
-        '                     | (Avro/JSON)    |\n'
-        '                     +----------------+'
+        "  +------------+     +-------------------+     +-------------+\n"
+        "  |  Producer  | --> |   Kafka Broker    | --> |  Consumer   |\n"
+        "  | (Python)   |     |                   |     |  Group A    |\n"
+        "  | generate   |     |  topic: trades    |     |  (write to  |\n"
+        "  | trade      |     |  partitions: 6    |     |   Postgres) |\n"
+        "  | events     |     |  replication: 3   |     +-------------+\n"
+        "  +------------+     |                   |     +-------------+\n"
+        "                     |  topic: orders    | --> |  Consumer   |\n"
+        "                     |  partitions: 3    |     |  Group B    |\n"
+        "                     +-------------------+     |  (analytics)|\n"
+        "                            |                  +-------------+\n"
+        "                     +------v---------+\n"
+        "                     | Schema Registry|\n"
+        "                     | (Avro/JSON)    |\n"
+        "                     +----------------+"
     )
 
     pdf.tool_heading("Kafka with Avro Schema", "Type-safe serialization")
     pdf.code_block(
-        'from confluent_kafka.schema_registry import SchemaRegistryClient\n'
-        'from confluent_kafka.schema_registry.avro import AvroSerializer\n'
-        'from confluent_kafka import SerializingProducer\n'
-        '\n'
+        "from confluent_kafka.schema_registry import SchemaRegistryClient\n"
+        "from confluent_kafka.schema_registry.avro import AvroSerializer\n"
+        "from confluent_kafka import SerializingProducer\n"
+        "\n"
         'schema_str = """\n'
-        '{\n'
+        "{\n"
         '  "type": "record",\n'
         '  "name": "Trade",\n'
         '  "fields": [\n'
@@ -1699,18 +1693,18 @@ def _week7_deep_dive(pdf):
         '    {"name": "price",     "type": "double"},\n'
         '    {"name": "quantity",  "type": "int"},\n'
         '    {"name": "timestamp", "type": "long"}\n'
-        '  ]\n'
-        '}\n'
+        "  ]\n"
+        "}\n"
         '"""\n'
-        '\n'
+        "\n"
         'sr = SchemaRegistryClient({"url": "http://localhost:8081"})\n'
-        'avro_ser = AvroSerializer(sr, schema_str)\n'
-        '\n'
-        'producer = SerializingProducer({\n'
+        "avro_ser = AvroSerializer(sr, schema_str)\n"
+        "\n"
+        "producer = SerializingProducer({\n"
         '    "bootstrap.servers": "localhost:9092",\n'
         '    "value.serializer": avro_ser,\n'
-        '})\n'
-        '\n'
+        "})\n"
+        "\n"
         'producer.produce("trades",\n'
         '    value={"symbol": "AAPL", "price": 175.50,\n'
         '           "quantity": 100, "timestamp": 1718000000})',
@@ -1720,92 +1714,92 @@ def _week7_deep_dive(pdf):
     pdf.add_page()
     pdf.tool_heading("Great Expectations Suite", "Automated data validation")
     pdf.code_block(
-        'import great_expectations as gx\n'
-        '\n'
-        'context = gx.get_context()\n'
-        '\n'
-        '# Add a Pandas datasource\n'
+        "import great_expectations as gx\n"
+        "\n"
+        "context = gx.get_context()\n"
+        "\n"
+        "# Add a Pandas datasource\n"
         'ds = context.sources.add_pandas("trades_ds")\n'
         'asset = ds.add_dataframe_asset("trades_df")\n'
-        '\n'
-        '# Build expectation suite\n'
+        "\n"
+        "# Build expectation suite\n"
         'suite = context.add_expectation_suite("trades_quality")\n'
-        '\n'
-        'suite.add_expectation(\n'
-        '    gx.expectations.ExpectColumnValuesToNotBeNull(\n'
+        "\n"
+        "suite.add_expectation(\n"
+        "    gx.expectations.ExpectColumnValuesToNotBeNull(\n"
         '        column="symbol"))\n'
-        'suite.add_expectation(\n'
-        '    gx.expectations.ExpectColumnValuesToBeBetween(\n'
+        "suite.add_expectation(\n"
+        "    gx.expectations.ExpectColumnValuesToBeBetween(\n"
         '        column="price", min_value=0.01, max_value=10000))\n'
-        'suite.add_expectation(\n'
-        '    gx.expectations.ExpectColumnValuesToBeBetween(\n'
+        "suite.add_expectation(\n"
+        "    gx.expectations.ExpectColumnValuesToBeBetween(\n"
         '        column="quantity", min_value=1, max_value=100000))\n'
-        'suite.add_expectation(\n'
-        '    gx.expectations.ExpectColumnValuesToBeInSet(\n'
+        "suite.add_expectation(\n"
+        "    gx.expectations.ExpectColumnValuesToBeInSet(\n"
         '        column="symbol",\n'
         '        value_set=["AAPL","GOOG","MSFT","AMZN","TSLA"]))\n'
-        '\n'
-        '# Run checkpoint\n'
-        'checkpoint = context.add_or_update_checkpoint(\n'
+        "\n"
+        "# Run checkpoint\n"
+        "checkpoint = context.add_or_update_checkpoint(\n"
         '    name="trades_checkpoint",\n'
-        '    validations=[{\n'
+        "    validations=[{\n"
         '        "batch_request": asset.build_batch_request(),\n'
         '        "expectation_suite_name": "trades_quality",\n'
-        '    }],\n'
-        ')\n'
-        'result = checkpoint.run()\n'
+        "    }],\n"
+        ")\n"
+        "result = checkpoint.run()\n"
         'assert result.success, "Data quality check failed!"',
         "Python — validate_trades.py",
     )
 
     pdf.tool_heading("Custom Expectation", "Domain-specific validation rules")
     pdf.code_block(
-        'from great_expectations.expectations.expectation import (\n'
-        '    ColumnMapExpectation,\n'
-        ')\n'
-        '\n'
-        'class ExpectColumnValuesToBeValidTicker(ColumnMapExpectation):\n'
+        "from great_expectations.expectations.expectation import (\n"
+        "    ColumnMapExpectation,\n"
+        ")\n"
+        "\n"
+        "class ExpectColumnValuesToBeValidTicker(ColumnMapExpectation):\n"
         '    """Expect stock ticker symbols to be 1-5 uppercase letters."""\n'
-        '\n'
+        "\n"
         '    map_metric = "column_values.match_regex"\n'
         '    success_keys = ("regex",)\n'
-        '\n'
-        '    default_kwarg_values = {\n'
+        "\n"
+        "    default_kwarg_values = {\n"
         '        "regex": r"^[A-Z]{1,5}$",\n'
         '        "mostly": 1.0,\n'
-        '    }\n'
-        '\n'
-        '# Usage:\n'
-        '# suite.add_expectation(\n'
+        "    }\n"
+        "\n"
+        "# Usage:\n"
+        "# suite.add_expectation(\n"
         '#     ExpectColumnValuesToBeValidTicker(column="symbol")\n'
-        '# )',
+        "# )",
         "Python — custom expectation",
     )
 
     pdf.tool_heading("GX in Airflow", "Integrate data quality into your DAG")
     pdf.code_block(
-        '# Inside an Airflow PythonOperator\n'
-        'def validate_loaded_data(**ctx):\n'
-        '    import great_expectations as gx\n'
-        '    import pandas as pd\n'
-        '\n'
+        "# Inside an Airflow PythonOperator\n"
+        "def validate_loaded_data(**ctx):\n"
+        "    import great_expectations as gx\n"
+        "    import pandas as pd\n"
+        "\n"
         '    df = pd.read_sql("SELECT * FROM trades", engine)\n'
-        '    context = gx.get_context()\n'
-        '    result = context.run_checkpoint(\n'
+        "    context = gx.get_context()\n"
+        "    result = context.run_checkpoint(\n"
         '        checkpoint_name="trades_checkpoint",\n'
-        '        batch_request={\n'
+        "        batch_request={\n"
         '            "runtime_parameters": {"batch_data": df},\n'
         '            "batch_identifiers": {"run_id": ctx["run_id"]},\n'
-        '        },\n'
-        '    )\n'
-        '    if not result.success:\n'
+        "        },\n"
+        "    )\n"
+        "    if not result.success:\n"
         '        raise ValueError("Data quality check failed!")\n'
-        '\n'
-        '# In DAG: download >> load >> validate >> notify\n'
-        'validate = PythonOperator(\n'
+        "\n"
+        "# In DAG: download >> load >> validate >> notify\n"
+        "validate = PythonOperator(\n"
         '    task_id="validate",\n'
-        '    python_callable=validate_loaded_data,\n'
-        ')',
+        "    python_callable=validate_loaded_data,\n"
+        ")",
         "Python — GX in Airflow DAG",
     )
 
@@ -1817,228 +1811,228 @@ def _week8_deep_dive(pdf):
 
     pdf.tool_heading("Terraform: S3 + Redshift", "Infrastructure as code")
     pdf.code_block(
-        'terraform {\n'
-        '  required_providers {\n'
+        "terraform {\n"
+        "  required_providers {\n"
         '    aws = { source = "hashicorp/aws", version = "~> 5.0" }\n'
-        '  }\n'
+        "  }\n"
         '  backend "s3" {\n'
         '    bucket = "my-tf-state"\n'
         '    key    = "data-platform/terraform.tfstate"\n'
         '    region = "us-east-1"\n'
-        '  }\n'
-        '}\n'
-        '\n'
+        "  }\n"
+        "}\n"
+        "\n"
         'provider "aws" { region = var.region }\n'
-        '\n'
+        "\n"
         'resource "aws_s3_bucket" "lakehouse" {\n'
         '  bucket = "${var.project}-lakehouse"\n'
-        '  tags   = { Environment = var.env }\n'
-        '}\n'
-        '\n'
+        "  tags   = { Environment = var.env }\n"
+        "}\n"
+        "\n"
         'resource "aws_s3_bucket_versioning" "lakehouse" {\n'
-        '  bucket = aws_s3_bucket.lakehouse.id\n'
+        "  bucket = aws_s3_bucket.lakehouse.id\n"
         '  versioning_configuration { status = "Enabled" }\n'
-        '}\n'
-        '\n'
+        "}\n"
+        "\n"
         'resource "aws_redshift_cluster" "warehouse" {\n'
         '  cluster_identifier  = "${var.project}-warehouse"\n'
         '  database_name       = "analytics"\n'
         '  master_username     = "admin"\n'
-        '  master_password     = var.redshift_password\n'
+        "  master_password     = var.redshift_password\n"
         '  node_type           = "dc2.large"\n'
-        '  number_of_nodes     = 2\n'
-        '  skip_final_snapshot = true\n'
-        '}',
+        "  number_of_nodes     = 2\n"
+        "  skip_final_snapshot = true\n"
+        "}",
         "HCL — main.tf",
     )
 
     pdf.tool_heading("GitHub Actions CI", "Automated testing on every PR")
     pdf.code_block(
-        'name: Data Platform CI\n'
-        'on:\n'
-        '  pull_request:\n'
-        '    branches: [main]\n'
-        '\n'
-        'jobs:\n'
-        '  lint-and-test:\n'
-        '    runs-on: ubuntu-latest\n'
-        '    services:\n'
-        '      postgres:\n'
-        '        image: postgres:16\n'
-        '        env:\n'
-        '          POSTGRES_DB: test_warehouse\n'
-        '          POSTGRES_PASSWORD: test\n'
+        "name: Data Platform CI\n"
+        "on:\n"
+        "  pull_request:\n"
+        "    branches: [main]\n"
+        "\n"
+        "jobs:\n"
+        "  lint-and-test:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    services:\n"
+        "      postgres:\n"
+        "        image: postgres:16\n"
+        "        env:\n"
+        "          POSTGRES_DB: test_warehouse\n"
+        "          POSTGRES_PASSWORD: test\n"
         '        ports: ["5432:5432"]\n'
-        '        options: >-\n'
-        '          --health-cmd pg_isready\n'
-        '          --health-interval 10s\n'
-        '          --health-retries 5\n'
-        '    steps:\n'
-        '      - uses: actions/checkout@v4\n'
-        '      - uses: actions/setup-python@v5\n'
+        "        options: >-\n"
+        "          --health-cmd pg_isready\n"
+        "          --health-interval 10s\n"
+        "          --health-retries 5\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@v4\n"
+        "      - uses: actions/setup-python@v5\n"
         '        with: { python-version: "3.11" }\n'
         '      - run: pip install -e ".[dev]"\n'
-        '      - run: ruff check .\n'
-        '      - run: pytest tests/ -v --tb=short\n'
-        '\n'
-        '  dbt-test:\n'
-        '    runs-on: ubuntu-latest\n'
-        '    needs: lint-and-test\n'
-        '    steps:\n'
-        '      - uses: actions/checkout@v4\n'
-        '      - run: pip install dbt-postgres\n'
-        '      - run: dbt deps\n'
-        '      - run: dbt build --select state:modified+',
+        "      - run: ruff check .\n"
+        "      - run: pytest tests/ -v --tb=short\n"
+        "\n"
+        "  dbt-test:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    needs: lint-and-test\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@v4\n"
+        "      - run: pip install dbt-postgres\n"
+        "      - run: dbt deps\n"
+        "      - run: dbt build --select state:modified+",
         "YAML — .github/workflows/ci.yml",
     )
 
     pdf.add_page()
     pdf.sub_heading("Architecture Diagram: Cloud Data Platform")
     pdf.diagram_block(
-        '  +--------+     +----------+     +----------+     +-----------+\n'
-        '  | GitHub | --> | Actions  | --> | Terraform| --> |   AWS     |\n'
-        '  | (code) |     | (CI/CD)  |     | (IaC)   |     |           |\n'
-        '  +--------+     +----------+     +----------+     |  +-----+ |\n'
-        '                                                   |  | S3  | |\n'
-        '  +---------+     +---------+     +----------+     |  | raw | |\n'
-        '  | Kafka   | --> | Airflow | --> | Spark    | --> |  +-----+ |\n'
-        '  | (stream)|     | (orch)  |     | (proc)   |     |    |     |\n'
-        '  +---------+     +---------+     +----------+     |    v     |\n'
-        '                                                   |  +-----+ |\n'
-        '  +---------+     +---------+                      |  |Redsh| |\n'
-        '  | GX      | --> | dbt     | -------------------> |  |ift  | |\n'
-        '  | (qual)  |     | (ELT)   |                      |  +-----+ |\n'
-        '  +---------+     +---------+                      |    |     |\n'
-        '                                                   |    v     |\n'
-        '                                                   | +------+ |\n'
-        '                                                   | |Super-| |\n'
-        '                                                   | |set   | |\n'
-        '                                                   | +------+ |\n'
-        '                                                   +-----------+'
+        "  +--------+     +----------+     +----------+     +-----------+\n"
+        "  | GitHub | --> | Actions  | --> | Terraform| --> |   AWS     |\n"
+        "  | (code) |     | (CI/CD)  |     | (IaC)   |     |           |\n"
+        "  +--------+     +----------+     +----------+     |  +-----+ |\n"
+        "                                                   |  | S3  | |\n"
+        "  +---------+     +---------+     +----------+     |  | raw | |\n"
+        "  | Kafka   | --> | Airflow | --> | Spark    | --> |  +-----+ |\n"
+        "  | (stream)|     | (orch)  |     | (proc)   |     |    |     |\n"
+        "  +---------+     +---------+     +----------+     |    v     |\n"
+        "                                                   |  +-----+ |\n"
+        "  +---------+     +---------+                      |  |Redsh| |\n"
+        "  | GX      | --> | dbt     | -------------------> |  |ift  | |\n"
+        "  | (qual)  |     | (ELT)   |                      |  +-----+ |\n"
+        "  +---------+     +---------+                      |    |     |\n"
+        "                                                   |    v     |\n"
+        "                                                   | +------+ |\n"
+        "                                                   | |Super-| |\n"
+        "                                                   | |set   | |\n"
+        "                                                   | +------+ |\n"
+        "                                                   +-----------+"
     )
 
     pdf.tool_heading("AWS CLI: S3 Operations", "Common data engineering S3 commands")
     pdf.code_block(
-        '# Sync local data to S3\n'
-        'aws s3 sync data/lakehouse/ s3://my-lakehouse/ \\\n'
+        "# Sync local data to S3\n"
+        "aws s3 sync data/lakehouse/ s3://my-lakehouse/ \\\n"
         '    --exclude "*.tmp"\n'
-        '\n'
-        '# List objects with size\n'
-        'aws s3 ls s3://my-lakehouse/silver/flights/ \\\n'
-        '    --recursive --human-readable\n'
-        '\n'
-        '# Copy from Redshift via UNLOAD\n'
-        'UNLOAD (\'SELECT * FROM analytics.fct_daily_trips\')\n'
-        'TO \'s3://my-lakehouse/exports/daily_trips_\'\n'
-        'IAM_ROLE \'arn:aws:iam::123456:role/RedshiftS3\'\n'
-        'FORMAT AS PARQUET;',
+        "\n"
+        "# List objects with size\n"
+        "aws s3 ls s3://my-lakehouse/silver/flights/ \\\n"
+        "    --recursive --human-readable\n"
+        "\n"
+        "# Copy from Redshift via UNLOAD\n"
+        "UNLOAD ('SELECT * FROM analytics.fct_daily_trips')\n"
+        "TO 's3://my-lakehouse/exports/daily_trips_'\n"
+        "IAM_ROLE 'arn:aws:iam::123456:role/RedshiftS3'\n"
+        "FORMAT AS PARQUET;",
         "Bash / SQL",
     )
 
     pdf.tool_heading("GitHub Actions CD", "Deploy on merge to main")
     pdf.code_block(
-        'name: Deploy Data Platform\n'
-        'on:\n'
-        '  push:\n'
-        '    branches: [main]\n'
-        '\n'
-        'jobs:\n'
-        '  deploy-infra:\n'
-        '    runs-on: ubuntu-latest\n'
-        '    environment: production\n'
-        '    steps:\n'
-        '      - uses: actions/checkout@v4\n'
-        '      - uses: hashicorp/setup-terraform@v3\n'
-        '      - run: terraform init\n'
-        '        working-directory: terraform/\n'
-        '      - run: terraform apply -auto-approve\n'
-        '        working-directory: terraform/\n'
-        '        env:\n'
-        '          TF_VAR_redshift_password: ${{ secrets.REDSHIFT_PW }}\n'
-        '\n'
-        '  deploy-dbt:\n'
-        '    needs: deploy-infra\n'
-        '    runs-on: ubuntu-latest\n'
-        '    steps:\n'
-        '      - uses: actions/checkout@v4\n'
-        '      - run: pip install dbt-redshift\n'
-        '      - run: dbt build --target prod\n'
-        '        env:\n'
-        '          DBT_PROFILES_DIR: ./dbt\n'
-        '\n'
-        '  deploy-dags:\n'
-        '    needs: deploy-infra\n'
-        '    runs-on: ubuntu-latest\n'
-        '    steps:\n'
-        '      - uses: actions/checkout@v4\n'
-        '      - run: |\n'
-        '          aws s3 sync dags/ s3://my-airflow-bucket/dags/ \\\n'
-        '              --delete',
+        "name: Deploy Data Platform\n"
+        "on:\n"
+        "  push:\n"
+        "    branches: [main]\n"
+        "\n"
+        "jobs:\n"
+        "  deploy-infra:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    environment: production\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@v4\n"
+        "      - uses: hashicorp/setup-terraform@v3\n"
+        "      - run: terraform init\n"
+        "        working-directory: terraform/\n"
+        "      - run: terraform apply -auto-approve\n"
+        "        working-directory: terraform/\n"
+        "        env:\n"
+        "          TF_VAR_redshift_password: ${{ secrets.REDSHIFT_PW }}\n"
+        "\n"
+        "  deploy-dbt:\n"
+        "    needs: deploy-infra\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@v4\n"
+        "      - run: pip install dbt-redshift\n"
+        "      - run: dbt build --target prod\n"
+        "        env:\n"
+        "          DBT_PROFILES_DIR: ./dbt\n"
+        "\n"
+        "  deploy-dags:\n"
+        "    needs: deploy-infra\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@v4\n"
+        "      - run: |\n"
+        "          aws s3 sync dags/ s3://my-airflow-bucket/dags/ \\\n"
+        "              --delete",
         "YAML — .github/workflows/cd.yml",
     )
 
     pdf.add_page()
     pdf.tool_heading("Terraform Variables + Outputs", "Parameterize your infrastructure")
     pdf.code_block(
-        '# variables.tf\n'
+        "# variables.tf\n"
         'variable "project" {\n'
-        '  type        = string\n'
+        "  type        = string\n"
         '  description = "Project name prefix"\n'
         '  default     = "de-platform"\n'
-        '}\n'
-        '\n'
+        "}\n"
+        "\n"
         'variable "env" {\n'
-        '  type    = string\n'
+        "  type    = string\n"
         '  default = "dev"\n'
-        '}\n'
-        '\n'
+        "}\n"
+        "\n"
         'variable "region" {\n'
-        '  type    = string\n'
+        "  type    = string\n"
         '  default = "us-east-1"\n'
-        '}\n'
-        '\n'
+        "}\n"
+        "\n"
         'variable "redshift_password" {\n'
-        '  type      = string\n'
-        '  sensitive = true\n'
-        '}\n'
-        '\n'
-        '# outputs.tf\n'
+        "  type      = string\n"
+        "  sensitive = true\n"
+        "}\n"
+        "\n"
+        "# outputs.tf\n"
         'output "s3_bucket_name" {\n'
-        '  value = aws_s3_bucket.lakehouse.bucket\n'
-        '}\n'
-        '\n'
+        "  value = aws_s3_bucket.lakehouse.bucket\n"
+        "}\n"
+        "\n"
         'output "redshift_endpoint" {\n'
-        '  value = aws_redshift_cluster.warehouse.endpoint\n'
-        '}\n'
-        '\n'
+        "  value = aws_redshift_cluster.warehouse.endpoint\n"
+        "}\n"
+        "\n"
         'output "redshift_iam_role_arn" {\n'
-        '  value = aws_iam_role.redshift_s3.arn\n'
-        '}',
+        "  value = aws_iam_role.redshift_s3.arn\n"
+        "}",
         "HCL — variables.tf + outputs.tf",
     )
 
     pdf.tool_heading("Redshift COPY + Spectrum", "Load and query S3 data")
     pdf.code_block(
-        '-- COPY: bulk load from S3 into Redshift\n'
-        'COPY analytics.fact_trips\n'
-        'FROM \'s3://my-lakehouse/gold/daily_trips/\'\n'
-        'IAM_ROLE \'arn:aws:iam::123456:role/RedshiftS3\'\n'
-        'FORMAT AS PARQUET;\n'
-        '\n'
-        '-- Redshift Spectrum: query S3 directly (no COPY needed)\n'
-        'CREATE EXTERNAL SCHEMA spectrum_lake\n'
-        'FROM DATA CATALOG\n'
-        'DATABASE \'lakehouse_db\'\n'
-        'IAM_ROLE \'arn:aws:iam::123456:role/RedshiftSpectrum\';\n'
-        '\n'
-        '-- Query S3 data as if it were a local table\n'
-        'SELECT\n'
-        '    flight_date,\n'
-        '    COUNT(*) AS flights,\n'
-        '    AVG(dep_delay) AS avg_delay\n'
-        'FROM spectrum_lake.silver_flights\n'
-        'WHERE flight_date >= \'2024-01-01\'\n'
-        'GROUP BY 1;',
+        "-- COPY: bulk load from S3 into Redshift\n"
+        "COPY analytics.fact_trips\n"
+        "FROM 's3://my-lakehouse/gold/daily_trips/'\n"
+        "IAM_ROLE 'arn:aws:iam::123456:role/RedshiftS3'\n"
+        "FORMAT AS PARQUET;\n"
+        "\n"
+        "-- Redshift Spectrum: query S3 directly (no COPY needed)\n"
+        "CREATE EXTERNAL SCHEMA spectrum_lake\n"
+        "FROM DATA CATALOG\n"
+        "DATABASE 'lakehouse_db'\n"
+        "IAM_ROLE 'arn:aws:iam::123456:role/RedshiftSpectrum';\n"
+        "\n"
+        "-- Query S3 data as if it were a local table\n"
+        "SELECT\n"
+        "    flight_date,\n"
+        "    COUNT(*) AS flights,\n"
+        "    AVG(dep_delay) AS avg_delay\n"
+        "FROM spectrum_lake.silver_flights\n"
+        "WHERE flight_date >= '2024-01-01'\n"
+        "GROUP BY 1;",
         "SQL — Redshift COPY + Spectrum",
     )
 
@@ -2046,26 +2040,26 @@ def _week8_deep_dive(pdf):
     pdf.code_block(
         'resource "aws_iam_role_policy" "redshift_s3_access" {\n'
         '  name = "${local.prefix}-redshift-s3-policy"\n'
-        '  role = aws_iam_role.redshift_s3.id\n'
-        '\n'
-        '  policy = jsonencode({\n'
+        "  role = aws_iam_role.redshift_s3.id\n"
+        "\n"
+        "  policy = jsonencode({\n"
         '    Version = "2012-10-17"\n'
-        '    Statement = [\n'
-        '      {\n'
+        "    Statement = [\n"
+        "      {\n"
         '        Effect = "Allow"\n'
-        '        Action = [\n'
+        "        Action = [\n"
         '          "s3:GetObject",\n'
         '          "s3:ListBucket",\n'
         '          "s3:GetBucketLocation",\n'
-        '        ]\n'
-        '        Resource = [\n'
-        '          aws_s3_bucket.lakehouse.arn,\n'
+        "        ]\n"
+        "        Resource = [\n"
+        "          aws_s3_bucket.lakehouse.arn,\n"
         '          "${aws_s3_bucket.lakehouse.arn}/*",\n'
-        '        ]\n'
-        '      }\n'
-        '    ]\n'
-        '  })\n'
-        '}',
+        "        ]\n"
+        "      }\n"
+        "    ]\n"
+        "  })\n"
+        "}",
         "HCL — IAM policy",
     )
 
@@ -2073,6 +2067,7 @@ def _week8_deep_dive(pdf):
 # ═══════════════════════════════════════════════════════════════
 # COOKBOOK APPENDIX: cheat sheets for each tool
 # ═══════════════════════════════════════════════════════════════
+
 
 def _cookbook_python(pdf):
     pdf.add_page()
@@ -2086,7 +2081,9 @@ def _cookbook_python(pdf):
     pdf.cheat_separator()
     pdf.cheat_entry("pip freeze > requirements.txt", "Pin all installed package versions", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("pip install pip-tools\npip-compile pyproject.toml", "Generate locked requirements from pyproject.toml", "bash")
+    pdf.cheat_entry(
+        "pip install pip-tools\npip-compile pyproject.toml", "Generate locked requirements from pyproject.toml", "bash"
+    )
     pdf.cheat_separator()
     pdf.cheat_entry("python -m pytest tests/ -v", "Run tests with verbose output", "bash")
     pdf.cheat_separator()
@@ -2101,91 +2098,91 @@ def _cookbook_python(pdf):
 
     pdf.sub_heading("Common Patterns")
     pdf.code_block(
-        '# Context manager for file handling\n'
-        'from pathlib import Path\n'
+        "# Context manager for file handling\n"
+        "from pathlib import Path\n"
         'data = Path("data.json").read_text()\n'
-        '\n'
-        '# Dataclass for typed records\n'
-        'from dataclasses import dataclass\n'
-        '@dataclass\n'
-        'class Trade:\n'
-        '    symbol: str\n'
-        '    price: float\n'
-        '    quantity: int\n'
-        '\n'
-        '# Generator for memory-efficient iteration\n'
-        'def read_chunks(path, size=10_000):\n'
-        '    import pandas as pd\n'
-        '    for chunk in pd.read_csv(path, chunksize=size):\n'
-        '        yield chunk\n'
-        '\n'
-        '# Retry decorator\n'
-        'from tenacity import retry, stop_after_attempt\n'
-        '@retry(stop=stop_after_attempt(3))\n'
-        'def fetch_data(url):\n'
-        '    return httpx.get(url).raise_for_status()',
+        "\n"
+        "# Dataclass for typed records\n"
+        "from dataclasses import dataclass\n"
+        "@dataclass\n"
+        "class Trade:\n"
+        "    symbol: str\n"
+        "    price: float\n"
+        "    quantity: int\n"
+        "\n"
+        "# Generator for memory-efficient iteration\n"
+        "def read_chunks(path, size=10_000):\n"
+        "    import pandas as pd\n"
+        "    for chunk in pd.read_csv(path, chunksize=size):\n"
+        "        yield chunk\n"
+        "\n"
+        "# Retry decorator\n"
+        "from tenacity import retry, stop_after_attempt\n"
+        "@retry(stop=stop_after_attempt(3))\n"
+        "def fetch_data(url):\n"
+        "    return httpx.get(url).raise_for_status()",
         "Python patterns",
     )
 
     pdf.sub_heading("Data Engineering Patterns")
     pdf.code_block(
-        '# Atomic file writes (no partial files on crash)\n'
-        'import tempfile, shutil\n'
-        'with tempfile.NamedTemporaryFile(\n'
+        "# Atomic file writes (no partial files on crash)\n"
+        "import tempfile, shutil\n"
+        "with tempfile.NamedTemporaryFile(\n"
         '    dir="data/", delete=False, suffix=".parquet"\n'
-        ') as tmp:\n'
-        '    df.to_parquet(tmp.name)\n'
+        ") as tmp:\n"
+        "    df.to_parquet(tmp.name)\n"
         '    shutil.move(tmp.name, "data/final.parquet")\n'
-        '\n'
-        '# Connection pooling with context manager\n'
-        'from contextlib import contextmanager\n'
-        'from sqlalchemy import create_engine\n'
-        '\n'
-        '@contextmanager\n'
-        'def get_engine():\n'
-        '    engine = create_engine(DATABASE_URL,\n'
-        '        pool_size=5, pool_recycle=3600)\n'
-        '    try:\n'
-        '        yield engine\n'
-        '    finally:\n'
-        '        engine.dispose()\n'
-        '\n'
-        '# Parallel downloads with asyncio\n'
-        'import asyncio\n'
-        'async def download_all(urls):\n'
-        '    async with httpx.AsyncClient() as c:\n'
-        '        tasks = [c.get(url) for url in urls]\n'
-        '        return await asyncio.gather(*tasks)',
+        "\n"
+        "# Connection pooling with context manager\n"
+        "from contextlib import contextmanager\n"
+        "from sqlalchemy import create_engine\n"
+        "\n"
+        "@contextmanager\n"
+        "def get_engine():\n"
+        "    engine = create_engine(DATABASE_URL,\n"
+        "        pool_size=5, pool_recycle=3600)\n"
+        "    try:\n"
+        "        yield engine\n"
+        "    finally:\n"
+        "        engine.dispose()\n"
+        "\n"
+        "# Parallel downloads with asyncio\n"
+        "import asyncio\n"
+        "async def download_all(urls):\n"
+        "    async with httpx.AsyncClient() as c:\n"
+        "        tasks = [c.get(url) for url in urls]\n"
+        "        return await asyncio.gather(*tasks)",
         "Python — DE patterns",
     )
 
     pdf.sub_heading("Pandas for Data Engineering")
     pdf.code_block(
-        '# Read large files efficiently\n'
+        "# Read large files efficiently\n"
         'df = pd.read_parquet("data.parquet",\n'
         '    columns=["id", "amount", "ts"])  # read only needed cols\n'
-        '\n'
-        '# Chunked CSV reading\n'
+        "\n"
+        "# Chunked CSV reading\n"
         'for chunk in pd.read_csv("big.csv", chunksize=100_000):\n'
-        '    process(chunk)\n'
-        '\n'
-        '# Deduplication\n'
+        "    process(chunk)\n"
+        "\n"
+        "# Deduplication\n"
         'df = df.drop_duplicates(subset=["id"], keep="last")\n'
-        '\n'
-        '# Type-safe loading\n'
+        "\n"
+        "# Type-safe loading\n"
         'dtypes = {"id": "int64", "amount": "float64",\n'
         '          "status": "category"}\n'
         'df = pd.read_csv("data.csv", dtype=dtypes,\n'
         '    parse_dates=["created_at"])\n'
-        '\n'
-        '# Efficient groupby + agg\n'
+        "\n"
+        "# Efficient groupby + agg\n"
         'result = df.groupby("category").agg(\n'
         '    total=("amount", "sum"),\n'
         '    count=("id", "count"),\n'
         '    avg=("amount", "mean"),\n'
-        ').reset_index()\n'
-        '\n'
-        '# Write to Parquet (always prefer over CSV)\n'
+        ").reset_index()\n"
+        "\n"
+        "# Write to Parquet (always prefer over CSV)\n"
         'df.to_parquet("output.parquet", index=False,\n'
         '    engine="pyarrow", compression="snappy")',
         "Python — pandas for DE",
@@ -2196,21 +2193,41 @@ def _cookbook_sql(pdf):
     pdf.add_page()
     pdf.section_title("Cookbook: SQL", 60, 130, 60)
 
-    pdf.cheat_entry("SELECT *, ROW_NUMBER()\n  OVER (PARTITION BY col\n        ORDER BY ts DESC) rn\nFROM t", "Row number per group (dedup with WHERE rn = 1)", "sql")
+    pdf.cheat_entry(
+        "SELECT *, ROW_NUMBER()\n  OVER (PARTITION BY col\n        ORDER BY ts DESC) rn\nFROM t",
+        "Row number per group (dedup with WHERE rn = 1)",
+        "sql",
+    )
     pdf.cheat_separator()
-    pdf.cheat_entry("SELECT *, LAG(val) OVER\n  (ORDER BY ts) AS prev_val\nFROM t", "Previous row value (for change detection)", "sql")
+    pdf.cheat_entry(
+        "SELECT *, LAG(val) OVER\n  (ORDER BY ts) AS prev_val\nFROM t",
+        "Previous row value (for change detection)",
+        "sql",
+    )
     pdf.cheat_separator()
-    pdf.cheat_entry("SELECT *, SUM(amount) OVER\n  (ORDER BY ts ROWS BETWEEN\n   UNBOUNDED PRECEDING\n   AND CURRENT ROW) AS running\nFROM t", "Running total / cumulative sum", "sql")
+    pdf.cheat_entry(
+        "SELECT *, SUM(amount) OVER\n  (ORDER BY ts ROWS BETWEEN\n   UNBOUNDED PRECEDING\n   AND CURRENT ROW) AS running\nFROM t",  # noqa: E501
+        "Running total / cumulative sum",
+        "sql",
+    )
     pdf.cheat_separator()
-    pdf.cheat_entry("WITH cte AS (\n  SELECT ... FROM t\n)\nSELECT * FROM cte", "Common Table Expression (named subquery)", "sql")
+    pdf.cheat_entry(
+        "WITH cte AS (\n  SELECT ... FROM t\n)\nSELECT * FROM cte", "Common Table Expression (named subquery)", "sql"
+    )
     pdf.cheat_separator()
     pdf.cheat_entry("CREATE INDEX CONCURRENTLY\n  idx_name ON t(col);", "Non-blocking index creation (Postgres)", "sql")
     pdf.cheat_separator()
     pdf.cheat_entry("EXPLAIN (ANALYZE, BUFFERS)\n  SELECT ... ;", "Query execution plan with I/O stats", "sql")
     pdf.cheat_separator()
-    pdf.cheat_entry("COPY table FROM '/path/data.csv'\n  WITH (FORMAT csv, HEADER true);", "Bulk load CSV into Postgres", "sql")
+    pdf.cheat_entry(
+        "COPY table FROM '/path/data.csv'\n  WITH (FORMAT csv, HEADER true);", "Bulk load CSV into Postgres", "sql"
+    )
     pdf.cheat_separator()
-    pdf.cheat_entry("\\dt          -- list tables\n\\d+ tablename -- describe table\n\\timing      -- toggle timing", "psql meta-commands", "sql")
+    pdf.cheat_entry(
+        "\\dt          -- list tables\n\\d+ tablename -- describe table\n\\timing      -- toggle timing",
+        "psql meta-commands",
+        "sql",
+    )
     pdf.cheat_separator()
     pdf.cheat_entry("COALESCE(col, 0)", "Replace NULL with a default value", "sql")
     pdf.cheat_separator()
@@ -2219,42 +2236,42 @@ def _cookbook_sql(pdf):
     pdf.add_page()
     pdf.sub_heading("Advanced SQL Patterns")
     pdf.code_block(
-        '-- Deduplicate rows (keep latest per key)\n'
-        'DELETE FROM events a USING events b\n'
-        'WHERE a.id < b.id\n'
-        '  AND a.event_key = b.event_key;\n'
-        '\n'
-        '-- Or with ROW_NUMBER:\n'
-        'WITH ranked AS (\n'
-        '    SELECT *, ROW_NUMBER() OVER (\n'
-        '        PARTITION BY event_key\n'
-        '        ORDER BY created_at DESC\n'
-        '    ) AS rn\n'
-        '    FROM events\n'
-        ')\n'
-        'SELECT * FROM ranked WHERE rn = 1;\n'
-        '\n'
-        '-- Gap detection (find missing dates)\n'
-        'WITH date_series AS (\n'
-        '    SELECT generate_series(\n'
-        '        \'2024-01-01\'::date,\n'
-        '        \'2024-12-31\'::date,\n'
-        '        \'1 day\'::interval\n'
-        '    )::date AS dt\n'
-        ')\n'
-        'SELECT dt AS missing_date\n'
-        'FROM date_series\n'
-        'LEFT JOIN daily_data d ON d.report_date = dt\n'
-        'WHERE d.report_date IS NULL;\n'
-        '\n'
-        '-- Pivot with FILTER (PostgreSQL)\n'
-        'SELECT\n'
-        '    pickup_date,\n'
-        '    COUNT(*) FILTER (WHERE borough = \'Manhattan\') AS manhattan,\n'
-        '    COUNT(*) FILTER (WHERE borough = \'Brooklyn\') AS brooklyn,\n'
-        '    COUNT(*) FILTER (WHERE borough = \'Queens\') AS queens\n'
-        'FROM trips JOIN zones USING (zone_id)\n'
-        'GROUP BY pickup_date;',
+        "-- Deduplicate rows (keep latest per key)\n"
+        "DELETE FROM events a USING events b\n"
+        "WHERE a.id < b.id\n"
+        "  AND a.event_key = b.event_key;\n"
+        "\n"
+        "-- Or with ROW_NUMBER:\n"
+        "WITH ranked AS (\n"
+        "    SELECT *, ROW_NUMBER() OVER (\n"
+        "        PARTITION BY event_key\n"
+        "        ORDER BY created_at DESC\n"
+        "    ) AS rn\n"
+        "    FROM events\n"
+        ")\n"
+        "SELECT * FROM ranked WHERE rn = 1;\n"
+        "\n"
+        "-- Gap detection (find missing dates)\n"
+        "WITH date_series AS (\n"
+        "    SELECT generate_series(\n"
+        "        '2024-01-01'::date,\n"
+        "        '2024-12-31'::date,\n"
+        "        '1 day'::interval\n"
+        "    )::date AS dt\n"
+        ")\n"
+        "SELECT dt AS missing_date\n"
+        "FROM date_series\n"
+        "LEFT JOIN daily_data d ON d.report_date = dt\n"
+        "WHERE d.report_date IS NULL;\n"
+        "\n"
+        "-- Pivot with FILTER (PostgreSQL)\n"
+        "SELECT\n"
+        "    pickup_date,\n"
+        "    COUNT(*) FILTER (WHERE borough = 'Manhattan') AS manhattan,\n"
+        "    COUNT(*) FILTER (WHERE borough = 'Brooklyn') AS brooklyn,\n"
+        "    COUNT(*) FILTER (WHERE borough = 'Queens') AS queens\n"
+        "FROM trips JOIN zones USING (zone_id)\n"
+        "GROUP BY pickup_date;",
         "SQL — advanced patterns",
     )
 
@@ -2267,7 +2284,9 @@ def _cookbook_docker(pdf):
     pdf.cheat_separator()
     pdf.cheat_entry("docker build --target builder .", "Build only up to a specific stage", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("docker run -d -p 8000:8000\n  --name api myapp:v1", "Run container in background with port mapping", "bash")
+    pdf.cheat_entry(
+        "docker run -d -p 8000:8000\n  --name api myapp:v1", "Run container in background with port mapping", "bash"
+    )
     pdf.cheat_separator()
     pdf.cheat_entry("docker run --rm -it myapp sh", "Run interactive shell in a disposable container", "bash")
     pdf.cheat_separator()
@@ -2285,49 +2304,51 @@ def _cookbook_docker(pdf):
     pdf.cheat_separator()
     pdf.cheat_entry("docker stats", "Live CPU/memory usage for all containers", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("docker inspect container\n  | jq '.[0].NetworkSettings'", "Inspect container network config", "bash")
+    pdf.cheat_entry(
+        "docker inspect container\n  | jq '.[0].NetworkSettings'", "Inspect container network config", "bash"
+    )
     pdf.cheat_separator()
 
     pdf.sub_heading("Dockerfile Best Practices")
     pdf.code_block(
-        '# 1. Use specific base tags (not :latest)\n'
-        'FROM python:3.11-slim\n'
-        '\n'
-        '# 2. Copy dependency files first (layer caching)\n'
-        'COPY pyproject.toml .\n'
-        'RUN pip install --no-cache-dir .\n'
-        '\n'
-        '# 3. Copy source code last (changes most often)\n'
-        'COPY src/ src/\n'
-        '\n'
-        '# 4. Run as non-root user\n'
-        'RUN useradd -m app\n'
-        'USER app',
+        "# 1. Use specific base tags (not :latest)\n"
+        "FROM python:3.11-slim\n"
+        "\n"
+        "# 2. Copy dependency files first (layer caching)\n"
+        "COPY pyproject.toml .\n"
+        "RUN pip install --no-cache-dir .\n"
+        "\n"
+        "# 3. Copy source code last (changes most often)\n"
+        "COPY src/ src/\n"
+        "\n"
+        "# 4. Run as non-root user\n"
+        "RUN useradd -m app\n"
+        "USER app",
         "Dockerfile patterns",
     )
 
     pdf.sub_heading("Docker Troubleshooting")
     pdf.code_block(
-        '# Debug a failing container\n'
-        'docker logs container_name --tail 50\n'
-        'docker inspect container_name | jq \'.[0].State\'\n'
-        'docker exec -it container_name /bin/sh\n'
-        '\n'
-        '# Check resource usage\n'
-        'docker stats --no-stream\n'
-        '\n'
-        '# View layer sizes in an image\n'
-        'docker history myimage:v1 --human\n'
-        '\n'
-        '# Network debugging\n'
-        'docker network inspect bridge\n'
-        'docker exec container_name ping other_container\n'
-        '\n'
-        '# Clean everything (nuclear option)\n'
-        'docker system prune -af --volumes\n'
-        '\n'
-        '# Check what is using disk space\n'
-        'docker system df -v',
+        "# Debug a failing container\n"
+        "docker logs container_name --tail 50\n"
+        "docker inspect container_name | jq '.[0].State'\n"
+        "docker exec -it container_name /bin/sh\n"
+        "\n"
+        "# Check resource usage\n"
+        "docker stats --no-stream\n"
+        "\n"
+        "# View layer sizes in an image\n"
+        "docker history myimage:v1 --human\n"
+        "\n"
+        "# Network debugging\n"
+        "docker network inspect bridge\n"
+        "docker exec container_name ping other_container\n"
+        "\n"
+        "# Clean everything (nuclear option)\n"
+        "docker system prune -af --volumes\n"
+        "\n"
+        "# Check what is using disk space\n"
+        "docker system df -v",
         "Docker troubleshooting",
     )
 
@@ -2342,101 +2363,113 @@ def _cookbook_airflow(pdf):
     pdf.cheat_separator()
     pdf.cheat_entry("airflow dags list", "List all discovered DAGs", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("airflow dags test dag_id\n  2024-01-01", "Test a DAG run for a specific date (no DB writes)", "bash")
+    pdf.cheat_entry(
+        "airflow dags test dag_id\n  2024-01-01", "Test a DAG run for a specific date (no DB writes)", "bash"
+    )
     pdf.cheat_separator()
     pdf.cheat_entry("airflow tasks test dag_id\n  task_id 2024-01-01", "Test a single task (no DB writes)", "bash")
     pdf.cheat_separator()
     pdf.cheat_entry("airflow dags trigger dag_id", "Manually trigger a DAG run", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("airflow dags backfill dag_id\n  -s 2024-01-01 -e 2024-06-30", "Backfill DAG runs for a date range", "bash")
+    pdf.cheat_entry(
+        "airflow dags backfill dag_id\n  -s 2024-01-01 -e 2024-06-30", "Backfill DAG runs for a date range", "bash"
+    )
     pdf.cheat_separator()
-    pdf.cheat_entry("airflow connections add conn_id\n  --conn-type postgres\n  --conn-host localhost ...", "Create a connection via CLI", "bash")
+    pdf.cheat_entry(
+        "airflow connections add conn_id\n  --conn-type postgres\n  --conn-host localhost ...",
+        "Create a connection via CLI",
+        "bash",
+    )
     pdf.cheat_separator()
     pdf.cheat_entry("airflow variables set KEY VALUE", "Set an Airflow variable", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("airflow users create --role Admin\n  --username admin\n  --email a@b.com\n  --firstname A --lastname B\n  --password pass", "Create an admin user", "bash")
+    pdf.cheat_entry(
+        "airflow users create --role Admin\n  --username admin\n  --email a@b.com\n  --firstname A --lastname B\n  --password pass",  # noqa: E501
+        "Create an admin user",
+        "bash",
+    )
     pdf.cheat_separator()
 
     pdf.sub_heading("DAG Patterns")
     pdf.code_block(
-        '# Idempotent task: use UPSERT / MERGE\n'
-        '# instead of INSERT to handle re-runs\n'
-        '\n'
-        '# Task branching\n'
-        'from airflow.operators.python import BranchPythonOperator\n'
-        '\n'
-        'def choose_branch(**ctx):\n'
+        "# Idempotent task: use UPSERT / MERGE\n"
+        "# instead of INSERT to handle re-runs\n"
+        "\n"
+        "# Task branching\n"
+        "from airflow.operators.python import BranchPythonOperator\n"
+        "\n"
+        "def choose_branch(**ctx):\n"
         '    if ctx["ds"] > "2024-06-01":\n'
         '        return "new_pipeline"\n'
         '    return "legacy_pipeline"\n'
-        '\n'
-        '# Task groups (sub-DAGs replacement)\n'
-        'from airflow.utils.task_group import TaskGroup\n'
-        '\n'
+        "\n"
+        "# Task groups (sub-DAGs replacement)\n"
+        "from airflow.utils.task_group import TaskGroup\n"
+        "\n"
         'with TaskGroup("extract") as extract:\n'
-        '    task_a = PythonOperator(...)\n'
-        '    task_b = PythonOperator(...)\n'
-        '\n'
-        'extract >> transform >> load',
+        "    task_a = PythonOperator(...)\n"
+        "    task_b = PythonOperator(...)\n"
+        "\n"
+        "extract >> transform >> load",
         "Airflow patterns",
     )
 
     pdf.sub_heading("Common Pitfalls")
     pdf.code_block(
-        '# BAD: doing heavy work inside the DAG file\n'
-        'import pandas as pd\n'
+        "# BAD: doing heavy work inside the DAG file\n"
+        "import pandas as pd\n"
         'df = pd.read_csv("huge.csv")  # runs at DAG parse time!\n'
-        '\n'
-        '# GOOD: defer work to task execution\n'
-        'def process(**ctx):\n'
-        '    import pandas as pd  # import inside function\n'
+        "\n"
+        "# GOOD: defer work to task execution\n"
+        "def process(**ctx):\n"
+        "    import pandas as pd  # import inside function\n"
         '    df = pd.read_csv("huge.csv")\n'
-        '\n'
-        '# BAD: passing large data via XCom\n'
-        '# XCom stores in metadata DB (Postgres)\n'
-        '# return big_dataframe  # will serialize entire DF!\n'
-        '\n'
-        '# GOOD: pass file paths, not data\n'
-        'def extract(**ctx):\n'
+        "\n"
+        "# BAD: passing large data via XCom\n"
+        "# XCom stores in metadata DB (Postgres)\n"
+        "# return big_dataframe  # will serialize entire DF!\n"
+        "\n"
+        "# GOOD: pass file paths, not data\n"
+        "def extract(**ctx):\n"
         '    path = "/tmp/data.parquet"\n'
-        '    download_to(path)\n'
-        '    return path  # small string, not data',
+        "    download_to(path)\n"
+        "    return path  # small string, not data",
         "Airflow anti-patterns",
     )
 
     pdf.sub_heading("Airflow Docker Compose")
     pdf.code_block(
-        '# Minimal Airflow for local development\n'
-        'services:\n'
-        '  postgres:\n'
-        '    image: postgres:16-alpine\n'
-        '    environment:\n'
-        '      POSTGRES_DB: airflow\n'
-        '      POSTGRES_USER: airflow\n'
-        '      POSTGRES_PASSWORD: airflow\n'
-        '    volumes: [pg_data:/var/lib/postgresql/data]\n'
-        '\n'
-        '  airflow-init:\n'
-        '    image: apache/airflow:2.9.0\n'
-        '    entrypoint: /bin/bash -c\n'
-        '    command: airflow db migrate && airflow users create\n'
-        '      --role Admin --username admin --password admin\n'
-        '      --email admin@local.dev --firstname Admin\n'
-        '      --lastname User\n'
-        '    depends_on: [postgres]\n'
-        '\n'
-        '  airflow-webserver:\n'
-        '    image: apache/airflow:2.9.0\n'
-        '    command: airflow webserver\n'
+        "# Minimal Airflow for local development\n"
+        "services:\n"
+        "  postgres:\n"
+        "    image: postgres:16-alpine\n"
+        "    environment:\n"
+        "      POSTGRES_DB: airflow\n"
+        "      POSTGRES_USER: airflow\n"
+        "      POSTGRES_PASSWORD: airflow\n"
+        "    volumes: [pg_data:/var/lib/postgresql/data]\n"
+        "\n"
+        "  airflow-init:\n"
+        "    image: apache/airflow:2.9.0\n"
+        "    entrypoint: /bin/bash -c\n"
+        "    command: airflow db migrate && airflow users create\n"
+        "      --role Admin --username admin --password admin\n"
+        "      --email admin@local.dev --firstname Admin\n"
+        "      --lastname User\n"
+        "    depends_on: [postgres]\n"
+        "\n"
+        "  airflow-webserver:\n"
+        "    image: apache/airflow:2.9.0\n"
+        "    command: airflow webserver\n"
         '    ports: ["8080:8080"]\n'
-        '    volumes: [./dags:/opt/airflow/dags]\n'
-        '    depends_on: [airflow-init]\n'
-        '\n'
-        '  airflow-scheduler:\n'
-        '    image: apache/airflow:2.9.0\n'
-        '    command: airflow scheduler\n'
-        '    volumes: [./dags:/opt/airflow/dags]\n'
-        '    depends_on: [airflow-init]',
+        "    volumes: [./dags:/opt/airflow/dags]\n"
+        "    depends_on: [airflow-init]\n"
+        "\n"
+        "  airflow-scheduler:\n"
+        "    image: apache/airflow:2.9.0\n"
+        "    command: airflow scheduler\n"
+        "    volumes: [./dags:/opt/airflow/dags]\n"
+        "    depends_on: [airflow-init]",
         "YAML — Airflow docker-compose",
     )
 
@@ -2472,63 +2505,63 @@ def _cookbook_dbt(pdf):
 
     pdf.sub_heading("Jinja Snippets")
     pdf.code_block(
-        '-- Conditional logic\n'
+        "-- Conditional logic\n"
         "{% if target.name == 'prod' %}\n"
         '    {{ config(materialized="table") }}\n'
-        '{% else %}\n'
+        "{% else %}\n"
         '    {{ config(materialized="view") }}\n'
-        '{% endif %}\n'
-        '\n'
-        '-- Loop over columns\n'
+        "{% endif %}\n"
+        "\n"
+        "-- Loop over columns\n"
         '{% set metrics = ["revenue", "cost", "profit"] %}\n'
-        '{% for m in metrics %}\n'
-        '    SUM({{ m }}) AS total_{{ m }}{% if not loop.last %},{% endif %}\n'
-        '{% endfor %}\n'
-        '\n'
-        '-- Source reference\n'
+        "{% for m in metrics %}\n"
+        "    SUM({{ m }}) AS total_{{ m }}{% if not loop.last %},{% endif %}\n"
+        "{% endfor %}\n"
+        "\n"
+        "-- Source reference\n"
         'SELECT * FROM {{ source("raw", "orders") }}\n'
-        '\n'
-        '-- Ref another model\n'
+        "\n"
+        "-- Ref another model\n"
         'SELECT * FROM {{ ref("stg_orders") }}',
         "Jinja patterns",
     )
 
     pdf.sub_heading("dbt Test Patterns")
     pdf.code_block(
-        '# Custom data test (tests/assert_positive_revenue.sql)\n'
-        '-- This query should return 0 rows to pass\n'
-        'SELECT order_id, revenue\n'
+        "# Custom data test (tests/assert_positive_revenue.sql)\n"
+        "-- This query should return 0 rows to pass\n"
+        "SELECT order_id, revenue\n"
         'FROM {{ ref("fct_orders") }}\n'
-        'WHERE revenue < 0\n'
-        '\n'
-        '# Custom generic test (tests/generic/test_is_even.sql)\n'
-        '{% test is_even(model, column_name) %}\n'
-        'SELECT {{ column_name }}\n'
-        'FROM {{ model }}\n'
-        'WHERE {{ column_name }} % 2 != 0\n'
-        '{% endtest %}\n'
-        '\n'
-        '# Usage in schema.yml:\n'
-        '# columns:\n'
-        '#   - name: quantity\n'
-        '#     tests:\n'
-        '#       - is_even',
+        "WHERE revenue < 0\n"
+        "\n"
+        "# Custom generic test (tests/generic/test_is_even.sql)\n"
+        "{% test is_even(model, column_name) %}\n"
+        "SELECT {{ column_name }}\n"
+        "FROM {{ model }}\n"
+        "WHERE {{ column_name }} % 2 != 0\n"
+        "{% endtest %}\n"
+        "\n"
+        "# Usage in schema.yml:\n"
+        "# columns:\n"
+        "#   - name: quantity\n"
+        "#     tests:\n"
+        "#       - is_even",
         "SQL — custom dbt tests",
     )
 
     pdf.sub_heading("dbt packages.yml")
     pdf.code_block(
-        '# packages.yml — install community packages\n'
-        'packages:\n'
-        '  - package: dbt-labs/dbt_utils\n'
+        "# packages.yml — install community packages\n"
+        "packages:\n"
+        "  - package: dbt-labs/dbt_utils\n"
         '    version: ">=1.0.0"\n'
-        '  - package: calogica/dbt_expectations\n'
+        "  - package: calogica/dbt_expectations\n"
         '    version: ">=0.10.0"\n'
-        '  - package: dbt-labs/codegen\n'
+        "  - package: dbt-labs/codegen\n"
         '    version: ">=0.12.0"\n'
-        '\n'
-        '# Install with: dbt deps\n'
-        '# Use dbt_utils macros:\n'
+        "\n"
+        "# Install with: dbt deps\n"
+        "# Use dbt_utils macros:\n"
         '# {{ dbt_utils.generate_surrogate_key(["col1", "col2"]) }}\n'
         '# {{ dbt_utils.star(from=ref("stg_orders")) }}',
         "YAML — packages.yml",
@@ -2539,44 +2572,54 @@ def _cookbook_spark(pdf):
     pdf.add_page()
     pdf.section_title("Cookbook: Spark", 60, 130, 60)
 
-    pdf.cheat_entry("spark-submit --master local[*]\n  --packages io.delta:delta-spark\n  etl.py", "Submit a Spark job locally", "bash")
+    pdf.cheat_entry(
+        "spark-submit --master local[*]\n  --packages io.delta:delta-spark\n  etl.py",
+        "Submit a Spark job locally",
+        "bash",
+    )
     pdf.cheat_separator()
-    pdf.cheat_entry("spark-submit --master yarn\n  --deploy-mode cluster\n  --num-executors 10 etl.py", "Submit to YARN cluster", "bash")
+    pdf.cheat_entry(
+        "spark-submit --master yarn\n  --deploy-mode cluster\n  --num-executors 10 etl.py",
+        "Submit to YARN cluster",
+        "bash",
+    )
     pdf.cheat_separator()
-    pdf.cheat_entry("df = spark.read.parquet(\"s3://..\")", "Read Parquet from S3", "bash")
+    pdf.cheat_entry('df = spark.read.parquet("s3://..")', "Read Parquet from S3", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("df.write.format(\"delta\")\n  .partitionBy(\"date\")\n  .save(\"path\")", "Write partitioned Delta table", "bash")
+    pdf.cheat_entry(
+        'df.write.format("delta")\n  .partitionBy("date")\n  .save("path")', "Write partitioned Delta table", "bash"
+    )
     pdf.cheat_separator()
     pdf.cheat_entry("df.repartition(10)", "Control output file count", "bash")
     pdf.cheat_separator()
     pdf.cheat_entry("df.cache()", "Cache DataFrame in memory", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("spark.conf.set(\n  \"spark.sql.shuffle.partitions\",\n  \"200\")", "Tune shuffle partitions", "bash")
+    pdf.cheat_entry('spark.conf.set(\n  "spark.sql.shuffle.partitions",\n  "200")', "Tune shuffle partitions", "bash")
     pdf.cheat_separator()
     pdf.cheat_entry("F.broadcast(small_df)", "Broadcast join hint for small tables", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("df.explain(\"formatted\")", "Show physical execution plan", "bash")
+    pdf.cheat_entry('df.explain("formatted")', "Show physical execution plan", "bash")
     pdf.cheat_separator()
 
     pdf.sub_heading("Common Transformations")
     pdf.code_block(
-        'from pyspark.sql import functions as F\n'
-        '\n'
-        '# Filter + add columns\n'
+        "from pyspark.sql import functions as F\n"
+        "\n"
+        "# Filter + add columns\n"
         'df = df.filter(F.col("amount") > 0) \\\n'
         '       .withColumn("year", F.year("ts")) \\\n'
         '       .withColumn("amount_usd",\n'
         '           F.col("amount") * F.col("rate"))\n'
-        '\n'
-        '# Window function\n'
-        'from pyspark.sql.window import Window\n'
+        "\n"
+        "# Window function\n"
+        "from pyspark.sql.window import Window\n"
         'w = Window.partitionBy("user_id").orderBy("ts")\n'
         'df = df.withColumn("prev_amount", F.lag("amount").over(w))\n'
-        '\n'
-        '# Dedup by key (keep latest)\n'
+        "\n"
+        "# Dedup by key (keep latest)\n"
         'df = df.dropDuplicates(["id"])\n'
-        '\n'
-        '# Pivot\n'
+        "\n"
+        "# Pivot\n"
         'pivoted = df.groupBy("date").pivot("category") \\\n'
         '            .agg(F.sum("amount"))',
         "PySpark patterns",
@@ -2584,22 +2627,22 @@ def _cookbook_spark(pdf):
 
     pdf.sub_heading("Spark SQL Functions Reference")
     pdf.code_block(
-        '# Date/time functions\n'
+        "# Date/time functions\n"
         'F.year("ts"), F.month("ts"), F.dayofweek("ts")\n'
         'F.date_trunc("month", "ts")   # truncate to month\n'
         'F.datediff("end_ts", "start_ts")  # days between\n'
-        '\n'
-        '# String functions\n'
+        "\n"
+        "# String functions\n"
         'F.lower("col"), F.upper("col"), F.trim("col")\n'
         'F.regexp_extract("col", r"(\\d+)", 1)\n'
         'F.split("col", ",")  # returns array\n'
-        '\n'
-        '# Null handling\n'
+        "\n"
+        "# Null handling\n"
         'F.coalesce("col1", "col2", F.lit(0))\n'
         'F.when(F.col("x").isNull(), "missing")\n'
         ' .otherwise(F.col("x"))\n'
-        '\n'
-        '# Aggregation\n'
+        "\n"
+        "# Aggregation\n"
         'F.count_distinct("user_id")\n'
         'F.approx_count_distinct("user_id")  # faster\n'
         'F.collect_list("tag")   # array of values\n'
@@ -2612,80 +2655,102 @@ def _cookbook_kafka(pdf):
     pdf.add_page()
     pdf.section_title("Cookbook: Kafka", 60, 130, 60)
 
-    pdf.cheat_entry("kafka-topics.sh --create\n  --topic trades\n  --partitions 6\n  --replication-factor 3\n  --bootstrap-server :9092", "Create a topic", "bash")
+    pdf.cheat_entry(
+        "kafka-topics.sh --create\n  --topic trades\n  --partitions 6\n  --replication-factor 3\n  --bootstrap-server :9092",  # noqa: E501
+        "Create a topic",
+        "bash",
+    )
     pdf.cheat_separator()
     pdf.cheat_entry("kafka-topics.sh --list\n  --bootstrap-server :9092", "List all topics", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("kafka-topics.sh --describe\n  --topic trades\n  --bootstrap-server :9092", "Show topic details (partitions, ISR)", "bash")
+    pdf.cheat_entry(
+        "kafka-topics.sh --describe\n  --topic trades\n  --bootstrap-server :9092",
+        "Show topic details (partitions, ISR)",
+        "bash",
+    )
     pdf.cheat_separator()
-    pdf.cheat_entry("kafka-console-producer.sh\n  --topic trades\n  --bootstrap-server :9092", "Produce messages from stdin", "bash")
+    pdf.cheat_entry(
+        "kafka-console-producer.sh\n  --topic trades\n  --bootstrap-server :9092", "Produce messages from stdin", "bash"
+    )
     pdf.cheat_separator()
-    pdf.cheat_entry("kafka-console-consumer.sh\n  --topic trades\n  --from-beginning\n  --bootstrap-server :9092", "Consume all messages from beginning", "bash")
+    pdf.cheat_entry(
+        "kafka-console-consumer.sh\n  --topic trades\n  --from-beginning\n  --bootstrap-server :9092",
+        "Consume all messages from beginning",
+        "bash",
+    )
     pdf.cheat_separator()
-    pdf.cheat_entry("kafka-consumer-groups.sh\n  --describe --group mygroup\n  --bootstrap-server :9092", "Show consumer group lag", "bash")
+    pdf.cheat_entry(
+        "kafka-consumer-groups.sh\n  --describe --group mygroup\n  --bootstrap-server :9092",
+        "Show consumer group lag",
+        "bash",
+    )
     pdf.cheat_separator()
-    pdf.cheat_entry("kafka-consumer-groups.sh\n  --reset-offsets --to-earliest\n  --group mygroup --topic trades\n  --execute\n  --bootstrap-server :9092", "Reset consumer group offsets", "bash")
+    pdf.cheat_entry(
+        "kafka-consumer-groups.sh\n  --reset-offsets --to-earliest\n  --group mygroup --topic trades\n  --execute\n  --bootstrap-server :9092",  # noqa: E501
+        "Reset consumer group offsets",
+        "bash",
+    )
     pdf.cheat_separator()
 
     pdf.sub_heading("Python Client Patterns")
     pdf.code_block(
-        '# confluent-kafka producer with delivery report\n'
-        'from confluent_kafka import Producer\n'
-        '\n'
-        'def delivery_report(err, msg):\n'
-        '    if err:\n'
+        "# confluent-kafka producer with delivery report\n"
+        "from confluent_kafka import Producer\n"
+        "\n"
+        "def delivery_report(err, msg):\n"
+        "    if err:\n"
         '        print(f"FAILED: {err}")\n'
-        '    else:\n'
+        "    else:\n"
         '        print(f"OK: {msg.topic()}[{msg.partition()}]")\n'
-        '\n'
+        "\n"
         'p = Producer({"bootstrap.servers": "localhost:9092"})\n'
         'p.produce("topic", value=b"hello",\n'
-        '          callback=delivery_report)\n'
-        'p.flush()\n'
-        '\n'
-        '# JSON serialization pattern\n'
-        'import json\n'
+        "          callback=delivery_report)\n"
+        "p.flush()\n"
+        "\n"
+        "# JSON serialization pattern\n"
+        "import json\n"
         'p.produce("topic",\n'
         '          key=record["id"].encode(),\n'
-        '          value=json.dumps(record).encode())',
+        "          value=json.dumps(record).encode())",
         "Python — Kafka patterns",
     )
 
     pdf.sub_heading("Consumer Patterns")
     pdf.code_block(
-        '# Batch consumer with manual commit\n'
-        'from confluent_kafka import Consumer\n'
-        'import json\n'
-        '\n'
-        'c = Consumer({\n'
+        "# Batch consumer with manual commit\n"
+        "from confluent_kafka import Consumer\n"
+        "import json\n"
+        "\n"
+        "c = Consumer({\n"
         '    "bootstrap.servers": "localhost:9092",\n'
         '    "group.id": "etl-pipeline",\n'
         '    "auto.offset.reset": "earliest",\n'
         '    "enable.auto.commit": False,\n'
         '    "max.poll.interval.ms": 300000,\n'
-        '})\n'
+        "})\n"
         'c.subscribe(["trades"])\n'
-        '\n'
-        'BATCH_SIZE = 500\n'
-        'batch = []\n'
-        '\n'
-        'while True:\n'
-        '    msg = c.poll(1.0)\n'
-        '    if msg is None:\n'
-        '        if batch:  # flush remaining\n'
-        '            write_to_db(batch)\n'
-        '            c.commit()\n'
-        '            batch.clear()\n'
-        '        continue\n'
-        '    if msg.error():\n'
-        '        handle_error(msg.error())\n'
-        '        continue\n'
-        '\n'
-        '    batch.append(json.loads(msg.value()))\n'
-        '    if len(batch) >= BATCH_SIZE:\n'
-        '        write_to_db(batch)\n'
-        '        c.commit()  # commit AFTER successful write\n'
-        '        batch.clear()',
+        "\n"
+        "BATCH_SIZE = 500\n"
+        "batch = []\n"
+        "\n"
+        "while True:\n"
+        "    msg = c.poll(1.0)\n"
+        "    if msg is None:\n"
+        "        if batch:  # flush remaining\n"
+        "            write_to_db(batch)\n"
+        "            c.commit()\n"
+        "            batch.clear()\n"
+        "        continue\n"
+        "    if msg.error():\n"
+        "        handle_error(msg.error())\n"
+        "        continue\n"
+        "\n"
+        "    batch.append(json.loads(msg.value()))\n"
+        "    if len(batch) >= BATCH_SIZE:\n"
+        "        write_to_db(batch)\n"
+        "        c.commit()  # commit AFTER successful write\n"
+        "        batch.clear()",
         "Python — batch consumer",
     )
 
@@ -2705,27 +2770,27 @@ def _cookbook_kafka(pdf):
 
     pdf.sub_heading("Kafka Docker Compose")
     pdf.code_block(
-        '# Minimal Kafka + Schema Registry for local dev\n'
-        'services:\n'
-        '  kafka:\n'
-        '    image: confluentinc/cp-kafka:7.6.0\n'
-        '    environment:\n'
-        '      KAFKA_NODE_ID: 1\n'
-        '      KAFKA_PROCESS_ROLES: broker,controller\n'
-        '      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093\n'
-        '      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093\n'
-        '      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092\n'
-        '      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER\n'
-        '      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT\n'
-        '      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk\n'
+        "# Minimal Kafka + Schema Registry for local dev\n"
+        "services:\n"
+        "  kafka:\n"
+        "    image: confluentinc/cp-kafka:7.6.0\n"
+        "    environment:\n"
+        "      KAFKA_NODE_ID: 1\n"
+        "      KAFKA_PROCESS_ROLES: broker,controller\n"
+        "      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093\n"
+        "      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093\n"
+        "      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092\n"
+        "      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER\n"
+        "      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT\n"
+        "      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk\n"
         '    ports: ["9092:9092"]\n'
-        '\n'
-        '  schema-registry:\n'
-        '    image: confluentinc/cp-schema-registry:7.6.0\n'
-        '    depends_on: [kafka]\n'
-        '    environment:\n'
-        '      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092\n'
-        '      SCHEMA_REGISTRY_HOST_NAME: schema-registry\n'
+        "\n"
+        "  schema-registry:\n"
+        "    image: confluentinc/cp-schema-registry:7.6.0\n"
+        "    depends_on: [kafka]\n"
+        "    environment:\n"
+        "      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092\n"
+        "      SCHEMA_REGISTRY_HOST_NAME: schema-registry\n"
         '    ports: ["8081:8081"]',
         "YAML — Kafka docker-compose",
     )
@@ -2749,7 +2814,9 @@ def _cookbook_terraform(pdf):
     pdf.cheat_separator()
     pdf.cheat_entry("terraform state show\n  aws_s3_bucket.lakehouse", "Show details of a specific resource", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("terraform import\n  aws_s3_bucket.lakehouse\n  my-bucket-name", "Import existing resource into state", "bash")
+    pdf.cheat_entry(
+        "terraform import\n  aws_s3_bucket.lakehouse\n  my-bucket-name", "Import existing resource into state", "bash"
+    )
     pdf.cheat_separator()
     pdf.cheat_entry("terraform fmt -recursive", "Format all .tf files", "bash")
     pdf.cheat_separator()
@@ -2758,67 +2825,67 @@ def _cookbook_terraform(pdf):
 
     pdf.sub_heading("Common Resource Patterns")
     pdf.code_block(
-        '# Variables with defaults\n'
+        "# Variables with defaults\n"
         'variable "env" {\n'
-        '  type    = string\n'
+        "  type    = string\n"
         '  default = "dev"\n'
-        '}\n'
-        '\n'
-        '# Locals for computed values\n'
-        'locals {\n'
+        "}\n"
+        "\n"
+        "# Locals for computed values\n"
+        "locals {\n"
         '  prefix = "${var.project}-${var.env}"\n'
-        '}\n'
-        '\n'
-        '# IAM role for Redshift to access S3\n'
+        "}\n"
+        "\n"
+        "# IAM role for Redshift to access S3\n"
         'resource "aws_iam_role" "redshift_s3" {\n'
         '  name = "${local.prefix}-redshift-s3"\n'
-        '  assume_role_policy = jsonencode({\n'
+        "  assume_role_policy = jsonencode({\n"
         '    Version = "2012-10-17"\n'
-        '    Statement = [{\n'
+        "    Statement = [{\n"
         '      Action = "sts:AssumeRole"\n'
         '      Effect = "Allow"\n'
-        '      Principal = {\n'
+        "      Principal = {\n"
         '        Service = "redshift.amazonaws.com"\n'
-        '      }\n'
-        '    }]\n'
-        '  })\n'
-        '}\n'
-        '\n'
-        '# Output values\n'
+        "      }\n"
+        "    }]\n"
+        "  })\n"
+        "}\n"
+        "\n"
+        "# Output values\n"
         'output "bucket_arn" {\n'
-        '  value = aws_s3_bucket.lakehouse.arn\n'
-        '}',
+        "  value = aws_s3_bucket.lakehouse.arn\n"
+        "}",
         "HCL patterns",
     )
 
     pdf.sub_heading("Terraform for Data Pipelines")
     pdf.code_block(
-        '# S3 bucket with lifecycle (move old data to Glacier)\n'
+        "# S3 bucket with lifecycle (move old data to Glacier)\n"
         'resource "aws_s3_bucket_lifecycle_configuration" "lake" {\n'
-        '  bucket = aws_s3_bucket.lakehouse.id\n'
-        '\n'
-        '  rule {\n'
+        "  bucket = aws_s3_bucket.lakehouse.id\n"
+        "\n"
+        "  rule {\n"
         '    id     = "archive-old-bronze"\n'
         '    status = "Enabled"\n'
         '    filter { prefix = "bronze/" }\n'
-        '    transition {\n'
-        '      days          = 90\n'
+        "    transition {\n"
+        "      days          = 90\n"
         '      storage_class = "GLACIER"\n'
-        '    }\n'
-        '    expiration { days = 365 }\n'
-        '  }\n'
-        '}\n'
-        '\n'
-        '# Redshift with IAM role attachment\n'
+        "    }\n"
+        "    expiration { days = 365 }\n"
+        "  }\n"
+        "}\n"
+        "\n"
+        "# Redshift with IAM role attachment\n"
         'resource "aws_redshift_cluster" "wh" {\n'
         '  cluster_identifier = "${local.prefix}-wh"\n'
         '  database_name      = "analytics"\n'
         '  node_type          = "dc2.large"\n'
-        '  number_of_nodes    = 2\n'
+        "  number_of_nodes    = 2\n"
         '  master_username    = "admin"\n'
-        '  master_password    = var.redshift_password\n'
-        '  iam_roles = [aws_iam_role.redshift_s3.arn]\n'
-        '}',
+        "  master_password    = var.redshift_password\n"
+        "  iam_roles = [aws_iam_role.redshift_s3.arn]\n"
+        "}",
         "HCL — S3 lifecycle + Redshift",
     )
 
@@ -2839,7 +2906,9 @@ def _cookbook_git(pdf):
     pdf.cheat_separator()
     pdf.cheat_entry("git cherry-pick <sha>", "Apply a specific commit to current branch", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("git bisect start\ngit bisect bad\ngit bisect good <sha>", "Binary search for a bug-introducing commit", "bash")
+    pdf.cheat_entry(
+        "git bisect start\ngit bisect bad\ngit bisect good <sha>", "Binary search for a bug-introducing commit", "bash"
+    )
     pdf.cheat_separator()
     pdf.cheat_entry("git reflog", "View all HEAD movements (recover lost commits)", "bash")
     pdf.cheat_separator()
@@ -2848,56 +2917,56 @@ def _cookbook_git(pdf):
 
     pdf.sub_heading("GitHub Actions Workflow Patterns")
     pdf.code_block(
-        '# Reusable workflow (called by other workflows)\n'
-        'on:\n'
-        '  workflow_call:\n'
-        '    inputs:\n'
-        '      environment:\n'
-        '        type: string\n'
-        '        required: true\n'
-        '\n'
-        '# Matrix builds\n'
-        'strategy:\n'
-        '  matrix:\n'
+        "# Reusable workflow (called by other workflows)\n"
+        "on:\n"
+        "  workflow_call:\n"
+        "    inputs:\n"
+        "      environment:\n"
+        "        type: string\n"
+        "        required: true\n"
+        "\n"
+        "# Matrix builds\n"
+        "strategy:\n"
+        "  matrix:\n"
         '    python: ["3.11", "3.12"]\n'
-        '    os: [ubuntu-latest, macos-latest]\n'
-        '\n'
-        '# Cache dependencies\n'
-        '- uses: actions/cache@v4\n'
-        '  with:\n'
-        '    path: ~/.cache/pip\n'
+        "    os: [ubuntu-latest, macos-latest]\n"
+        "\n"
+        "# Cache dependencies\n"
+        "- uses: actions/cache@v4\n"
+        "  with:\n"
+        "    path: ~/.cache/pip\n"
         '    key: ${{ runner.os }}-pip-${{ hashFiles("**/requirements.txt") }}\n'
-        '\n'
-        '# Deploy on push to main\n'
-        'on:\n'
-        '  push:\n'
-        '    branches: [main]\n'
-        '  pull_request:\n'
-        '    branches: [main]',
+        "\n"
+        "# Deploy on push to main\n"
+        "on:\n"
+        "  push:\n"
+        "    branches: [main]\n"
+        "  pull_request:\n"
+        "    branches: [main]",
         "YAML — GitHub Actions patterns",
     )
 
     pdf.sub_heading("Git Branching Strategy")
     pdf.code_block(
-        '# Feature branch workflow\n'
-        'git checkout -b feature/add-kafka-consumer main\n'
-        '# ... make changes, commit ...\n'
-        'git push -u origin feature/add-kafka-consumer\n'
-        '# Create PR, get review, merge\n'
-        '\n'
-        '# Release branch workflow\n'
-        'git checkout -b release/v1.2.0 main\n'
-        '# Cherry-pick hotfixes:\n'
-        'git cherry-pick <hotfix-sha>\n'
-        'git tag v1.2.0\n'
-        'git push origin v1.2.0\n'
-        '\n'
-        '# Useful aliases for .gitconfig\n'
-        '# [alias]\n'
-        '#   lg = log --oneline --graph --all\n'
-        '#   st = status -sb\n'
-        '#   co = checkout\n'
-        '#   unstage = reset HEAD --',
+        "# Feature branch workflow\n"
+        "git checkout -b feature/add-kafka-consumer main\n"
+        "# ... make changes, commit ...\n"
+        "git push -u origin feature/add-kafka-consumer\n"
+        "# Create PR, get review, merge\n"
+        "\n"
+        "# Release branch workflow\n"
+        "git checkout -b release/v1.2.0 main\n"
+        "# Cherry-pick hotfixes:\n"
+        "git cherry-pick <hotfix-sha>\n"
+        "git tag v1.2.0\n"
+        "git push origin v1.2.0\n"
+        "\n"
+        "# Useful aliases for .gitconfig\n"
+        "# [alias]\n"
+        "#   lg = log --oneline --graph --all\n"
+        "#   st = status -sb\n"
+        "#   co = checkout\n"
+        "#   unstage = reset HEAD --",
         "Git — branching patterns",
     )
 
@@ -2910,7 +2979,9 @@ def _cookbook_gx(pdf):
     pdf.cheat_separator()
     pdf.cheat_entry("great_expectations suite new", "Create a new expectation suite interactively", "bash")
     pdf.cheat_separator()
-    pdf.cheat_entry("great_expectations suite edit\n  suite_name", "Edit an existing suite in a Jupyter notebook", "bash")
+    pdf.cheat_entry(
+        "great_expectations suite edit\n  suite_name", "Edit an existing suite in a Jupyter notebook", "bash"
+    )
     pdf.cheat_separator()
     pdf.cheat_entry("great_expectations checkpoint run\n  my_checkpoint", "Run a checkpoint (validate data)", "bash")
     pdf.cheat_separator()
@@ -2919,82 +2990,82 @@ def _cookbook_gx(pdf):
 
     pdf.sub_heading("Common Expectations")
     pdf.code_block(
-        '# Column-level expectations\n'
+        "# Column-level expectations\n"
         'expect_column_values_to_not_be_null("id")\n'
         'expect_column_values_to_be_unique("id")\n'
-        'expect_column_values_to_be_between(\n'
+        "expect_column_values_to_be_between(\n"
         '    "price", min_value=0, max_value=10000)\n'
-        'expect_column_values_to_be_in_set(\n'
+        "expect_column_values_to_be_in_set(\n"
         '    "status", ["active", "closed", "pending"])\n'
-        'expect_column_values_to_match_regex(\n'
+        "expect_column_values_to_match_regex(\n"
         '    "email", r"^[\\w.]+@[\\w.]+\\.[a-z]{2,}$")\n'
-        '\n'
-        '# Table-level expectations\n'
-        'expect_table_row_count_to_be_between(\n'
-        '    min_value=1000, max_value=10_000_000)\n'
-        'expect_table_columns_to_match_ordered_list(\n'
+        "\n"
+        "# Table-level expectations\n"
+        "expect_table_row_count_to_be_between(\n"
+        "    min_value=1000, max_value=10_000_000)\n"
+        "expect_table_columns_to_match_ordered_list(\n"
         '    ["id", "name", "price", "quantity", "ts"])\n'
-        '\n'
-        '# Multi-column expectations\n'
-        'expect_compound_columns_to_be_unique(\n'
+        "\n"
+        "# Multi-column expectations\n"
+        "expect_compound_columns_to_be_unique(\n"
         '    ["date", "symbol"])\n'
-        'expect_column_pair_values_a_to_be_greater_than_b(\n'
+        "expect_column_pair_values_a_to_be_greater_than_b(\n"
         '    "end_time", "start_time")',
         "Python — GX expectation patterns",
     )
 
     pdf.sub_heading("Checkpoint Configuration")
     pdf.code_block(
-        '# great_expectations/checkpoints/trades.yml\n'
-        'name: trades_checkpoint\n'
-        'config_version: 1.0\n'
-        'class_name: Checkpoint\n'
+        "# great_expectations/checkpoints/trades.yml\n"
+        "name: trades_checkpoint\n"
+        "config_version: 1.0\n"
+        "class_name: Checkpoint\n"
         'run_name_template: "trades_%Y%m%d"\n'
-        'validations:\n'
-        '  - batch_request:\n'
-        '      datasource_name: warehouse\n'
-        '      data_asset_name: trades\n'
-        '    expectation_suite_name: trades_quality\n'
-        'action_list:\n'
-        '  - name: store_validation_result\n'
-        '    action:\n'
-        '      class_name: StoreValidationResultAction\n'
-        '  - name: update_data_docs\n'
-        '    action:\n'
-        '      class_name: UpdateDataDocsAction',
+        "validations:\n"
+        "  - batch_request:\n"
+        "      datasource_name: warehouse\n"
+        "      data_asset_name: trades\n"
+        "    expectation_suite_name: trades_quality\n"
+        "action_list:\n"
+        "  - name: store_validation_result\n"
+        "    action:\n"
+        "      class_name: StoreValidationResultAction\n"
+        "  - name: update_data_docs\n"
+        "    action:\n"
+        "      class_name: UpdateDataDocsAction",
         "YAML — checkpoint config",
     )
 
     pdf.sub_heading("GX + Pandas Quick Start")
     pdf.code_block(
-        'import great_expectations as gx\n'
-        'import pandas as pd\n'
-        '\n'
-        '# Quick validation without project setup\n'
+        "import great_expectations as gx\n"
+        "import pandas as pd\n"
+        "\n"
+        "# Quick validation without project setup\n"
         'df = pd.read_parquet("data/trades.parquet")\n'
-        '\n'
-        'context = gx.get_context()  # ephemeral context\n'
+        "\n"
+        "context = gx.get_context()  # ephemeral context\n"
         'ds = context.sources.add_pandas("mem")\n'
         'asset = ds.add_dataframe_asset("trades")\n'
-        '\n'
-        'batch = asset.build_batch_request(\n'
-        '    dataframe=df\n'
-        ')\n'
-        'validator = context.get_validator(\n'
-        '    batch_request=batch,\n'
+        "\n"
+        "batch = asset.build_batch_request(\n"
+        "    dataframe=df\n"
+        ")\n"
+        "validator = context.get_validator(\n"
+        "    batch_request=batch,\n"
         '    expectation_suite_name="quick_check",\n'
         '    create_expectation_suite_with_name="quick_check",\n'
-        ')\n'
-        '\n'
-        '# Run expectations interactively\n'
-        'validator.expect_table_row_count_to_be_between(\n'
-        '    min_value=100, max_value=1_000_000)\n'
+        ")\n"
+        "\n"
+        "# Run expectations interactively\n"
+        "validator.expect_table_row_count_to_be_between(\n"
+        "    min_value=100, max_value=1_000_000)\n"
         'validator.expect_column_values_to_not_be_null("symbol")\n'
-        'validator.expect_column_mean_to_be_between(\n'
+        "validator.expect_column_mean_to_be_between(\n"
         '    "price", min_value=1, max_value=1000)\n'
-        '\n'
-        '# Get results\n'
-        'results = validator.validate()\n'
+        "\n"
+        "# Get results\n"
+        "results = validator.validate()\n"
         'print(f"Success: {results.success}")\n'
         'print(f"Failed: {results.statistics["unsuccessful_expectations"]}")',
         "Python — quick validation",
@@ -3002,40 +3073,40 @@ def _cookbook_gx(pdf):
 
     pdf.sub_heading("GX Project Structure")
     pdf.diagram_block(
-        '  great_expectations/\n'
-        '  +-- great_expectations.yml       # main config\n'
-        '  +-- expectations/\n'
-        '  |   +-- trades_quality.json      # expectation suite\n'
-        '  |   +-- orders_quality.json\n'
-        '  +-- checkpoints/\n'
-        '  |   +-- trades_checkpoint.yml    # validation config\n'
-        '  +-- plugins/\n'
-        '  |   +-- custom_expectations/\n'
-        '  |       +-- expect_valid_ticker.py\n'
-        '  +-- uncommitted/\n'
-        '      +-- data_docs/               # generated HTML reports\n'
-        '          +-- local_site/\n'
-        '              +-- index.html'
+        "  great_expectations/\n"
+        "  +-- great_expectations.yml       # main config\n"
+        "  +-- expectations/\n"
+        "  |   +-- trades_quality.json      # expectation suite\n"
+        "  |   +-- orders_quality.json\n"
+        "  +-- checkpoints/\n"
+        "  |   +-- trades_checkpoint.yml    # validation config\n"
+        "  +-- plugins/\n"
+        "  |   +-- custom_expectations/\n"
+        "  |       +-- expect_valid_ticker.py\n"
+        "  +-- uncommitted/\n"
+        "      +-- data_docs/               # generated HTML reports\n"
+        "          +-- local_site/\n"
+        "              +-- index.html"
     )
 
     pdf.sub_heading("Data Quality Strategy by Layer")
     pdf.code_block(
-        '# Bronze (raw): minimal checks\n'
-        '# - Schema matches expected columns\n'
-        '# - Row count > 0\n'
-        '# - No completely empty columns\n'
-        '\n'
-        '# Silver (cleaned): data validity\n'
-        '# - Primary keys are unique and not null\n'
-        '# - Values in expected ranges\n'
-        '# - Foreign keys exist in dimension tables\n'
-        '# - Timestamps are in valid ranges\n'
-        '\n'
-        '# Gold (aggregated): business logic\n'
-        '# - Totals match across tables\n'
-        '# - No negative revenue/quantities\n'
-        '# - Row counts within expected bounds\n'
-        '# - Distributions haven\'t shifted dramatically',
+        "# Bronze (raw): minimal checks\n"
+        "# - Schema matches expected columns\n"
+        "# - Row count > 0\n"
+        "# - No completely empty columns\n"
+        "\n"
+        "# Silver (cleaned): data validity\n"
+        "# - Primary keys are unique and not null\n"
+        "# - Values in expected ranges\n"
+        "# - Foreign keys exist in dimension tables\n"
+        "# - Timestamps are in valid ranges\n"
+        "\n"
+        "# Gold (aggregated): business logic\n"
+        "# - Totals match across tables\n"
+        "# - No negative revenue/quantities\n"
+        "# - Row counts within expected bounds\n"
+        "# - Distributions haven't shifted dramatically",
         "Data quality strategy",
     )
 
@@ -3043,6 +3114,7 @@ def _cookbook_gx(pdf):
 # ═══════════════════════════════════════════════════════════════
 # MAIN BUILD FUNCTION
 # ═══════════════════════════════════════════════════════════════
+
 
 def build_pdf():
     pdf = RoadmapPDF(orientation="P", unit="mm", format="A4")
@@ -3143,7 +3215,7 @@ def build_pdf():
             ("Kaggle Datasets", "https://www.kaggle.com/datasets"),
             ("NYC Open Data", "https://opendata.cityofnewyork.us/"),
         ],
-        goal="Build production-quality Python skills\u2014 learn to write code that other engineers can read, test, and deploy with confidence.",
+        goal="Build production-quality Python skills\u2014 learn to write code that other engineers can read, test, and deploy with confidence.",  # noqa: E501
         deliverables=[
             "Python project with proper packaging (pyproject.toml, src layout)",
             "FastAPI ingestion service that pulls from a public API (e.g., NYC Open Data)",
@@ -3184,7 +3256,7 @@ def build_pdf():
             ("Kimball Group Resources", "https://www.kimballgroup.com/"),
             ("Chinook Sample Database", "https://github.com/lerocha/chinook-database"),
         ],
-        goal="Master analytical SQL patterns and design a dimensional model from scratch\u2014 the skill that separates data engineers from Python scripters.",
+        goal="Master analytical SQL patterns and design a dimensional model from scratch\u2014 the skill that separates data engineers from Python scripters.",  # noqa: E501
         deliverables=[
             "Chinook DB loaded into PostgreSQL with analytical query workbook",
             "10+ analytical queries using window functions, CTEs, and aggregations",
@@ -3222,7 +3294,7 @@ def build_pdf():
             ("Docker Getting Started", "https://docs.docker.com/get-started/"),
             ("Docker Compose Docs", "https://docs.docker.com/compose/"),
         ],
-        goal="Build a complete local data infrastructure using containers\u2014 understand that every production data platform runs on this foundation.",
+        goal="Build a complete local data infrastructure using containers\u2014 understand that every production data platform runs on this foundation.",  # noqa: E501
         deliverables=[
             "Custom Dockerfiles for Python services (multi-stage, non-root user)",
             "docker-compose.yml with PostgreSQL, Airflow, and pgAdmin",
@@ -3262,7 +3334,7 @@ def build_pdf():
             ("Astronomer Learn Airflow", "https://www.astronomer.io/guides/"),
             ("NYC Taxi Trip Data", "https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page"),
         ],
-        goal="Build a production-style ETL pipeline that downloads, transforms, and loads data on a schedule\u2014 with retries, logging, and monitoring.",
+        goal="Build a production-style ETL pipeline that downloads, transforms, and loads data on a schedule\u2014 with retries, logging, and monitoring.",  # noqa: E501
         deliverables=[
             "Airflow DAG that downloads NYC Taxi data (monthly partitions)",
             "Transformation tasks: data cleaning, type casting, deduplication with Pandas",
@@ -3301,7 +3373,7 @@ def build_pdf():
             ("dbt Documentation", "https://docs.getdbt.com/docs/introduction"),
             ("dbt Fundamentals (Free Course)", "https://courses.getdbt.com/"),
         ],
-        goal="Build a complete dbt project that transforms raw data into clean, tested, documented analytics models\u2014 the core of modern analytics engineering.",
+        goal="Build a complete dbt project that transforms raw data into clean, tested, documented analytics models\u2014 the core of modern analytics engineering.",  # noqa: E501
         deliverables=[
             "dbt project: raw \u2192 staging \u2192 intermediate \u2192 marts layer structure",
             "5+ models with proper materializations (view for staging, table for marts)",
@@ -3340,7 +3412,7 @@ def build_pdf():
             ("Delta Lake Documentation", "https://docs.delta.io/"),
             ("US Flights Dataset", "https://www.kaggle.com/datasets/usdot/flight-delays"),
         ],
-        goal="Build a lakehouse pipeline with Spark and Delta Lake\u2014 understand distributed computing and why it matters when data exceeds single-machine capacity.",
+        goal="Build a lakehouse pipeline with Spark and Delta Lake\u2014 understand distributed computing and why it matters when data exceeds single-machine capacity.",  # noqa: E501
         deliverables=[
             "Spark job: ingest raw CSV \u2192 Parquet conversion with proper schema",
             "Delta Lake tables with partitioning (e.g., by year/month)",
@@ -3379,7 +3451,7 @@ def build_pdf():
             ("Apache Kafka Docs", "https://kafka.apache.org/documentation/"),
             ("Great Expectations Docs", "https://docs.greatexpectations.io/"),
         ],
-        goal="Build a streaming pipeline with data quality gates\u2014 understand that reliable data is more valuable than fast data.",
+        goal="Build a streaming pipeline with data quality gates\u2014 understand that reliable data is more valuable than fast data.",  # noqa: E501
         deliverables=[
             "Kafka producer simulating real-time events (e.g., stock trades, web clicks)",
             "Kafka consumer writing events to PostgreSQL with error handling",
@@ -3418,7 +3490,7 @@ def build_pdf():
             ("Terraform Documentation", "https://developer.hashicorp.com/terraform/docs"),
             ("GitHub Actions Docs", "https://docs.github.com/en/actions"),
         ],
-        goal="Deploy your entire data platform to the cloud with infrastructure as code and automated CI/CD\u2014 the final step to production readiness.",
+        goal="Deploy your entire data platform to the cloud with infrastructure as code and automated CI/CD\u2014 the final step to production readiness.",  # noqa: E501
         deliverables=[
             "Terraform config: S3 bucket + Redshift cluster + IAM roles",
             "Airflow DAG modified to upload data to S3 and COPY into Redshift",
@@ -3438,18 +3510,36 @@ def build_pdf():
         "data engineering challenges. Use them throughout the 8 weeks."
     )
     for name, url, desc in [
-        ("NYC Taxi Trip Data", "https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page",
-         "Millions of taxi/rideshare records per month. Ideal for ETL, partitioning, and analytics."),
-        ("Kaggle Datasets", "https://www.kaggle.com/datasets",
-         "Thousands of curated datasets across domains. Great for exploration and prototyping."),
-        ("UCI Machine Learning Repository", "https://archive.ics.uci.edu/",
-         "Classic datasets for statistical analysis and data quality exercises."),
-        ("Google BigQuery Public Datasets", "https://cloud.google.com/bigquery/public-data",
-         "Massive-scale datasets (GitHub, Stack Overflow, Wikipedia) queryable for free."),
-        ("GitHub Archive", "https://www.gharchive.org/",
-         "Every public GitHub event since 2011. Perfect for streaming and time-series practice."),
-        ("World Bank Open Data", "https://data.worldbank.org/",
-         "Global economic indicators. Great for dimensional modeling and reporting."),
+        (
+            "NYC Taxi Trip Data",
+            "https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page",
+            "Millions of taxi/rideshare records per month. Ideal for ETL, partitioning, and analytics.",
+        ),
+        (
+            "Kaggle Datasets",
+            "https://www.kaggle.com/datasets",
+            "Thousands of curated datasets across domains. Great for exploration and prototyping.",
+        ),
+        (
+            "UCI Machine Learning Repository",
+            "https://archive.ics.uci.edu/",
+            "Classic datasets for statistical analysis and data quality exercises.",
+        ),
+        (
+            "Google BigQuery Public Datasets",
+            "https://cloud.google.com/bigquery/public-data",
+            "Massive-scale datasets (GitHub, Stack Overflow, Wikipedia) queryable for free.",
+        ),
+        (
+            "GitHub Archive",
+            "https://www.gharchive.org/",
+            "Every public GitHub event since 2011. Perfect for streaming and time-series practice.",
+        ),
+        (
+            "World Bank Open Data",
+            "https://data.worldbank.org/",
+            "Global economic indicators. Great for dimensional modeling and reporting.",
+        ),
     ]:
         pdf.set_font(F, "B", 11)
         pdf.set_text_color(40, 40, 40)
@@ -3471,27 +3561,35 @@ def build_pdf():
         "Read them in parallel with the hands-on work\u2014 theory reinforces practice."
     )
     for title, author, desc in [
-        ("Designing Data-Intensive Applications",
-         "Martin Kleppmann",
-         "The \"bible\" of distributed systems for data engineers. Covers replication, "
-         "partitioning, consistency, batch/stream processing, and the fundamental trade-offs "
-         "behind every technology in your stack. Read chapters alongside the corresponding "
-         "week (e.g., Kafka chapters during Week 7)."),
-        ("Fundamentals of Data Engineering",
-         "Joe Reis & Matt Housley",
-         "A modern overview of the entire data engineering landscape: ingestion, storage, "
-         "transformation, serving, and orchestration. Excellent for building mental models "
-         "of how all the tools fit together."),
-        ("The Data Warehouse Toolkit",
-         "Ralph Kimball & Margy Ross",
-         "The definitive guide to dimensional modeling. Essential for Week 2's data modeling "
-         "work and for understanding why star schemas power every BI platform. Focus on the "
-         "first 8 chapters."),
-        ("Streaming Systems",
-         "Tyler Akidau, Slava Chernyak & Reuven Lax",
-         "Deep dive into stream processing theory: watermarks, windows, triggers, and "
-         "exactly-once semantics. Pairs perfectly with Week 7's Kafka work. Written by "
-         "the creators of Google Dataflow."),
+        (
+            "Designing Data-Intensive Applications",
+            "Martin Kleppmann",
+            'The "bible" of distributed systems for data engineers. Covers replication, '
+            "partitioning, consistency, batch/stream processing, and the fundamental trade-offs "
+            "behind every technology in your stack. Read chapters alongside the corresponding "
+            "week (e.g., Kafka chapters during Week 7).",
+        ),
+        (
+            "Fundamentals of Data Engineering",
+            "Joe Reis & Matt Housley",
+            "A modern overview of the entire data engineering landscape: ingestion, storage, "
+            "transformation, serving, and orchestration. Excellent for building mental models "
+            "of how all the tools fit together.",
+        ),
+        (
+            "The Data Warehouse Toolkit",
+            "Ralph Kimball & Margy Ross",
+            "The definitive guide to dimensional modeling. Essential for Week 2's data modeling "
+            "work and for understanding why star schemas power every BI platform. Focus on the "
+            "first 8 chapters.",
+        ),
+        (
+            "Streaming Systems",
+            "Tyler Akidau, Slava Chernyak & Reuven Lax",
+            "Deep dive into stream processing theory: watermarks, windows, triggers, and "
+            "exactly-once semantics. Pairs perfectly with Week 7's Kafka work. Written by "
+            "the creators of Google Dataflow.",
+        ),
     ]:
         pdf.set_font(F, "B", 12)
         pdf.set_text_color(160, 80, 40)
@@ -3535,16 +3633,16 @@ def build_pdf():
 
     pdf.sub_heading("Progress Tracking")
     pdf.diagram_block(
-        '  Week  Mon   Tue   Wed   Thu   Fri   Sat   Sun   Done?\n'
-        '  ----  ----  ----  ----  ----  ----  ----  ----  -----\n'
-        '    1   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n'
-        '    2   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n'
-        '    3   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n'
-        '    4   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n'
-        '    5   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n'
-        '    6   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n'
-        '    7   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n'
-        '    8   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]'
+        "  Week  Mon   Tue   Wed   Thu   Fri   Sat   Sun   Done?\n"
+        "  ----  ----  ----  ----  ----  ----  ----  ----  -----\n"
+        "    1   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n"
+        "    2   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n"
+        "    3   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n"
+        "    4   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n"
+        "    5   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n"
+        "    6   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n"
+        "    7   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]\n"
+        "    8   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]   [ ]"
     )
 
     pdf.ln(4)
@@ -3577,100 +3675,100 @@ def build_pdf():
 
     pdf.sub_heading("Capstone Architecture Diagram")
     pdf.diagram_block(
-        '                        +-------------------+\n'
-        '                        |   Data Sources    |\n'
-        '                        | (APIs, files, DB) |\n'
-        '                        +--------+----------+\n'
-        '                                 |\n'
-        '                    +------------v-----------+\n'
-        '                    |     Apache Kafka       |\n'
-        '                    |  (streaming ingestion) |\n'
-        '                    +------------+-----------+\n'
-        '                                 |\n'
-        '          +----------+-----------+-----------+----------+\n'
-        '          |          |                       |          |\n'
-        '  +-------v---+  +--v--------+      +-------v---+      |\n'
-        '  |  Airflow  |  |    GX     |      |   S3      |      |\n'
-        '  |  (orch)   |  | (quality) |      | (storage) |      |\n'
-        '  +-------+---+  +----------+       +-----+-----+      |\n'
-        '          |                               |             |\n'
-        '          +-------->  Spark / Delta  <----+             |\n'
-        '                    (bronze>silver>gold)                |\n'
-        '                           |                           |\n'
-        '                    +------v------+             +------v------+\n'
-        '                    |     dbt     |             |  Terraform  |\n'
-        '                    | (transform) |             |   (IaC)     |\n'
-        '                    +------+------+             +-------------+\n'
-        '                           |\n'
-        '                    +------v------+\n'
-        '                    |  Redshift   |\n'
-        '                    |  (serving)  |\n'
-        '                    +------+------+\n'
-        '                           |\n'
-        '                    +------v------+\n'
-        '                    |  Superset   |\n'
-        '                    | (dashboards)|\n'
-        '                    +-------------+'
+        "                        +-------------------+\n"
+        "                        |   Data Sources    |\n"
+        "                        | (APIs, files, DB) |\n"
+        "                        +--------+----------+\n"
+        "                                 |\n"
+        "                    +------------v-----------+\n"
+        "                    |     Apache Kafka       |\n"
+        "                    |  (streaming ingestion) |\n"
+        "                    +------------+-----------+\n"
+        "                                 |\n"
+        "          +----------+-----------+-----------+----------+\n"
+        "          |          |                       |          |\n"
+        "  +-------v---+  +--v--------+      +-------v---+      |\n"
+        "  |  Airflow  |  |    GX     |      |   S3      |      |\n"
+        "  |  (orch)   |  | (quality) |      | (storage) |      |\n"
+        "  +-------+---+  +----------+       +-----+-----+      |\n"
+        "          |                               |             |\n"
+        "          +-------->  Spark / Delta  <----+             |\n"
+        "                    (bronze>silver>gold)                |\n"
+        "                           |                           |\n"
+        "                    +------v------+             +------v------+\n"
+        "                    |     dbt     |             |  Terraform  |\n"
+        "                    | (transform) |             |   (IaC)     |\n"
+        "                    +------+------+             +-------------+\n"
+        "                           |\n"
+        "                    +------v------+\n"
+        "                    |  Redshift   |\n"
+        "                    |  (serving)  |\n"
+        "                    +------+------+\n"
+        "                           |\n"
+        "                    +------v------+\n"
+        "                    |  Superset   |\n"
+        "                    | (dashboards)|\n"
+        "                    +-------------+"
     )
 
     pdf.add_page()
     pdf.sub_heading("Example: End-to-End Pipeline Commands")
     pdf.code_block(
-        '# 1. Start infrastructure\n'
-        'docker compose up -d\n'
-        'terraform init && terraform apply\n'
-        '\n'
-        '# 2. Start Kafka producer\n'
-        'python producer.py --topic trades --rate 1000/sec\n'
-        '\n'
-        '# 3. Start Kafka consumer (writes to S3)\n'
-        'python consumer.py --topic trades --sink s3://lakehouse/bronze/\n'
-        '\n'
-        '# 4. Run Spark ETL (bronze -> silver -> gold)\n'
-        'spark-submit --master local[4] etl/medallion.py\n'
-        '\n'
-        '# 5. Run dbt transforms\n'
-        'cd dbt/ && dbt build --target prod\n'
-        '\n'
-        '# 6. Run data quality checks\n'
-        'great_expectations checkpoint run trades_checkpoint\n'
-        '\n'
-        '# 7. Load into Redshift\n'
-        'psql $REDSHIFT_URL -f sql/copy_gold_to_redshift.sql\n'
-        '\n'
-        '# 8. All of this is scheduled via Airflow DAG\n'
-        '# and tested via GitHub Actions CI/CD',
+        "# 1. Start infrastructure\n"
+        "docker compose up -d\n"
+        "terraform init && terraform apply\n"
+        "\n"
+        "# 2. Start Kafka producer\n"
+        "python producer.py --topic trades --rate 1000/sec\n"
+        "\n"
+        "# 3. Start Kafka consumer (writes to S3)\n"
+        "python consumer.py --topic trades --sink s3://lakehouse/bronze/\n"
+        "\n"
+        "# 4. Run Spark ETL (bronze -> silver -> gold)\n"
+        "spark-submit --master local[4] etl/medallion.py\n"
+        "\n"
+        "# 5. Run dbt transforms\n"
+        "cd dbt/ && dbt build --target prod\n"
+        "\n"
+        "# 6. Run data quality checks\n"
+        "great_expectations checkpoint run trades_checkpoint\n"
+        "\n"
+        "# 7. Load into Redshift\n"
+        "psql $REDSHIFT_URL -f sql/copy_gold_to_redshift.sql\n"
+        "\n"
+        "# 8. All of this is scheduled via Airflow DAG\n"
+        "# and tested via GitHub Actions CI/CD",
         "Bash — end-to-end pipeline",
     )
 
     pdf.sub_heading("Portfolio README Template")
     pdf.code_block(
-        '# Project Name: Real-Time Trading Analytics Platform\n'
-        '\n'
-        '## Architecture\n'
-        '[Include the ASCII diagram from this guide]\n'
-        '\n'
-        '## Tech Stack\n'
-        'Python | Kafka | Spark | Delta Lake | dbt | Airflow\n'
-        'PostgreSQL | Redshift | Terraform | GitHub Actions | GX\n'
-        '\n'
-        '## Quick Start\n'
-        '```bash\n'
-        'git clone https://github.com/you/project.git\n'
-        'cp .env.example .env\n'
-        'docker compose up -d\n'
-        'make setup  # install deps, init DBs, seed data\n'
-        'make run    # start all pipeline components\n'
-        '```\n'
-        '\n'
-        '## Data Flow\n'
-        '1. Kafka producer generates simulated trade events\n'
-        '2. Consumer writes raw events to S3 (bronze)\n'
-        '3. Spark cleans, deduplicates, enriches (silver)\n'
-        '4. dbt aggregates into analytics tables (gold)\n'
-        '5. GX validates data quality at each stage\n'
-        '6. Airflow orchestrates the entire pipeline\n'
-        '7. Superset dashboards visualize key metrics',
+        "# Project Name: Real-Time Trading Analytics Platform\n"
+        "\n"
+        "## Architecture\n"
+        "[Include the ASCII diagram from this guide]\n"
+        "\n"
+        "## Tech Stack\n"
+        "Python | Kafka | Spark | Delta Lake | dbt | Airflow\n"
+        "PostgreSQL | Redshift | Terraform | GitHub Actions | GX\n"
+        "\n"
+        "## Quick Start\n"
+        "```bash\n"
+        "git clone https://github.com/you/project.git\n"
+        "cp .env.example .env\n"
+        "docker compose up -d\n"
+        "make setup  # install deps, init DBs, seed data\n"
+        "make run    # start all pipeline components\n"
+        "```\n"
+        "\n"
+        "## Data Flow\n"
+        "1. Kafka producer generates simulated trade events\n"
+        "2. Consumer writes raw events to S3 (bronze)\n"
+        "3. Spark cleans, deduplicates, enriches (silver)\n"
+        "4. dbt aggregates into analytics tables (gold)\n"
+        "5. GX validates data quality at each stage\n"
+        "6. Airflow orchestrates the entire pipeline\n"
+        "7. Superset dashboards visualize key metrics",
         "Markdown — README template",
     )
 
@@ -3690,9 +3788,7 @@ def build_pdf():
 
     pdf.ln(4)
     pdf.sub_heading("Realistic Outcomes After 8 Weeks")
-    pdf.body_text(
-        "You won't be a \"master\"\u2014 that takes years of production experience. But you will:"
-    )
+    pdf.body_text('You won\'t be a "master"\u2014 that takes years of production experience. But you will:')
     for outcome in [
         "Understand and work with the modern data stack end-to-end",
         "Deploy reliable batch and streaming data pipelines",
@@ -3746,19 +3842,19 @@ def build_pdf():
     pdf.code_block(
         'Situation: "In my portfolio project, I built a real-time\n'
         '           stock trading pipeline using Kafka and Spark."\n'
-        '\n'
+        "\n"
         'Task:      "I needed to handle 10K events/sec with < 5 min\n'
         '           end-to-end latency and zero data loss."\n'
-        '\n'
+        "\n"
         'Action:    "I configured Kafka with acks=all and\n'
-        '           enable.idempotence=true for exactly-once\n'
-        '           delivery. I used Delta Lake MERGE for upserts\n'
-        '           and Great Expectations checkpoints to catch\n'
+        "           enable.idempotence=true for exactly-once\n"
+        "           delivery. I used Delta Lake MERGE for upserts\n"
+        "           and Great Expectations checkpoints to catch\n"
         '           schema drift before data reached the warehouse."\n'
-        '\n'
+        "\n"
         'Result:    "The pipeline processed 500K events/day with\n'
-        '           99.9% uptime. Data quality checks caught 3\n'
-        '           schema changes during development that would\n'
+        "           99.9% uptime. Data quality checks caught 3\n"
+        "           schema changes during development that would\n"
         '           have caused silent data corruption."',
         "Interview answer framework",
     )
@@ -3769,9 +3865,7 @@ def build_pdf():
     pdf.add_page()
     pdf.section_title("Quick Reference: When to Use What", 100, 50, 150)
     pdf.ln(2)
-    pdf.body_text(
-        "A decision guide for choosing the right tool for common data engineering tasks."
-    )
+    pdf.body_text("A decision guide for choosing the right tool for common data engineering tasks.")
 
     pdf.sub_heading("Data Storage")
     pdf.cheat_entry("PostgreSQL", "Structured data < 1TB, strong consistency, ACID, complex queries")
@@ -3839,8 +3933,15 @@ def build_pdf():
     pdf.set_font(F, "", 11)
     pdf.set_text_color(70, 70, 70)
     tools = [
-        "Python", "SQL", "Docker", "Airflow", "dbt",
-        "Spark", "Kafka", "Terraform", "Git + GitHub Actions",
+        "Python",
+        "SQL",
+        "Docker",
+        "Airflow",
+        "dbt",
+        "Spark",
+        "Kafka",
+        "Terraform",
+        "Git + GitHub Actions",
         "Great Expectations",
     ]
     for tool in tools:
@@ -3886,7 +3987,7 @@ def build_pdf():
         ("XCom", "Airflow mechanism for passing small data between tasks (cross-communication)"),
         ("Consumer Group", "Set of Kafka consumers that share work reading from topic partitions"),
         ("Offset", "Kafka's pointer tracking which messages a consumer has processed"),
-        ("Bloom Filter", "Probabilistic data structure for fast \"element not present\" checks"),
+        ("Bloom Filter", 'Probabilistic data structure for fast "element not present" checks'),
         ("Compaction", "Merging small files into larger ones for better read performance"),
         ("Materialized View", "Pre-computed query result stored as a table, refreshed on demand"),
         ("Window Function", "SQL function that operates on a set of rows related to the current row"),

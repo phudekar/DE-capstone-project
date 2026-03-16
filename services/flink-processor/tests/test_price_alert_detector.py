@@ -107,8 +107,14 @@ class TestPriceAlertDetector:
         result = detector.process("MSFT", 380.0, "2024-01-01T00:00:01Z")
         assert result is not None
         assert set(result.keys()) == {
-            "symbol", "severity", "direction", "price",
-            "baseline_price", "pct_change", "timestamp", "alert_type",
+            "symbol",
+            "severity",
+            "direction",
+            "price",
+            "baseline_price",
+            "pct_change",
+            "timestamp",
+            "alert_type",
         }
         assert result["alert_type"] == "price_movement"
         assert result["price"] == 380.0

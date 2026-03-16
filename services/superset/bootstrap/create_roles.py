@@ -3,6 +3,7 @@ Configure Superset roles: Viewer, Analyst, DataEngineer, Compliance.
 """
 
 import logging
+
 log = logging.getLogger(__name__)
 
 ROLES = [
@@ -70,7 +71,7 @@ def _get_permission_ids(superset_url: str, session) -> dict[str, int]:
 
 
 def create_roles(superset_url: str, session) -> None:
-    perm_map = _get_permission_ids(superset_url, session)
+    _get_permission_ids(superset_url, session)
 
     for role in ROLES:
         # Check if role already exists

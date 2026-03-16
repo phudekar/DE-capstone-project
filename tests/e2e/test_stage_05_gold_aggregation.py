@@ -9,10 +9,9 @@ Tests:
   - All symbols have gold rows
 """
 
-import pytest
-
 
 # ── Row count / coverage ───────────────────────────────────────────────────────
+
 
 def test_gold_has_rows(pipeline_db, populated_pipeline):
     assert pipeline_db.count("gold_daily_summary") > 0
@@ -28,62 +27,54 @@ def test_gold_one_row_per_symbol_per_date(pipeline_db, populated_pipeline):
 
 
 def test_gold_all_symbols_present(pipeline_db, populated_pipeline, symbols):
-    found = {r[0] for r in pipeline_db.conn.execute(
-        "SELECT DISTINCT symbol FROM gold_daily_summary"
-    ).fetchall()}
+    found = {r[0] for r in pipeline_db.conn.execute("SELECT DISTINCT symbol FROM gold_daily_summary").fetchall()}
     assert set(symbols) == found
 
 
 # ── OHLC validity ─────────────────────────────────────────────────────────────
 
+
 def test_gold_high_gte_open(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < open_price"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < open_price").fetchone()[
+        0
+    ]
     assert bad == 0
 
 
 def test_gold_high_gte_close(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < close_price"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < close_price").fetchone()[
+        0
+    ]
     assert bad == 0
 
 
 def test_gold_low_lte_open(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > open_price"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > open_price").fetchone()[0]
     assert bad == 0
 
 
 def test_gold_low_lte_close(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > close_price"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > close_price").fetchone()[
+        0
+    ]
     assert bad == 0
 
 
 def test_gold_low_lte_high(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > high_price"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > high_price").fetchone()[0]
     assert bad == 0
 
 
 # ── Volume / value / count ────────────────────────────────────────────────────
 
+
 def test_gold_positive_volume(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE total_volume <= 0"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE total_volume <= 0").fetchone()[0]
     assert bad == 0
 
 
 def test_gold_positive_trade_count(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE trade_count <= 0"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE trade_count <= 0").fetchone()[0]
     assert bad == 0
 
 
@@ -136,6 +127,7 @@ def test_gold_total_value_correct(pipeline_db, populated_pipeline):
 
 # ── VWAP correctness ──────────────────────────────────────────────────────────
 
+
 def test_gold_vwap_in_price_range(pipeline_db, populated_pipeline):
     bad = pipeline_db.conn.execute("""
         SELECT COUNT(*) FROM gold_daily_summary
@@ -162,15 +154,12 @@ def test_gold_vwap_equals_weighted_average(pipeline_db, populated_pipeline):
 
 # ── Enrichment carried through ────────────────────────────────────────────────
 
+
 def test_gold_sector_populated(pipeline_db, populated_pipeline):
-    nulls = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE sector IS NULL"
-    ).fetchone()[0]
+    nulls = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE sector IS NULL").fetchone()[0]
     assert nulls == 0
 
 
 def test_gold_company_name_populated(pipeline_db, populated_pipeline):
-    nulls = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM gold_daily_summary WHERE company_name IS NULL"
-    ).fetchone()[0]
+    nulls = pipeline_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE company_name IS NULL").fetchone()[0]
     assert nulls == 0

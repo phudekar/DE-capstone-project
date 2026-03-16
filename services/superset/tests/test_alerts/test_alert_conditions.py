@@ -4,10 +4,8 @@ Executes each alert's SQL condition query against the in-memory DuckDB
 fixture and verifies they return well-formed result sets.
 """
 
-import sys
 import os
-
-import pytest
+import sys
 
 _BOOTSTRAP_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "bootstrap")
 sys.path.insert(0, os.path.abspath(_BOOTSTRAP_DIR))
@@ -20,16 +18,19 @@ sys.path.insert(0, os.path.abspath(_BOOTSTRAP_DIR))
 
 def test_alerts_module_importable():
     import create_alerts
+
     assert hasattr(create_alerts, "ALERTS")
 
 
 def test_alerts_list_non_empty():
     import create_alerts
+
     assert len(create_alerts.ALERTS) > 0
 
 
 def test_each_alert_has_required_fields():
     import create_alerts
+
     required = {"name", "description", "sql"}
     for alert in create_alerts.ALERTS:
         missing = required - set(alert.keys())
@@ -38,12 +39,14 @@ def test_each_alert_has_required_fields():
 
 def test_alert_names_are_non_empty():
     import create_alerts
+
     for alert in create_alerts.ALERTS:
         assert alert["name"].strip() != ""
 
 
 def test_alert_sql_fields_are_strings():
     import create_alerts
+
     for alert in create_alerts.ALERTS:
         assert isinstance(alert["sql"], str)
         assert len(alert["sql"].strip()) > 0
@@ -116,6 +119,7 @@ def test_freshness_alert_sql_runs(duckdb_conn):
 def test_freshness_check_per_symbol(duckdb_conn, symbols):
     """Each symbol should have recent trade data."""
     from datetime import date, timedelta
+
     cutoff = date.today() - timedelta(days=7)
     result = duckdb_conn.execute(f"""
         SELECT symbol, MAX(trade_date) AS latest

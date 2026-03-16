@@ -74,10 +74,10 @@ def reference_symbols_ddl(symbols_data: list[dict]) -> str:
     sector_cases = []
     cap_cases = []
     for s in symbols_data:
-        sym = s['symbol']
-        company = s['company_name'].replace("'", "''")
-        sector = s['sector'].replace("'", "''")
-        cap = s['market_cap_category']
+        sym = s["symbol"]
+        company = s["company_name"].replace("'", "''")
+        sector = s["sector"].replace("'", "''")
+        cap = s["market_cap_category"]
         company_cases.append(f"WHEN '{sym}' THEN '{company}'")
         sector_cases.append(f"WHEN '{sym}' THEN '{sector}'")
         cap_cases.append(f"WHEN '{sym}' THEN '{cap}'")

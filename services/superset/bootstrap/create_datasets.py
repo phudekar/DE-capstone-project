@@ -33,8 +33,7 @@ DATASETS = [
     {
         "table_name": "dim_symbols",
         "sql": (
-            "SELECT symbol, company_name, sector, is_current "
-            "FROM iceberg_scan('s3://warehouse/dimensions/dim_symbol')"
+            "SELECT symbol, company_name, sector, is_current FROM iceberg_scan('s3://warehouse/dimensions/dim_symbol')"
         ),
     },
 ]
@@ -73,5 +72,7 @@ def create_datasets(superset_url: str, session) -> None:
         else:
             log.error(
                 "Failed to create dataset %s: %d %s",
-                ds["table_name"], resp.status_code, resp.text[:300],
+                ds["table_name"],
+                resp.status_code,
+                resp.text[:300],
             )

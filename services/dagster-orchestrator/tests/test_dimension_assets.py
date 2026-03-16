@@ -1,7 +1,6 @@
 """Tests for Dimension asset definitions."""
 
 from dagster import AssetKey
-
 from orchestrator.assets.dimensions import (
     dim_account,
     dim_exchange,

@@ -1,7 +1,5 @@
 """Tests for SCD Type 2 hash-based change detection logic."""
 
-import hashlib
-
 from lakehouse.scd.scd_type2 import _hash_row
 
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Iterator
 
-from graphql import DocumentNode, FieldNode, SelectionSetNode
+from graphql import DocumentNode
 from strawberry.extensions import SchemaExtension
 
 
@@ -15,10 +15,7 @@ def _calculate_depth(node: Any, current: int = 0) -> int:
             return 0
         return max(_calculate_depth(d, current) for d in node.definitions)
     if hasattr(node, "selection_set") and node.selection_set:
-        return max(
-            _calculate_depth(sel, current + 1)
-            for sel in node.selection_set.selections
-        )
+        return max(_calculate_depth(sel, current + 1) for sel in node.selection_set.selections)
     return current
 
 
@@ -33,7 +30,5 @@ class QueryDepthLimiter(SchemaExtension):
         if document is not None:
             depth = _calculate_depth(document)
             if depth > self.max_depth:
-                raise ValueError(
-                    f"Query depth {depth} exceeds the maximum allowed depth of {self.max_depth}."
-                )
+                raise ValueError(f"Query depth {depth} exceeds the maximum allowed depth of {self.max_depth}.")
         yield

@@ -7,9 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def get_topic_high_watermark(
-    bootstrap_servers: str, topic: str, partition: int = 0
-) -> int | None:
+def get_topic_high_watermark(bootstrap_servers: str, topic: str, partition: int = 0) -> int | None:
     """Get the high watermark offset for a Kafka topic partition.
 
     Returns None if Kafka is unreachable.

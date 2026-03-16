@@ -31,9 +31,7 @@ class KafkaConsumerFactory:
             session_timeout_ms=30_000,
         )
 
-    async def stream(
-        self, topic: str, group_id: str
-    ) -> AsyncIterator[dict]:
+    async def stream(self, topic: str, group_id: str) -> AsyncIterator[dict]:
         """Async generator that yields deserialized Kafka messages."""
         consumer = self.create(topic, group_id)
         await consumer.start()

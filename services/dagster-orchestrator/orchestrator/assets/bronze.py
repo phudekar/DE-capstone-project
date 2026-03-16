@@ -38,16 +38,12 @@ def bronze_raw_trades(
 
         catalog = get_catalog()
     except (ConnectionError, OSError) as exc:
-        context.log.warning(
-            "Lakehouse not available — bronze_raw_trades recorded as materialized: %s", exc
-        )
+        context.log.warning("Lakehouse not available — bronze_raw_trades recorded as materialized: %s", exc)
         return
 
     table = catalog.load_table("bronze.raw_trades")
     # Count via batch reader to avoid loading entire table into memory
-    record_count = sum(
-        batch.num_rows for batch in table.scan().to_arrow_batch_reader()
-    )
+    record_count = sum(batch.num_rows for batch in table.scan().to_arrow_batch_reader())
 
     context.log.info("bronze.raw_trades contains %d total records.", record_count)
     prometheus.push_metric("bronze_raw_trades_count", float(record_count))
@@ -75,16 +71,12 @@ def bronze_raw_orderbook(
 
         catalog = get_catalog()
     except (ConnectionError, OSError) as exc:
-        context.log.warning(
-            "Lakehouse not available — bronze_raw_orderbook recorded as materialized: %s", exc
-        )
+        context.log.warning("Lakehouse not available — bronze_raw_orderbook recorded as materialized: %s", exc)
         return
 
     table = catalog.load_table("bronze.raw_orderbook")
     # Count via batch reader to avoid loading entire table into memory
-    record_count = sum(
-        batch.num_rows for batch in table.scan().to_arrow_batch_reader()
-    )
+    record_count = sum(batch.num_rows for batch in table.scan().to_arrow_batch_reader())
 
     context.log.info("bronze.raw_orderbook contains %d total records.", record_count)
     prometheus.push_metric("bronze_raw_orderbook_count", float(record_count))
@@ -105,7 +97,6 @@ def bronze_raw_marketdata(
 ) -> None:
     """Placeholder: market data table not yet implemented in Phase 4."""
     context.log.info(
-        "SKIP: bronze_raw_marketdata not yet implemented. "
-        "Partition %s recorded as materialized.",
+        "SKIP: bronze_raw_marketdata not yet implemented. Partition %s recorded as materialized.",
         context.partition_key if context.has_partition_key else "unpartitioned",
     )

@@ -1,12 +1,11 @@
 """Tests for Silver layer asset definitions."""
 
 from dagster import AssetKey
-
 from orchestrator.assets.silver import (
     silver_market_data,
     silver_orderbook_snapshots,
-    silver_trades,
     silver_trader_activity,
+    silver_trades,
 )
 
 

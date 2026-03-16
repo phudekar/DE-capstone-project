@@ -7,15 +7,12 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-import strawberry
-from strawberry.dataloader import DataLoader
-
-from app.auth.models import UserContext, ANONYMOUS
+from app.auth.models import ANONYMOUS, UserContext
 from app.cache.memory_cache import MemoryCache
 from app.db.iceberg_duckdb import IcebergDuckDB
 from app.services.watchlist_service import WatchlistService
 from app.streaming.kafka_consumer import KafkaConsumerFactory
-
+from strawberry.dataloader import DataLoader
 
 # ─── Sample data ──────────────────────────────────────────────────────────────
 
@@ -59,6 +56,7 @@ SAMPLE_SYMBOL_ROW: dict[str, Any] = {
 
 
 # ─── Fixtures ─────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def mock_engine() -> MagicMock:

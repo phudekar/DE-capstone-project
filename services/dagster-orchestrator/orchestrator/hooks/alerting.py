@@ -20,9 +20,7 @@ def slack_alert_on_failure(context: HookContext) -> None:
             import json
             import urllib.request
 
-            payload = json.dumps(
-                {"text": f"Dagster op FAILED: {op_name}"}
-            ).encode()
+            payload = json.dumps({"text": f"Dagster op FAILED: {op_name}"}).encode()
             req = urllib.request.Request(
                 slack_url,
                 data=payload,
@@ -33,6 +31,4 @@ def slack_alert_on_failure(context: HookContext) -> None:
         except Exception:
             context.log.warning("Failed to send Slack alert for op '%s'.", op_name)
     else:
-        context.log.info(
-            "No SLACK_WEBHOOK_URL configured — failure alert logged only."
-        )
+        context.log.info("No SLACK_WEBHOOK_URL configured — failure alert logged only.")

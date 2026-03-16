@@ -22,9 +22,7 @@ SILVER_EXPECTED_COLUMNS = [
 ]
 
 # Default path matches the Docker container layout; override via env var
-_REFERENCE_DATA_PATH = os.getenv(
-    "REFERENCE_DATA_PATH", "/app/data/reference/symbols.json"
-)
+_REFERENCE_DATA_PATH = os.getenv("REFERENCE_DATA_PATH", "/app/data/reference/symbols.json")
 
 
 def _load_known_symbols() -> list[str]:
@@ -35,9 +33,30 @@ def _load_known_symbols() -> list[str]:
     except (FileNotFoundError, KeyError, json.JSONDecodeError):
         # Fallback if reference file is unavailable
         return [
-            "AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "NVDA",
-            "CRM", "JPM", "BAC", "GS", "V", "JNJ", "UNH", "PFE",
-            "WMT", "KO", "MCD", "XOM", "CVX", "SMCI", "MSTR", "PLTR", "RIVN",
+            "AAPL",
+            "MSFT",
+            "GOOGL",
+            "AMZN",
+            "META",
+            "TSLA",
+            "NVDA",
+            "CRM",
+            "JPM",
+            "BAC",
+            "GS",
+            "V",
+            "JNJ",
+            "UNH",
+            "PFE",
+            "WMT",
+            "KO",
+            "MCD",
+            "XOM",
+            "CVX",
+            "SMCI",
+            "MSTR",
+            "PLTR",
+            "RIVN",
         ]
 
 

@@ -34,8 +34,8 @@ from typing import Any
 MaskingRules = dict[str, dict[str, tuple]]
 
 MASKING_RULES: MaskingRules = {
-    "data_engineer": {},   # No masking — full access
-    "admin": {},           # No masking — full access
+    "data_engineer": {},  # No masking — full access
+    "admin": {},  # No masking — full access
     "data_scientist": {
         "account_id": ("hash",),
     },
@@ -99,7 +99,7 @@ def apply_masking(
     """
     rules = _effective_rules(user_role)
     if not rules:
-        return rows   # fast path: no masking required
+        return rows  # fast path: no masking required
 
     result = []
     for row in rows:

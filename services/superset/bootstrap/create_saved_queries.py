@@ -4,6 +4,7 @@ Import pre-built SQL queries into Superset SQL Lab.
 
 import logging
 import os
+
 log = logging.getLogger(__name__)
 
 _QUERIES_DIR = os.path.join(os.path.dirname(__file__), "..", "saved_queries")
@@ -89,5 +90,7 @@ def create_saved_queries(superset_url: str, session) -> None:
         else:
             log.error(
                 "Failed to create saved query %s: %d %s",
-                query["label"], resp.status_code, resp.text[:200],
+                query["label"],
+                resp.status_code,
+                resp.text[:200],
             )

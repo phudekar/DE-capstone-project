@@ -25,12 +25,10 @@ Usage:
 
 import argparse
 import logging
-import sys
-
-from pyiceberg.types import BooleanType
 
 from lakehouse import config
 from lakehouse.catalog import get_catalog
+from pyiceberg.types import BooleanType
 
 logger = logging.getLogger(__name__)
 
@@ -73,9 +71,7 @@ def migrate(dry_run: bool = True) -> None:
             continue
 
         if not _column_exists(table, old_name):
-            logger.warning(
-                "SKIP  %s — neither %s nor %s found.", table_id, old_name, new_name
-            )
+            logger.warning("SKIP  %s — neither %s nor %s found.", table_id, old_name, new_name)
             continue
 
         if type_change is not None:

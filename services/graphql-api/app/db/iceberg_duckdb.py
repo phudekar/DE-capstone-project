@@ -8,7 +8,6 @@ from typing import Any
 
 import duckdb
 import pyarrow as pa
-import pyiceberg.catalog
 from pyiceberg.catalog.rest import RestCatalog
 
 from app.config import settings

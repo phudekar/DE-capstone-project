@@ -1,7 +1,6 @@
 """Tests for the freshness SLA sensor."""
 
 from dagster import AssetKey
-
 from orchestrator.sensors.freshness_sensor import (
     _FRESHNESS_SLA_HOURS,
     _MONITORED_ASSETS,

@@ -1,8 +1,5 @@
 """Tests for Iceberg schema definitions."""
 
-from pyiceberg.schema import Schema
-from pyiceberg.types import NestedField, StringType, TimestamptzType
-
 from lakehouse.schemas.bronze import RAW_ORDERBOOK_SCHEMA, RAW_TRADES_SCHEMA
 from lakehouse.schemas.dimensions import DIM_SYMBOL_SCHEMA, DIM_TIME_SCHEMA
 from lakehouse.schemas.gold import DAILY_TRADING_SUMMARY_SCHEMA

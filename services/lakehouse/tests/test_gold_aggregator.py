@@ -62,7 +62,7 @@ class TestGoldAggregation:
 
         # Check AAPL
         aapl = result.filter(pa.compute.equal(result.column("symbol"), "AAPL"))
-        assert aapl.column("open_price")[0].as_py() == 180.0   # First trade
+        assert aapl.column("open_price")[0].as_py() == 180.0  # First trade
         assert aapl.column("close_price")[0].as_py() == 182.0  # Last trade
         assert aapl.column("high_price")[0].as_py() == 185.0
         assert aapl.column("low_price")[0].as_py() == 180.0

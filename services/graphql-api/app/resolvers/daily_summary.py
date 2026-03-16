@@ -13,8 +13,8 @@ from app.schema.pagination import (
     DailySummaryConnection,
     DailySummaryEdge,
     PageInfo,
-    encode_cursor,
     decode_cursor,
+    encode_cursor,
 )
 from app.schema.types import DailySummary
 
@@ -75,13 +75,10 @@ class DailySummaryResolver:
             )
             await self.cache.set(cache_ns, cache_key, all_rows, settings.cache_ttl_daily_summary)
 
-        page = all_rows[offset: offset + first]
+        page = all_rows[offset : offset + first]
         has_next = len(all_rows) > offset + first
         edges = [
-            DailySummaryEdge(
-                node=_row_to_summary(r), cursor=encode_cursor(offset + i)
-            )
-            for i, r in enumerate(page)
+            DailySummaryEdge(node=_row_to_summary(r), cursor=encode_cursor(offset + i)) for i, r in enumerate(page)
         ]
         return DailySummaryConnection(
             edges=edges,

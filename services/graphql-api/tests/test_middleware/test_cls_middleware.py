@@ -1,9 +1,7 @@
 """Tests for app.middleware.cls_middleware — column-level security view selection."""
 
-import pytest
-from app.middleware.cls_middleware import cls_view_for_role, primary_role
 from app.auth.models import UserContext
-
+from app.middleware.cls_middleware import cls_view_for_role, primary_role
 
 # ─── cls_view_for_role ────────────────────────────────────────────────────────
 
@@ -44,8 +42,7 @@ def test_viewer_gets_business_view():
 
 
 def test_gold_summary_all_roles_get_cls_all():
-    for role in ["admin", "data_engineer", "data_scientist", "data_analyst", "analyst",
-                 "business_user", "viewer"]:
+    for role in ["admin", "data_engineer", "data_scientist", "data_analyst", "analyst", "business_user", "viewer"]:
         result = cls_view_for_role(role, "daily_trading_summary")
         assert result == "daily_summary_cls_all", f"Failed for role: {role}"
 

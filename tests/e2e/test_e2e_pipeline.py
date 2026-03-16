@@ -15,31 +15,31 @@ Fixture strategy:
 from __future__ import annotations
 
 import json
-from datetime import date, datetime, timezone
 from pathlib import Path
 
 import pytest
 
-from tests.e2e.conftest import PipelineDB, PipelineSimulator, SYMBOL_DIM
+from tests.e2e.conftest import SYMBOL_DIM, PipelineDB, PipelineSimulator
 from tests.e2e.fixtures.events import (
-    make_trade_batch,
-    make_orderbook_event,
     make_invalid_event,
     make_malformed_trade_event,
+    make_orderbook_event,
+    make_trade_batch,
 )
 
 # ── Deterministic test corpus ─────────────────────────────────────────────────
 
-E2E_SYMBOLS       = ["AAPL", "MSFT", "TSLA"]
+E2E_SYMBOLS = ["AAPL", "MSFT", "TSLA"]
 TRADES_PER_SYMBOL = 5
-TOTAL_TRADES      = len(E2E_SYMBOLS) * TRADES_PER_SYMBOL   # 15
-TOTAL_ORDERBOOKS  = len(E2E_SYMBOLS)                        # 3
-TOTAL_INVALID     = 2                                       # 1 unknown + 1 malformed
+TOTAL_TRADES = len(E2E_SYMBOLS) * TRADES_PER_SYMBOL  # 15
+TOTAL_ORDERBOOKS = len(E2E_SYMBOLS)  # 3
+TOTAL_INVALID = 2  # 1 unknown + 1 malformed
 
 QUERIES_DIR = Path(__file__).parent.parent.parent / "services/superset/saved_queries"
 
 
 # ── Module-scoped fixtures ─────────────────────────────────────────────────────
+
 
 @pytest.fixture(scope="module")
 def e2e_db():
@@ -60,7 +60,7 @@ def e2e_stats(e2e_sim):
     events += make_trade_batch(E2E_SYMBOLS, n_per_symbol=TRADES_PER_SYMBOL, base_price=150.0)
     for sym in E2E_SYMBOLS:
         events.append(make_orderbook_event(sym, mid_price=150.0))
-    events.append(make_invalid_event())       # unknown event_type → DLQ (rejected)
+    events.append(make_invalid_event())  # unknown event_type → DLQ (rejected)
     events.append(make_malformed_trade_event())  # missing fields → rejected
 
     return e2e_sim.run_full(events)
@@ -69,6 +69,7 @@ def e2e_stats(e2e_sim):
 # ═════════════════════════════════════════════════════════════════════════════
 # Stage 1 — Event ingestion counts
 # ═════════════════════════════════════════════════════════════════════════════
+
 
 class TestStage1EventIngestion:
     """Verify the input event counts are correctly tracked by run_full()."""
@@ -89,6 +90,7 @@ class TestStage1EventIngestion:
 # ═════════════════════════════════════════════════════════════════════════════
 # Stage 2 — Kafka Bridge routing
 # ═════════════════════════════════════════════════════════════════════════════
+
 
 class TestStage2KafkaBridge:
     """Verify trade events route to raw.trades and orderbooks to raw.orderbook-snapshots."""
@@ -117,9 +119,9 @@ class TestStage2KafkaBridge:
         assert len(offsets) == len(set(offsets)), "Duplicate Kafka offsets detected"
 
     def test_trade_envelopes_carry_event_type(self, e2e_db):
-        count = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM bronze_trades WHERE event_type = 'TradeExecuted'"
-        ).fetchone()[0]
+        count = e2e_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE event_type = 'TradeExecuted'").fetchone()[
+            0
+        ]
         assert count == TOTAL_TRADES
 
     def test_orderbook_envelopes_carry_event_type(self, e2e_db):
@@ -133,6 +135,7 @@ class TestStage2KafkaBridge:
 # Stage 3 — Bronze ingestion
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 class TestStage3BronzeIngestion:
     """Verify raw events are correctly persisted in bronze tables."""
 
@@ -145,33 +148,23 @@ class TestStage3BronzeIngestion:
         assert e2e_stats["bronze_orderbook"] == TOTAL_ORDERBOOKS
 
     def test_bronze_trade_symbols_correct(self, e2e_db):
-        syms = {r[0] for r in e2e_db.conn.execute(
-            "SELECT DISTINCT symbol FROM bronze_trades"
-        ).fetchall()}
+        syms = {r[0] for r in e2e_db.conn.execute("SELECT DISTINCT symbol FROM bronze_trades").fetchall()}
         assert syms == set(E2E_SYMBOLS)
 
     def test_bronze_trade_ids_are_non_null(self, e2e_db):
-        nulls = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM bronze_trades WHERE trade_id IS NULL"
-        ).fetchone()[0]
+        nulls = e2e_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE trade_id IS NULL").fetchone()[0]
         assert nulls == 0
 
     def test_bronze_trade_prices_positive(self, e2e_db):
-        bad = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM bronze_trades WHERE price <= 0"
-        ).fetchone()[0]
+        bad = e2e_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE price <= 0").fetchone()[0]
         assert bad == 0
 
     def test_bronze_trade_quantities_positive(self, e2e_db):
-        bad = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM bronze_trades WHERE quantity <= 0"
-        ).fetchone()[0]
+        bad = e2e_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE quantity <= 0").fetchone()[0]
         assert bad == 0
 
     def test_bronze_ingested_at_populated(self, e2e_db):
-        nulls = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM bronze_trades WHERE _ingested_at IS NULL"
-        ).fetchone()[0]
+        nulls = e2e_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE _ingested_at IS NULL").fetchone()[0]
         assert nulls == 0
 
     def test_bronze_orderbook_bids_valid_json(self, e2e_db):
@@ -193,6 +186,7 @@ class TestStage3BronzeIngestion:
 # Stage 4 — Silver transformation
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 class TestStage4SilverTransformation:
     """Verify deduplication, enrichment, and spread calculations."""
 
@@ -206,27 +200,19 @@ class TestStage4SilverTransformation:
 
     def test_silver_trade_ids_unique(self, e2e_db):
         total = e2e_db.count("silver_trades")
-        distinct = e2e_db.conn.execute(
-            "SELECT COUNT(DISTINCT trade_id) FROM silver_trades"
-        ).fetchone()[0]
+        distinct = e2e_db.conn.execute("SELECT COUNT(DISTINCT trade_id) FROM silver_trades").fetchone()[0]
         assert total == distinct
 
     def test_silver_trades_enriched_with_company_name(self, e2e_db):
-        nulls = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM silver_trades WHERE company_name IS NULL"
-        ).fetchone()[0]
+        nulls = e2e_db.conn.execute("SELECT COUNT(*) FROM silver_trades WHERE company_name IS NULL").fetchone()[0]
         assert nulls == 0
 
     def test_silver_trades_enriched_with_sector(self, e2e_db):
-        nulls = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM silver_trades WHERE sector IS NULL"
-        ).fetchone()[0]
+        nulls = e2e_db.conn.execute("SELECT COUNT(*) FROM silver_trades WHERE sector IS NULL").fetchone()[0]
         assert nulls == 0
 
     def test_silver_trades_sector_values_correct(self, e2e_db):
-        rows = e2e_db.conn.execute(
-            "SELECT DISTINCT symbol, sector FROM silver_trades"
-        ).fetchall()
+        rows = e2e_db.conn.execute("SELECT DISTINCT symbol, sector FROM silver_trades").fetchall()
         for symbol, sector in rows:
             expected = SYMBOL_DIM[symbol]["sector"]
             assert sector == expected, f"{symbol}: expected sector {expected}, got {sector}"
@@ -246,21 +232,18 @@ class TestStage4SilverTransformation:
         assert bad == 0
 
     def test_silver_orderbook_bid_depth_positive(self, e2e_db):
-        bad = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM silver_orderbook WHERE bid_depth <= 0"
-        ).fetchone()[0]
+        bad = e2e_db.conn.execute("SELECT COUNT(*) FROM silver_orderbook WHERE bid_depth <= 0").fetchone()[0]
         assert bad == 0
 
     def test_silver_processed_at_populated(self, e2e_db):
-        nulls = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM silver_trades WHERE _processed_at IS NULL"
-        ).fetchone()[0]
+        nulls = e2e_db.conn.execute("SELECT COUNT(*) FROM silver_trades WHERE _processed_at IS NULL").fetchone()[0]
         assert nulls == 0
 
 
 # ═════════════════════════════════════════════════════════════════════════════
 # Stage 5 — Gold aggregation
 # ═════════════════════════════════════════════════════════════════════════════
+
 
 class TestStage5GoldAggregation:
     """Verify OHLCV rollup produces correct OHLC invariants and VWAP."""
@@ -271,39 +254,29 @@ class TestStage5GoldAggregation:
         assert e2e_stats["gold_rows"] == len(E2E_SYMBOLS)
 
     def test_gold_all_symbols_present(self, e2e_db):
-        syms = {r[0] for r in e2e_db.conn.execute(
-            "SELECT DISTINCT symbol FROM gold_daily_summary"
-        ).fetchall()}
+        syms = {r[0] for r in e2e_db.conn.execute("SELECT DISTINCT symbol FROM gold_daily_summary").fetchall()}
         assert syms == set(E2E_SYMBOLS)
 
     def test_gold_high_gte_low(self, e2e_db):
-        bad = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < low_price"
-        ).fetchone()[0]
+        bad = e2e_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < low_price").fetchone()[0]
         assert bad == 0
 
     def test_gold_high_gte_open(self, e2e_db):
-        bad = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < open_price"
-        ).fetchone()[0]
+        bad = e2e_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < open_price").fetchone()[0]
         assert bad == 0
 
     def test_gold_low_lte_open(self, e2e_db):
-        bad = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > open_price"
-        ).fetchone()[0]
+        bad = e2e_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > open_price").fetchone()[0]
         assert bad == 0
 
     def test_gold_high_gte_close(self, e2e_db):
-        bad = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < close_price"
-        ).fetchone()[0]
+        bad = e2e_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE high_price < close_price").fetchone()[
+            0
+        ]
         assert bad == 0
 
     def test_gold_low_lte_close(self, e2e_db):
-        bad = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > close_price"
-        ).fetchone()[0]
+        bad = e2e_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE low_price > close_price").fetchone()[0]
         assert bad == 0
 
     def test_gold_vwap_in_range(self, e2e_db):
@@ -338,9 +311,7 @@ class TestStage5GoldAggregation:
         assert mismatch == 0
 
     def test_gold_sector_populated(self, e2e_db):
-        nulls = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM gold_daily_summary WHERE sector IS NULL"
-        ).fetchone()[0]
+        nulls = e2e_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE sector IS NULL").fetchone()[0]
         assert nulls == 0
 
 
@@ -348,13 +319,12 @@ class TestStage5GoldAggregation:
 # Stage 6 — Data quality invariants (cross-layer)
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 class TestStage6DataQuality:
     """End-to-end data quality checks across all three medallion layers."""
 
     def test_no_bronze_trades_with_null_symbol(self, e2e_db):
-        assert e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM bronze_trades WHERE symbol IS NULL"
-        ).fetchone()[0] == 0
+        assert e2e_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE symbol IS NULL").fetchone()[0] == 0
 
     def test_silver_trade_ids_match_bronze(self, e2e_db):
         """Every silver trade_id must exist in bronze — no phantom rows."""
@@ -379,9 +349,7 @@ class TestStage6DataQuality:
         assert silver_count <= bronze_count
 
     def test_gold_total_value_positive_all_rows(self, e2e_db):
-        bad = e2e_db.conn.execute(
-            "SELECT COUNT(*) FROM gold_daily_summary WHERE total_value <= 0"
-        ).fetchone()[0]
+        bad = e2e_db.conn.execute("SELECT COUNT(*) FROM gold_daily_summary WHERE total_value <= 0").fetchone()[0]
         assert bad == 0
 
     def test_is_aggressive_buy_values_valid(self, e2e_db):
@@ -393,9 +361,7 @@ class TestStage6DataQuality:
 
     def test_bronze_to_silver_no_data_loss(self, e2e_db):
         """Silver must contain exactly as many rows as unique bronze trade_ids."""
-        unique_bronze = e2e_db.conn.execute(
-            "SELECT COUNT(DISTINCT trade_id) FROM bronze_trades"
-        ).fetchone()[0]
+        unique_bronze = e2e_db.conn.execute("SELECT COUNT(DISTINCT trade_id) FROM bronze_trades").fetchone()[0]
         silver_count = e2e_db.count("silver_trades")
         assert silver_count == unique_bronze
 
@@ -404,13 +370,12 @@ class TestStage6DataQuality:
 # Stage 7 — GraphQL API SQL queries
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 class TestStage7GraphQLAPI:
     """Verify that resolver-style SQL queries return correct results."""
 
     def test_trades_query_returns_all_rows(self, e2e_db):
-        rows = e2e_db.conn.execute(
-            "SELECT * FROM silver_trades ORDER BY timestamp LIMIT 100"
-        ).fetchall()
+        rows = e2e_db.conn.execute("SELECT * FROM silver_trades ORDER BY timestamp LIMIT 100").fetchall()
         assert len(rows) == TOTAL_TRADES
 
     def test_trades_filter_by_symbol(self, e2e_db):
@@ -476,6 +441,7 @@ class TestStage7GraphQLAPI:
 # Stage 8 — Dagster asset definitions
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 class TestStage8DagsterAssets:
     """Smoke-test that the Dagster orchestration layer is importable and consistent."""
 
@@ -487,11 +453,13 @@ class TestStage8DagsterAssets:
         pytest.importorskip("dagster", reason="dagster not installed in this venv")
         import sys
         from pathlib import Path
+
         orch_src = str(Path(__file__).parent.parent.parent / "services/dagster-orchestrator/src")
         if orch_src not in sys.path:
             sys.path.insert(0, orch_src)
         try:
             import lakehouse_orchestrator
+
             assert lakehouse_orchestrator is not None
         except ImportError:
             pytest.skip("lakehouse_orchestrator package not installed")
@@ -500,11 +468,13 @@ class TestStage8DagsterAssets:
         pytest.importorskip("dagster", reason="dagster not installed in this venv")
         import sys
         from pathlib import Path
+
         orch_src = str(Path(__file__).parent.parent.parent / "services/dagster-orchestrator/src")
         if orch_src not in sys.path:
             sys.path.insert(0, orch_src)
         try:
-            from lakehouse_orchestrator.assets import bronze_assets, silver_assets, gold_assets
+            from lakehouse_orchestrator.assets import bronze_assets, gold_assets, silver_assets
+
             assert bronze_assets is not None
             assert silver_assets is not None
             assert gold_assets is not None
@@ -515,6 +485,7 @@ class TestStage8DagsterAssets:
 # ═════════════════════════════════════════════════════════════════════════════
 # Stage 9 — Superset saved query execution
 # ═════════════════════════════════════════════════════════════════════════════
+
 
 class TestStage9SupersetQueries:
     """Verify saved-query SQL files exist and their analytical queries run correctly."""
@@ -612,6 +583,7 @@ class TestStage9SupersetQueries:
 # Full pipeline assertion — cross-stage consistency
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 class TestFullPipelineConsistency:
     """Cross-stage invariants that span the entire pipeline."""
 
@@ -619,8 +591,7 @@ class TestFullPipelineConsistency:
         assert e2e_stats["events_in"] == e2e_stats["routed"] + e2e_stats["rejected"]
 
     def test_bronze_plus_orderbook_equals_routed(self, e2e_stats):
-        assert (e2e_stats["bronze_trades"] + e2e_stats["bronze_orderbook"]
-                == e2e_stats["routed"])
+        assert e2e_stats["bronze_trades"] + e2e_stats["bronze_orderbook"] == e2e_stats["routed"]
 
     def test_silver_count_not_exceeds_bronze(self, e2e_stats):
         assert e2e_stats["silver_trades"] <= e2e_stats["bronze_trades"]
@@ -630,38 +601,20 @@ class TestFullPipelineConsistency:
 
     def test_data_volume_preserved_end_to_end(self, e2e_db):
         """Total trade volume is identical across bronze → silver → gold."""
-        bronze_vol = e2e_db.conn.execute(
-            "SELECT SUM(quantity) FROM bronze_trades"
-        ).fetchone()[0]
-        silver_vol = e2e_db.conn.execute(
-            "SELECT SUM(quantity) FROM silver_trades"
-        ).fetchone()[0]
-        gold_vol = e2e_db.conn.execute(
-            "SELECT SUM(total_volume) FROM gold_daily_summary"
-        ).fetchone()[0]
+        bronze_vol = e2e_db.conn.execute("SELECT SUM(quantity) FROM bronze_trades").fetchone()[0]
+        silver_vol = e2e_db.conn.execute("SELECT SUM(quantity) FROM silver_trades").fetchone()[0]
+        gold_vol = e2e_db.conn.execute("SELECT SUM(total_volume) FROM gold_daily_summary").fetchone()[0]
         assert bronze_vol == silver_vol == gold_vol
 
     def test_total_value_consistent_across_layers(self, e2e_db):
-        silver_val = e2e_db.conn.execute(
-            "SELECT ROUND(SUM(price * quantity), 4) FROM silver_trades"
-        ).fetchone()[0]
-        gold_val = e2e_db.conn.execute(
-            "SELECT ROUND(SUM(total_value), 4) FROM gold_daily_summary"
-        ).fetchone()[0]
-        assert abs(silver_val - gold_val) < 0.01, (
-            f"Value mismatch: silver={silver_val}, gold={gold_val}"
-        )
+        silver_val = e2e_db.conn.execute("SELECT ROUND(SUM(price * quantity), 4) FROM silver_trades").fetchone()[0]
+        gold_val = e2e_db.conn.execute("SELECT ROUND(SUM(total_value), 4) FROM gold_daily_summary").fetchone()[0]
+        assert abs(silver_val - gold_val) < 0.01, f"Value mismatch: silver={silver_val}, gold={gold_val}"
 
     def test_all_symbols_flow_through_all_layers(self, e2e_db):
-        bronze_syms = {r[0] for r in e2e_db.conn.execute(
-            "SELECT DISTINCT symbol FROM bronze_trades"
-        ).fetchall()}
-        silver_syms = {r[0] for r in e2e_db.conn.execute(
-            "SELECT DISTINCT symbol FROM silver_trades"
-        ).fetchall()}
-        gold_syms = {r[0] for r in e2e_db.conn.execute(
-            "SELECT DISTINCT symbol FROM gold_daily_summary"
-        ).fetchall()}
+        bronze_syms = {r[0] for r in e2e_db.conn.execute("SELECT DISTINCT symbol FROM bronze_trades").fetchall()}
+        silver_syms = {r[0] for r in e2e_db.conn.execute("SELECT DISTINCT symbol FROM silver_trades").fetchall()}
+        gold_syms = {r[0] for r in e2e_db.conn.execute("SELECT DISTINCT symbol FROM gold_daily_summary").fetchall()}
         assert bronze_syms == silver_syms == gold_syms == set(E2E_SYMBOLS)
 
     def test_no_data_duplication_bronze_to_silver(self, e2e_db):
@@ -672,9 +625,7 @@ class TestFullPipelineConsistency:
 
     def test_sector_distribution_in_gold(self, e2e_db):
         """Gold must carry sector info that matches dim_symbol."""
-        rows = e2e_db.conn.execute(
-            "SELECT symbol, sector FROM gold_daily_summary"
-        ).fetchall()
+        rows = e2e_db.conn.execute("SELECT symbol, sector FROM gold_daily_summary").fetchall()
         for symbol, sector in rows:
             expected = SYMBOL_DIM[symbol]["sector"]
             assert sector == expected, f"{symbol}: {sector} != {expected}"

@@ -20,27 +20,27 @@ log = logging.getLogger(__name__)
 # None means "use the base table directly (full access)"
 _CLS_VIEW_MAP: dict[tuple[str, str], str | None] = {
     # silver.trades
-    ("silver_trades", "admin"):          None,
-    ("silver_trades", "data_engineer"):  None,
+    ("silver_trades", "admin"): None,
+    ("silver_trades", "data_engineer"): None,
     ("silver_trades", "data_scientist"): "silver_trades_cls_scientist",
-    ("silver_trades", "data_analyst"):   "silver_trades_cls_analyst",
-    ("silver_trades", "analyst"):        "silver_trades_cls_analyst",
-    ("silver_trades", "business_user"):  "silver_trades_cls_business",
-    ("silver_trades", "viewer"):         "silver_trades_cls_business",
+    ("silver_trades", "data_analyst"): "silver_trades_cls_analyst",
+    ("silver_trades", "analyst"): "silver_trades_cls_analyst",
+    ("silver_trades", "business_user"): "silver_trades_cls_business",
+    ("silver_trades", "viewer"): "silver_trades_cls_business",
     # gold.daily_trading_summary (no PII — same view for all roles)
-    ("daily_trading_summary", "admin"):          "daily_summary_cls_all",
-    ("daily_trading_summary", "data_engineer"):  "daily_summary_cls_all",
+    ("daily_trading_summary", "admin"): "daily_summary_cls_all",
+    ("daily_trading_summary", "data_engineer"): "daily_summary_cls_all",
     ("daily_trading_summary", "data_scientist"): "daily_summary_cls_all",
-    ("daily_trading_summary", "data_analyst"):   "daily_summary_cls_all",
-    ("daily_trading_summary", "analyst"):        "daily_summary_cls_all",
-    ("daily_trading_summary", "business_user"):  "daily_summary_cls_all",
-    ("daily_trading_summary", "viewer"):         "daily_summary_cls_all",
+    ("daily_trading_summary", "data_analyst"): "daily_summary_cls_all",
+    ("daily_trading_summary", "analyst"): "daily_summary_cls_all",
+    ("daily_trading_summary", "business_user"): "daily_summary_cls_all",
+    ("daily_trading_summary", "viewer"): "daily_summary_cls_all",
 }
 
 # Most restrictive fallback for unknown roles
 _DEFAULT_VIEW: dict[str, str | None] = {
-    "silver_trades":          "silver_trades_cls_business",
-    "daily_trading_summary":  "daily_summary_cls_all",
+    "silver_trades": "silver_trades_cls_business",
+    "daily_trading_summary": "daily_summary_cls_all",
 }
 
 
@@ -63,7 +63,9 @@ def cls_view_for_role(user_role: str, base_table: str) -> str:
     if default:
         log.debug(
             "Unknown role '%s' for table '%s' — using default CLS view '%s'",
-            user_role, base_table, default,
+            user_role,
+            base_table,
+            default,
         )
         return default
 
@@ -74,8 +76,13 @@ def cls_view_for_role(user_role: str, base_table: str) -> str:
 def primary_role(user) -> str:
     """Return the user's most privileged role for CLS view selection."""
     role_priority = [
-        "admin", "data_engineer", "data_scientist",
-        "data_analyst", "analyst", "business_user", "viewer",
+        "admin",
+        "data_engineer",
+        "data_scientist",
+        "data_analyst",
+        "analyst",
+        "business_user",
+        "viewer",
     ]
     for role in role_priority:
         if role in getattr(user, "roles", []):

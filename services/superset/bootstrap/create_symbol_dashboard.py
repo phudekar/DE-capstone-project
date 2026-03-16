@@ -187,15 +187,17 @@ def create_symbol_dashboard(superset_url: str, session) -> None:
         "dashboard_title": DASHBOARD_TITLE,
         "slug": DASHBOARD_SLUG,
         "position_json": json.dumps(position_json),
-        "json_metadata": json.dumps({
-            "refresh_frequency": 30,
-            "native_filter_configuration": native_filters["nativeFilters"],
-            "color_scheme": "",
-            "label_colors": {},
-            "timed_refresh_immune_slices": [],
-            "expanded_slices": {},
-            "default_filters": "{}",
-        }),
+        "json_metadata": json.dumps(
+            {
+                "refresh_frequency": 30,
+                "native_filter_configuration": native_filters["nativeFilters"],
+                "color_scheme": "",
+                "label_colors": {},
+                "timed_refresh_immune_slices": [],
+                "expanded_slices": {},
+                "default_filters": "{}",
+            }
+        ),
         "published": True,
     }
 
@@ -220,12 +222,16 @@ def create_symbol_dashboard(superset_url: str, session) -> None:
                 else:
                     log.warning(
                         "Failed to link chart %d: %d %s",
-                        chart_id, link_resp.status_code, link_resp.text[:200],
+                        chart_id,
+                        link_resp.status_code,
+                        link_resp.text[:200],
                     )
     elif resp.status_code == 422 and "already exists" in resp.text:
         log.info("Dashboard already exists: %s", DASHBOARD_TITLE)
     else:
         log.error(
             "Failed to create dashboard %s: %d %s",
-            DASHBOARD_TITLE, resp.status_code, resp.text[:300],
+            DASHBOARD_TITLE,
+            resp.status_code,
+            resp.text[:300],
         )

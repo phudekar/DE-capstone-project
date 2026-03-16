@@ -17,8 +17,9 @@ ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT / "libs/common/src"))
 sys.path.insert(0, str(ROOT / "services/lakehouse/src"))
 
-import pytest
-from tests.e2e.fixtures.events import make_trade_event, make_orderbook_event
+import pytest  # noqa: E402
+
+from tests.e2e.fixtures.events import make_orderbook_event, make_trade_event  # noqa: E402
 
 
 def _flat(raw: dict) -> dict:
@@ -26,57 +27,68 @@ def _flat(raw: dict) -> dict:
     return {"event_type": raw["event_type"], "timestamp": ts, **raw["data"]}
 
 
-def _parse_trade(flat: dict, topic: str = "raw.trades",
-                 partition: int = 0, offset: int = 0) -> dict:
+def _parse_trade(flat: dict, topic: str = "raw.trades", partition: int = 0, offset: int = 0) -> dict:
     now = datetime.now(timezone.utc)
     ts = datetime.fromisoformat(flat["timestamp"].replace("Z", "+00:00"))
     return {
-        "trade_id":         flat["trade_id"],
-        "symbol":           flat["symbol"],
-        "price":            float(flat["price"]),
-        "quantity":         int(flat["quantity"]),
-        "buy_order_id":     flat["buy_order_id"],
-        "sell_order_id":    flat["sell_order_id"],
-        "buyer_agent_id":   flat["buyer_agent_id"],
-        "seller_agent_id":  flat["seller_agent_id"],
+        "trade_id": flat["trade_id"],
+        "symbol": flat["symbol"],
+        "price": float(flat["price"]),
+        "quantity": int(flat["quantity"]),
+        "buy_order_id": flat["buy_order_id"],
+        "sell_order_id": flat["sell_order_id"],
+        "buyer_agent_id": flat["buyer_agent_id"],
+        "seller_agent_id": flat["seller_agent_id"],
         "is_aggressive_buy": bool(flat["is_aggressive_buy"]),
-        "event_type":       flat["event_type"],
-        "timestamp":        ts,
-        "_kafka_topic":     topic,
+        "event_type": flat["event_type"],
+        "timestamp": ts,
+        "_kafka_topic": topic,
         "_kafka_partition": partition,
-        "_kafka_offset":    offset,
-        "_ingested_at":     now,
+        "_kafka_offset": offset,
+        "_ingested_at": now,
     }
 
 
-def _parse_orderbook(flat: dict, topic: str = "raw.orderbook-snapshots",
-                     partition: int = 0, offset: int = 0) -> dict:
+def _parse_orderbook(flat: dict, topic: str = "raw.orderbook-snapshots", partition: int = 0, offset: int = 0) -> dict:
     now = datetime.now(timezone.utc)
     ts = datetime.fromisoformat(flat["timestamp"].replace("Z", "+00:00"))
     return {
-        "symbol":           flat["symbol"],
-        "bids_json":        json.dumps(flat.get("bids", [])),
-        "asks_json":        json.dumps(flat.get("asks", [])),
-        "sequence_number":  int(flat["sequence_number"]),
-        "event_type":       flat["event_type"],
-        "timestamp":        ts,
-        "_kafka_topic":     topic,
+        "symbol": flat["symbol"],
+        "bids_json": json.dumps(flat.get("bids", [])),
+        "asks_json": json.dumps(flat.get("asks", [])),
+        "sequence_number": int(flat["sequence_number"]),
+        "event_type": flat["event_type"],
+        "timestamp": ts,
+        "_kafka_topic": topic,
         "_kafka_partition": partition,
-        "_kafka_offset":    offset,
-        "_ingested_at":     now,
+        "_kafka_offset": offset,
+        "_ingested_at": now,
     }
 
 
 # ── _parse_trade tests ─────────────────────────────────────────────────────────
 
+
 def test_parse_trade_has_all_columns():
     flat = _flat(make_trade_event())
     row = _parse_trade(flat)
-    required = {"trade_id", "symbol", "price", "quantity",
-                "buy_order_id", "sell_order_id",
-                "buyer_agent_id", "seller_agent_id",
-                "is_aggressive_buy", "event_type", "timestamp",
-                "_kafka_topic", "_kafka_partition", "_kafka_offset", "_ingested_at"}
+    required = {
+        "trade_id",
+        "symbol",
+        "price",
+        "quantity",
+        "buy_order_id",
+        "sell_order_id",
+        "buyer_agent_id",
+        "seller_agent_id",
+        "is_aggressive_buy",
+        "event_type",
+        "timestamp",
+        "_kafka_topic",
+        "_kafka_partition",
+        "_kafka_offset",
+        "_ingested_at",
+    }
     assert required.issubset(set(row.keys()))
 
 
@@ -123,12 +135,22 @@ def test_parse_trade_symbol_preserved():
 
 # ── _parse_orderbook tests ─────────────────────────────────────────────────────
 
+
 def test_parse_orderbook_has_all_columns():
     flat = _flat(make_orderbook_event())
     row = _parse_orderbook(flat)
-    required = {"symbol", "bids_json", "asks_json", "sequence_number",
-                "event_type", "timestamp",
-                "_kafka_topic", "_kafka_partition", "_kafka_offset", "_ingested_at"}
+    required = {
+        "symbol",
+        "bids_json",
+        "asks_json",
+        "sequence_number",
+        "event_type",
+        "timestamp",
+        "_kafka_topic",
+        "_kafka_partition",
+        "_kafka_offset",
+        "_ingested_at",
+    }
     assert required.issubset(set(row.keys()))
 
 
@@ -156,34 +178,29 @@ def test_parse_orderbook_sequence_number_is_int():
 
 # ── DuckDB bronze table writes (via session-level populated_pipeline) ──────────
 
+
 def test_bronze_trade_row_count(pipeline_db, populated_pipeline):
     count = pipeline_db.count("bronze_trades")
-    assert count == 60   # 6 symbols × 10 trades each
+    assert count == 60  # 6 symbols × 10 trades each
 
 
 def test_bronze_orderbook_row_count(pipeline_db, populated_pipeline):
     count = pipeline_db.count("bronze_orderbook")
-    assert count == 6    # one per symbol
+    assert count == 6  # one per symbol
 
 
 def test_bronze_trades_all_symbols_present(pipeline_db, populated_pipeline, symbols):
-    found = {r[0] for r in pipeline_db.conn.execute(
-        "SELECT DISTINCT symbol FROM bronze_trades"
-    ).fetchall()}
+    found = {r[0] for r in pipeline_db.conn.execute("SELECT DISTINCT symbol FROM bronze_trades").fetchall()}
     assert set(symbols) == found
 
 
 def test_bronze_trades_positive_prices(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM bronze_trades WHERE price <= 0"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE price <= 0").fetchone()[0]
     assert bad == 0
 
 
 def test_bronze_trades_positive_quantities(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM bronze_trades WHERE quantity <= 0"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE quantity <= 0").fetchone()[0]
     assert bad == 0
 
 
@@ -197,7 +214,5 @@ def test_bronze_kafka_metadata_recorded(pipeline_db, populated_pipeline):
 
 
 def test_bronze_ingested_at_not_null(pipeline_db, populated_pipeline):
-    bad = pipeline_db.conn.execute(
-        "SELECT COUNT(*) FROM bronze_trades WHERE _ingested_at IS NULL"
-    ).fetchone()[0]
+    bad = pipeline_db.conn.execute("SELECT COUNT(*) FROM bronze_trades WHERE _ingested_at IS NULL").fetchone()[0]
     assert bad == 0

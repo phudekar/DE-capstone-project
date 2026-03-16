@@ -5,11 +5,6 @@ independently-computed reference values, and that derived metrics
 (VWAP, pct change, advance/decline ratio) are mathematically correct.
 """
 
-import math
-from datetime import date, timedelta
-
-import pytest
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Helpers
@@ -60,11 +55,8 @@ def test_market_value_equals_sum_of_symbol_values(duckdb_conn):
 
 def test_total_trades_consistent(duckdb_conn):
     raw_count = query_scalar(duckdb_conn, "SELECT COUNT(*) FROM trades_enriched")
-    overview_sum = query_scalar(duckdb_conn,
-                                "SELECT SUM(total_trades) FROM market_daily_overview")
-    assert raw_count == overview_sum, (
-        f"total trade count mismatch: raw={raw_count}, overview_sum={overview_sum}"
-    )
+    overview_sum = query_scalar(duckdb_conn, "SELECT SUM(total_trades) FROM market_daily_overview")
+    assert raw_count == overview_sum, f"total trade count mismatch: raw={raw_count}, overview_sum={overview_sum}"
 
 
 # ──────────────────────────────────────────────────────────────────────────────

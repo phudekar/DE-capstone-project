@@ -2,9 +2,8 @@
 
 import pandas as pd
 from dagster import ConfigurableResource
-from great_expectations.core import ExpectationSuite
-
 from data_quality.runner import validate_dataframe
+from great_expectations.core import ExpectationSuite
 
 
 class GXResource(ConfigurableResource):

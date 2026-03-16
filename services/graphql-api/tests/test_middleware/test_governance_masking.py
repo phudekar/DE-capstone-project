@@ -8,7 +8,6 @@ from app.governance.masking import (
     mask_value,
 )
 
-
 # ─── MASKING_RULES structure ──────────────────────────────────────────────────
 
 
@@ -57,7 +56,7 @@ def test_mask_value_no_rule_returns_original():
 def test_mask_value_hash_returns_hex_string():
     result = mask_value("ACC-123", "data_scientist", "account_id")
     assert isinstance(result, str)
-    assert len(result) == 32   # MD5 hex
+    assert len(result) == 32  # MD5 hex
     assert result != "ACC-123"
 
 
@@ -113,8 +112,8 @@ def test_apply_masking_scientist_hashes_account_id():
     rows = [{"account_id": "ACC-1", "symbol": "AAPL"}]
     result = apply_masking(rows, user_role="data_scientist")
     assert result[0]["account_id"] != "ACC-1"
-    assert len(result[0]["account_id"]) == 32   # MD5 hex
-    assert result[0]["symbol"] == "AAPL"        # untouched
+    assert len(result[0]["account_id"]) == 32  # MD5 hex
+    assert result[0]["symbol"] == "AAPL"  # untouched
 
 
 def test_apply_masking_business_redacts_account_id():
@@ -124,7 +123,7 @@ def test_apply_masking_business_redacts_account_id():
 
 
 def test_apply_masking_missing_field_no_error():
-    rows = [{"symbol": "AAPL"}]   # no account_id
+    rows = [{"symbol": "AAPL"}]  # no account_id
     result = apply_masking(rows, user_role="data_analyst")
     assert result[0] == {"symbol": "AAPL"}
 

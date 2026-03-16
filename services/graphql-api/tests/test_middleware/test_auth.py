@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
-from app.auth.models import UserContext, ANONYMOUS
+import pytest
+from app.auth.models import ANONYMOUS, UserContext
 from app.auth.permissions import require_role
 from app.cache.memory_cache import MemoryCache
 from app.db.iceberg_duckdb import IcebergDuckDB
@@ -69,17 +69,20 @@ class TestAPIKeyMiddleware:
     """Test the API key middleware (unit-level without a live ASGI app)."""
 
     def test_import(self):
-        from app.middleware.auth import APIKeyAuthMiddleware, _API_KEY_USERS
+        from app.middleware.auth import _API_KEY_USERS
+
         assert "viewer-key" in _API_KEY_USERS
         assert "analyst-key" in _API_KEY_USERS
 
     def test_viewer_key_has_viewer_role(self):
         from app.middleware.auth import _API_KEY_USERS
+
         user = _API_KEY_USERS["viewer-key"]
         assert "viewer" in user.roles
         assert "admin" not in user.roles
 
     def test_analyst_key_has_analyst_role(self):
         from app.middleware.auth import _API_KEY_USERS
+
         user = _API_KEY_USERS["analyst-key"]
         assert "analyst" in user.roles

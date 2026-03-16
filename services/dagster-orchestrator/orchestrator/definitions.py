@@ -3,11 +3,10 @@
 from dagster import Definitions
 
 from orchestrator.assets import (
-    compaction_report,
-    iceberg_table_stats,
     bronze_raw_marketdata,
     bronze_raw_orderbook,
     bronze_raw_trades,
+    compaction_report,
     dim_account,
     dim_exchange,
     dim_symbol,
@@ -17,22 +16,21 @@ from orchestrator.assets import (
     gold_market_overview,
     gold_portfolio_positions,
     gold_trader_performance,
+    iceberg_table_stats,
     masked_gold_summary_public,
     masked_silver_trades_analyst,
     masked_silver_trades_business,
     pii_retention_enforcement,
     silver_market_data,
     silver_orderbook_snapshots,
-    silver_trades,
     silver_trader_activity,
+    silver_trades,
 )
 from orchestrator.assets.quality_checks import (
     bronze_raw_trades_quality_check,
     gold_daily_summary_quality_check,
     silver_trades_quality_check,
 )
-from orchestrator.hooks.alerting import slack_alert_on_failure
-from orchestrator.hooks.quality_hooks import quality_failure_alert
 from orchestrator.jobs.data_quality import data_quality_job
 from orchestrator.jobs.export import export_job
 from orchestrator.jobs.maintenance import maintenance_job

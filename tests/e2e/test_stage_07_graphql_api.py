@@ -11,15 +11,16 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT / "services/graphql-api"))
 
-import pytest
-
+import pytest  # noqa: E402
 
 # ── _build_where helper ───────────────────────────────────────────────────────
+
 
 def _try_import_build_where():
     try:
         from app.resolvers.trade import _build_where
         from app.schema.inputs import TradeFilterInput
+
         return _build_where, TradeFilterInput
     except Exception:
         return None, None
@@ -63,23 +64,25 @@ def test_build_where_multiple_symbols():
 
 # ── _row_to_trade mapping ─────────────────────────────────────────────────────
 
+
 def test_row_to_trade_mapping():
     try:
         from app.resolvers.trade import _row_to_trade
     except Exception:
         pytest.skip("graphql-api not importable in this venv")
     from datetime import datetime, timezone
+
     row = {
-        "trade_id":       "T-abc123",
-        "symbol":         "AAPL",
-        "price":          182.50,
-        "quantity":       100,
+        "trade_id": "T-abc123",
+        "symbol": "AAPL",
+        "price": 182.50,
+        "quantity": 100,
         "buyer_agent_id": "A-buyer",
-        "seller_agent_id":"A-seller",
+        "seller_agent_id": "A-seller",
         "is_aggressive_buy": True,
-        "timestamp":      datetime.now(timezone.utc),
-        "company_name":   "Apple Inc.",
-        "sector":         "Technology",
+        "timestamp": datetime.now(timezone.utc),
+        "company_name": "Apple Inc.",
+        "sector": "Technology",
     }
     trade = _row_to_trade(row)
     assert trade.trade_id == "T-abc123"
@@ -90,6 +93,7 @@ def test_row_to_trade_mapping():
 
 
 # ── Resolver SQL against DuckDB pipeline state ────────────────────────────────
+
 
 def test_trades_query_returns_results(pipeline_db, populated_pipeline):
     rows = pipeline_db.conn.execute("""
@@ -112,12 +116,18 @@ def test_trades_symbol_filter(pipeline_db, populated_pipeline):
 
 
 def test_trades_pagination_no_overlap(pipeline_db, populated_pipeline):
-    page1 = {r[0] for r in pipeline_db.conn.execute(
-        "SELECT trade_id FROM silver_trades ORDER BY timestamp DESC LIMIT 5 OFFSET 0"
-    ).fetchall()}
-    page2 = {r[0] for r in pipeline_db.conn.execute(
-        "SELECT trade_id FROM silver_trades ORDER BY timestamp DESC LIMIT 5 OFFSET 5"
-    ).fetchall()}
+    page1 = {
+        r[0]
+        for r in pipeline_db.conn.execute(
+            "SELECT trade_id FROM silver_trades ORDER BY timestamp DESC LIMIT 5 OFFSET 0"
+        ).fetchall()
+    }
+    page2 = {
+        r[0]
+        for r in pipeline_db.conn.execute(
+            "SELECT trade_id FROM silver_trades ORDER BY timestamp DESC LIMIT 5 OFFSET 5"
+        ).fetchall()
+    }
     assert page1.isdisjoint(page2)
 
 
@@ -139,10 +149,10 @@ def test_market_overview_aggregation(pipeline_db, populated_pipeline, symbols):
             SUM(trade_count)       AS total_trades
         FROM gold_daily_summary
     """).fetchone()
-    assert row[0] > 0            # market_volume
-    assert row[1] > 0            # market_value
-    assert row[2] == len(symbols) # all symbols present
-    assert row[3] > 0            # total_trades
+    assert row[0] > 0  # market_volume
+    assert row[1] > 0  # market_value
+    assert row[2] == len(symbols)  # all symbols present
+    assert row[3] > 0  # total_trades
 
 
 def test_order_book_query(pipeline_db, populated_pipeline):
@@ -154,13 +164,11 @@ def test_order_book_query(pipeline_db, populated_pipeline):
     assert row is not None
     assert row[0] == "AAPL"
     assert row[1] < row[2]  # bid < ask
-    assert row[3] > 0       # spread > 0
+    assert row[3] > 0  # spread > 0
 
 
 def test_symbol_reference_query(pipeline_db, populated_pipeline, symbols):
-    rows = pipeline_db.conn.execute(
-        "SELECT symbol, company_name, sector FROM dim_symbol"
-    ).fetchall()
+    rows = pipeline_db.conn.execute("SELECT symbol, company_name, sector FROM dim_symbol").fetchall()
     found = {r[0] for r in rows}
     assert set(symbols) == found
 
@@ -182,9 +190,11 @@ def test_is_aggressive_buy_filter(pipeline_db, populated_pipeline):
 
 # ── Schema / app importability ────────────────────────────────────────────────
 
+
 def test_fastapi_app_importable():
     try:
         from app.main import app
+
         assert app is not None
     except Exception as exc:
         pytest.skip(f"FastAPI app not fully importable: {exc}")
@@ -193,6 +203,7 @@ def test_fastapi_app_importable():
 def test_graphql_schema_has_query_type():
     try:
         from app.schema import schema
+
         assert schema.query_type is not None
     except Exception as exc:
         pytest.skip(f"Schema not importable: {exc}")

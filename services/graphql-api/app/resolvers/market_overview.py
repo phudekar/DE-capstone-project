@@ -8,7 +8,7 @@ from app.cache.memory_cache import MemoryCache
 from app.config import settings
 from app.db.iceberg_duckdb import IcebergDuckDB
 from app.resolvers.daily_summary import _row_to_summary
-from app.schema.types import MarketOverview, DailySummary
+from app.schema.types import MarketOverview
 
 
 class MarketOverviewResolver:
@@ -19,11 +19,7 @@ class MarketOverviewResolver:
     async def resolve(self, target_date: date) -> MarketOverview:
         cache_ns = "market_overview"
         cache_key = {"date": str(target_date)}
-        ttl = (
-            settings.cache_ttl_market_overview
-            if target_date == date.today()
-            else 86400
-        )
+        ttl = settings.cache_ttl_market_overview if target_date == date.today() else 86400
 
         cached = await self.cache.get(cache_ns, cache_key)
         if cached:

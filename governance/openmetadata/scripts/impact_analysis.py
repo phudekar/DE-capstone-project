@@ -8,10 +8,11 @@ Usage:
         --depth 3
 """
 
+import argparse
+import logging
 import os
 import sys
-import logging
-import argparse
+
 import requests
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -39,8 +40,10 @@ def _get_lineage(entity_id: str, entity_type: str, depth: int, direction: str) -
     resp = requests.get(
         f"{API}/lineage/{entity_type}/{entity_id}",
         headers=HEADERS,
-        params={"upstreamDepth": 0 if direction == "downstream" else depth,
-                "downstreamDepth": depth if direction == "downstream" else 0},
+        params={
+            "upstreamDepth": 0 if direction == "downstream" else depth,
+            "downstreamDepth": depth if direction == "downstream" else 0,
+        },
     )
     if resp.status_code == 200:
         return resp.json()

@@ -1,14 +1,11 @@
 """Tests for job definitions."""
 
 from orchestrator.jobs.data_quality import (
-    compute_quality_scores,
     data_quality_job,
     validate_bronze,
-    validate_gold,
-    validate_silver,
 )
 from orchestrator.jobs.export import export_daily_summary_csv, export_job
-from orchestrator.jobs.maintenance import compact_tables, expire_snapshots, maintenance_job
+from orchestrator.jobs.maintenance import compact_tables, maintenance_job
 
 
 def test_maintenance_job_exists():

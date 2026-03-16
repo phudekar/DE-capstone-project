@@ -30,9 +30,7 @@ def dim_symbol(
 
         catalog = get_catalog()
     except (ConnectionError, OSError) as exc:
-        context.log.warning(
-            "Lakehouse not available — dim_symbol recorded as materialized: %s", exc
-        )
+        context.log.warning("Lakehouse not available — dim_symbol recorded as materialized: %s", exc)
         return
 
     seed_dim_symbol(catalog)
@@ -59,9 +57,7 @@ def dim_time(
 
         catalog = get_catalog()
     except (ConnectionError, OSError) as exc:
-        context.log.warning(
-            "Lakehouse not available — dim_time recorded as materialized: %s", exc
-        )
+        context.log.warning("Lakehouse not available — dim_time recorded as materialized: %s", exc)
         return
 
     seed_dim_time(catalog)

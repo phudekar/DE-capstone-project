@@ -14,13 +14,8 @@ from app.schema.types import Trade, TradeAlert
 
 @strawberry.type
 class Subscription:
-
-    @strawberry.subscription(
-        description="Real-time trade feed. Optionally filter by symbol."
-    )
-    async def on_new_trade(
-        self, info: Info, symbol: Optional[str] = None
-    ) -> AsyncGenerator["Trade", None]:
+    @strawberry.subscription(description="Real-time trade feed. Optionally filter by symbol.")
+    async def on_new_trade(self, info: Info, symbol: Optional[str] = None) -> AsyncGenerator["Trade", None]:
         """
         Consumes from the 'enriched.trades' Kafka topic.
         Each WebSocket connection gets a unique consumer group ID.
@@ -53,9 +48,7 @@ class Subscription:
             except Exception:
                 continue
 
-    @strawberry.subscription(
-        description="Price alerts triggered when thresholds are crossed."
-    )
+    @strawberry.subscription(description="Price alerts triggered when thresholds are crossed.")
     async def on_trade_alert(
         self, info: Info, symbols: Optional[list[str]] = None
     ) -> AsyncGenerator["TradeAlert", None]:

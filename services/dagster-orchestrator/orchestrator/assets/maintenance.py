@@ -68,9 +68,7 @@ def iceberg_table_stats(
         value=stats,
         metadata={
             "tables_inspected": len(stats),
-            "tables_needing_compaction": sum(
-                1 for v in stats.values() if v.get("needs_compaction", False)
-            ),
+            "tables_needing_compaction": sum(1 for v in stats.values() if v.get("needs_compaction", False)),
             "collected_at": datetime.now(timezone.utc).isoformat(),
         },
     )

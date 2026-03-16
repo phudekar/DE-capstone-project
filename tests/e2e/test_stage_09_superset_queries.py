@@ -5,7 +5,6 @@ DuckDB pipeline state (adapted for our table names) to verify correctness.
 Also checks that every saved-query file exists and is non-empty.
 """
 
-import re
 from pathlib import Path
 
 import pytest
@@ -13,14 +12,17 @@ import pytest
 QUERIES_DIR = Path(__file__).parent.parent.parent / "services/superset/saved_queries"
 
 
-@pytest.mark.parametrize("filename", [
-    "ohlcv_with_technicals.sql",
-    "unusual_volume_detection.sql",
-    "sector_rotation_analysis.sql",
-    "trader_profile_deep_dive.sql",
-    "cross_account_activity.sql",
-    "daily_market_summary.sql",
-])
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "ohlcv_with_technicals.sql",
+        "unusual_volume_detection.sql",
+        "sector_rotation_analysis.sql",
+        "trader_profile_deep_dive.sql",
+        "cross_account_activity.sql",
+        "daily_market_summary.sql",
+    ],
+)
 def test_saved_query_file_exists_and_non_empty(filename):
     path = QUERIES_DIR / filename
     assert path.exists(), f"Missing saved query file: {filename}"
@@ -28,6 +30,7 @@ def test_saved_query_file_exists_and_non_empty(filename):
 
 
 # ── OHLCV with technicals ─────────────────────────────────────────────────────
+
 
 def test_ohlcv_technicals_sql(pipeline_db, populated_pipeline):
     rows = pipeline_db.conn.execute("""
@@ -78,6 +81,7 @@ def test_sma_window_query(pipeline_db, populated_pipeline):
 
 # ── Unusual volume detection ──────────────────────────────────────────────────
 
+
 def test_unusual_volume_detection_sql(pipeline_db, populated_pipeline):
     rows = pipeline_db.conn.execute("""
         WITH per_day AS (
@@ -113,6 +117,7 @@ def test_unusual_volume_detection_sql(pipeline_db, populated_pipeline):
 
 # ── Sector rotation ────────────────────────────────────────────────────────────
 
+
 def test_sector_rotation_sql(pipeline_db, populated_pipeline):
     rows = pipeline_db.conn.execute("""
         SELECT
@@ -137,6 +142,7 @@ def test_sector_rotation_sql(pipeline_db, populated_pipeline):
 
 
 # ── Daily market summary ──────────────────────────────────────────────────────
+
 
 def test_daily_market_summary_sql(pipeline_db, populated_pipeline):
     rows = pipeline_db.conn.execute("""
@@ -165,6 +171,7 @@ def test_daily_market_summary_sql(pipeline_db, populated_pipeline):
 
 # ── Cross-account activity (wash-trade detection) ─────────────────────────────
 
+
 def test_cross_account_activity_sql(pipeline_db, populated_pipeline):
     result = pipeline_db.conn.execute("""
         SELECT COUNT(*) FROM silver_trades t1
@@ -179,6 +186,7 @@ def test_cross_account_activity_sql(pipeline_db, populated_pipeline):
 
 
 # ── Trader profile ────────────────────────────────────────────────────────────
+
 
 def test_trader_profile_sql(pipeline_db, populated_pipeline):
     rows = pipeline_db.conn.execute("""
@@ -205,6 +213,7 @@ def test_trader_profile_sql(pipeline_db, populated_pipeline):
 
 
 # ── Market overview KPI SQL (as rendered by Superset) ─────────────────────────
+
 
 def test_market_kpi_sql(pipeline_db, populated_pipeline):
     row = pipeline_db.conn.execute("""

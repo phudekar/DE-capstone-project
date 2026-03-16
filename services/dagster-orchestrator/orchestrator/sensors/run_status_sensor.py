@@ -9,8 +9,10 @@ from dagster import (
     DefaultSensorStatus,
     RunRequest,
     RunStatusSensorContext,
-    run_failure_sensor as dagster_run_failure_sensor,
     run_status_sensor,
+)
+from dagster import (
+    run_failure_sensor as dagster_run_failure_sensor,
 )
 
 logger = logging.getLogger(__name__)
@@ -68,12 +70,10 @@ def run_failure_sensor(context: RunStatusSensorContext) -> None:
     slack_url = os.environ.get("SLACK_WEBHOOK_URL")
     if slack_url:
         try:
-            import urllib.request
             import json
+            import urllib.request
 
-            payload = json.dumps(
-                {"text": f"Dagster run FAILED: {run.job_name} (run {run.run_id[:8]})"}
-            ).encode()
+            payload = json.dumps({"text": f"Dagster run FAILED: {run.job_name} (run {run.run_id[:8]})"}).encode()
             req = urllib.request.Request(
                 slack_url,
                 data=payload,

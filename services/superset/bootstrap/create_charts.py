@@ -67,7 +67,14 @@ def _build_charts(ds_id: int) -> list[dict]:
             "Track price trends across all symbols over time to identify momentum and divergences",
             {
                 "groupby": ["symbol"],
-                "metrics": [{"label": "AVG(price)", "expressionType": "SIMPLE", "column": {"column_name": "price"}, "aggregate": "AVG"}],
+                "metrics": [
+                    {
+                        "label": "AVG(price)",
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "price"},
+                        "aggregate": "AVG",
+                    }
+                ],
             },
         ),
         # 2. OHLC Price Movement
@@ -89,7 +96,14 @@ def _build_charts(ds_id: int) -> list[dict]:
             "Compare aggressive buy vs sell execution prices — widening gap signals directional pressure",
             {
                 "groupby": ["side"],
-                "metrics": [{"label": "AVG(price)", "expressionType": "SIMPLE", "column": {"column_name": "price"}, "aggregate": "AVG"}],
+                "metrics": [
+                    {
+                        "label": "AVG(price)",
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "price"},
+                        "aggregate": "AVG",
+                    }
+                ],
             },
         ),
         # 4. Volume over Time
@@ -97,7 +111,14 @@ def _build_charts(ds_id: int) -> list[dict]:
             "Volume over Time",
             "Spot volume spikes that often precede major price moves or reversals",
             {
-                "metrics": [{"label": "SUM(quantity)", "expressionType": "SIMPLE", "column": {"column_name": "quantity"}, "aggregate": "SUM"}],
+                "metrics": [
+                    {
+                        "label": "SUM(quantity)",
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "quantity"},
+                        "aggregate": "SUM",
+                    }
+                ],
             },
         ),
         # 5. Bid-Ask Spread
@@ -110,8 +131,7 @@ def _build_charts(ds_id: int) -> list[dict]:
                         "label": "spread",
                         "expressionType": "SQL",
                         "sqlExpression": (
-                            "AVG(CASE WHEN side = 'ask' THEN price END) "
-                            "- AVG(CASE WHEN side = 'bid' THEN price END)"
+                            "AVG(CASE WHEN side = 'ask' THEN price END) - AVG(CASE WHEN side = 'bid' THEN price END)"
                         ),
                     },
                 ],
@@ -123,7 +143,12 @@ def _build_charts(ds_id: int) -> list[dict]:
             "Price above VWAP = bullish bias, below = bearish — key institutional benchmark",
             {
                 "metrics": [
-                    {"label": "AVG(price)", "expressionType": "SIMPLE", "column": {"column_name": "price"}, "aggregate": "AVG"},
+                    {
+                        "label": "AVG(price)",
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "price"},
+                        "aggregate": "AVG",
+                    },
                     {
                         "label": "VWAP",
                         "expressionType": "SQL",
@@ -173,16 +198,20 @@ def _build_charts(ds_id: int) -> list[dict]:
             **common_line,
             "viz_type": "dist_bar",
             "slice_name": "Trade Size Distribution",
-            "description": "Shows mix of small/medium/large/block trades — institutional activity clusters in large buckets",
-            "params": json.dumps({
-                "datasource": datasource,
-                "viz_type": "dist_bar",
-                "granularity_sqla": "timestamp",
-                "time_range": "No filter",
-                "groupby": ["size_bucket"],
-                "metrics": [{"label": "COUNT(*)", "expressionType": "SQL", "sqlExpression": "COUNT(*)"}],
-                "row_limit": 10000,
-            }),
+            "description": (
+                "Shows mix of small/medium/large/block trades — institutional activity clusters in large buckets"
+            ),
+            "params": json.dumps(
+                {
+                    "datasource": datasource,
+                    "viz_type": "dist_bar",
+                    "granularity_sqla": "timestamp",
+                    "time_range": "No filter",
+                    "groupby": ["size_bucket"],
+                    "metrics": [{"label": "COUNT(*)", "expressionType": "SQL", "sqlExpression": "COUNT(*)"}],
+                    "row_limit": 10000,
+                }
+            ),
         },
         # 10. Large Trades (table)
         {
@@ -190,32 +219,41 @@ def _build_charts(ds_id: int) -> list[dict]:
             "viz_type": "table",
             "slice_name": "Large Trades (Block Orders)",
             "description": "Block trades (500+ shares) often signal institutional positioning — watch for clusters",
-            "params": json.dumps({
-                "datasource": datasource,
-                "viz_type": "table",
-                "granularity_sqla": "timestamp",
-                "time_range": "No filter",
-                "all_columns": ["timestamp", "symbol", "side", "price", "quantity"],
-                "adhoc_filters": [
-                    {
-                        "clause": "WHERE",
-                        "comparator": "500",
-                        "expressionType": "SIMPLE",
-                        "operator": ">=",
-                        "subject": "quantity",
-                    },
-                ],
-                "row_limit": 500,
-                "order_desc": True,
-                "order_by_cols": ["[\"quantity\", false]"],
-            }),
+            "params": json.dumps(
+                {
+                    "datasource": datasource,
+                    "viz_type": "table",
+                    "granularity_sqla": "timestamp",
+                    "time_range": "No filter",
+                    "all_columns": ["timestamp", "symbol", "side", "price", "quantity"],
+                    "adhoc_filters": [
+                        {
+                            "clause": "WHERE",
+                            "comparator": "500",
+                            "expressionType": "SIMPLE",
+                            "operator": ">=",
+                            "subject": "quantity",
+                        },
+                    ],
+                    "row_limit": 500,
+                    "order_desc": True,
+                    "order_by_cols": ['["quantity", false]'],
+                }
+            ),
         },
         # 11. Cumulative Volume
         _line(
             "Cumulative Volume",
             "Running volume total reveals accumulation pace — steeper curve = accelerating activity",
             {
-                "metrics": [{"label": "SUM(quantity)", "expressionType": "SIMPLE", "column": {"column_name": "quantity"}, "aggregate": "SUM"}],
+                "metrics": [
+                    {
+                        "label": "SUM(quantity)",
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "quantity"},
+                        "aggregate": "SUM",
+                    }
+                ],
                 "rolling_type": "cumsum",
             },
         ),
@@ -240,7 +278,14 @@ def _build_charts(ds_id: int) -> list[dict]:
             {
                 "time_grain_sqla": "PT10S",
                 "time_range": "Last 15 minutes",
-                "metrics": [{"label": "AVG(price)", "expressionType": "SIMPLE", "column": {"column_name": "price"}, "aggregate": "AVG"}],
+                "metrics": [
+                    {
+                        "label": "AVG(price)",
+                        "expressionType": "SIMPLE",
+                        "column": {"column_name": "price"},
+                        "aggregate": "AVG",
+                    }
+                ],
             },
         ),
     ]
@@ -268,5 +313,7 @@ def create_charts(superset_url: str, session) -> None:
         else:
             log.error(
                 "Failed to create chart %s: %d %s",
-                chart["slice_name"], resp.status_code, resp.text[:300],
+                chart["slice_name"],
+                resp.status_code,
+                resp.text[:300],
             )

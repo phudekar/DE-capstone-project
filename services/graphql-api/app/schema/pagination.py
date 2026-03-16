@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import base64
 import json
-from typing import Generic, TypeVar, Optional
+from typing import Optional, TypeVar
 
 import strawberry
 
-from app.schema.types import Trade, DailySummary, Symbol
+from app.schema.types import DailySummary, Symbol, Trade
 
 T = TypeVar("T")
 

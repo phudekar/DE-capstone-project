@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-import pytest
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, call
+from datetime import datetime
+from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from app.db.iceberg_duckdb import IcebergDuckDB
-from app.resolvers.trade import TradeResolver, _row_to_trade, _build_where
-from app.schema.inputs import TradeFilterInput, DateRangeInput
+from app.resolvers.trade import TradeResolver, _build_where, _row_to_trade
+from app.schema.inputs import DateRangeInput, TradeFilterInput
+
 from tests.conftest import SAMPLE_TRADE_ROW
 
 COUNT_ROW = {"n": 1}
@@ -93,6 +94,7 @@ def test_build_where_is_aggressive_buy():
 
 def test_build_where_date_range():
     from datetime import date
+
     f = TradeFilterInput(date_range=DateRangeInput(start=date(2024, 1, 1), end=date(2024, 12, 31)))
     clause, params = _build_where(f)
     assert "BETWEEN" in clause

@@ -38,14 +38,10 @@ def export_daily_summary_csv(
         con.close()
 
         row_count = len(arrow)
-        context.log.info(
-            "EXPORT: Wrote %d rows to %s", row_count, export_path
-        )
+        context.log.info("EXPORT: Wrote %d rows to %s", row_count, export_path)
 
     except Exception:
-        context.log.warning(
-            "EXPORT: Could not export gold.daily_trading_summary — table may not exist."
-        )
+        context.log.warning("EXPORT: Could not export gold.daily_trading_summary — table may not exist.")
 
 
 @job(description="Export Gold summary data to CSV for external consumption.")

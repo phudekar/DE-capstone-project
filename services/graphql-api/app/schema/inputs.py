@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import strawberry
 from datetime import date
 from typing import Optional
+
+import strawberry
 
 
 @strawberry.input

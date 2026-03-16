@@ -1,7 +1,6 @@
 """Tests for Gold layer asset definitions."""
 
 from dagster import AssetKey
-
 from orchestrator.assets.gold import (
     gold_daily_trading_summary,
     gold_market_overview,

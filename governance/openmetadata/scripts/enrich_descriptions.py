@@ -6,8 +6,9 @@ Usage:
     OM_HOST=http://localhost:8585 OM_TOKEN=<jwt> python enrich_descriptions.py
 """
 
-import os
 import logging
+import os
+
 import requests
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -29,24 +30,19 @@ TABLE_DESCRIPTIONS: dict[str, str] = {
         "One row per trade tick; no deduplication or enrichment applied."
     ),
     "de-capstone-iceberg.iceberg.bronze.raw_order_book": (
-        "Raw order-book snapshots from the Kafka `order_book` topic. "
-        "Captures bid/ask ladder at each event timestamp."
+        "Raw order-book snapshots from the Kafka `order_book` topic. Captures bid/ask ladder at each event timestamp."
     ),
     "de-capstone-iceberg.iceberg.silver.trades": (
-        "Cleansed trade data with DECIMAL(18,6) prices, deduplication by "
-        "trade_id, and partition by trade_date."
+        "Cleansed trade data with DECIMAL(18,6) prices, deduplication by trade_id, and partition by trade_date."
     ),
     "de-capstone-iceberg.iceberg.silver.ohlcv": (
-        "One-minute OHLCV bars derived from silver.trades. "
-        "Includes volume-weighted average price (VWAP)."
+        "One-minute OHLCV bars derived from silver.trades. Includes volume-weighted average price (VWAP)."
     ),
     "de-capstone-iceberg.iceberg.gold.daily_trading_summary": (
         "Daily aggregated trading statistics per symbol: total volume, "
         "VWAP, high/low, trade count, and bid-ask spread metrics."
     ),
-    "de-capstone-iceberg.iceberg.gold.top_movers": (
-        "Daily top-N symbols ranked by absolute price change percentage."
-    ),
+    "de-capstone-iceberg.iceberg.gold.top_movers": ("Daily top-N symbols ranked by absolute price change percentage."),
 }
 
 # ─── Column descriptions ──────────────────────────────────────────────────────

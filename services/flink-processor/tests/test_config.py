@@ -1,7 +1,5 @@
 """Tests for config module: topic names, reference data loading."""
 
-from pathlib import Path
-
 from flink_processor.config import (
     TOPIC_DLQ,
     TOPIC_ENRICHED_TRADES,

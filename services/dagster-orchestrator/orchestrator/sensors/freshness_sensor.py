@@ -34,16 +34,12 @@ def freshness_sla_sensor(context: SensorEvaluationContext):
     stale_assets = []
     for asset_key in _MONITORED_ASSETS:
         try:
-            record = context.instance.get_latest_materialization_event(
-                asset_key=asset_key
-            )
+            record = context.instance.get_latest_materialization_event(asset_key=asset_key)
             name = asset_key.to_user_string()
             if record is None:
                 stale_assets.append(f"{name} (never materialized)")
             else:
-                materialized_at = datetime.fromtimestamp(
-                    record.timestamp, tz=timezone.utc
-                )
+                materialized_at = datetime.fromtimestamp(record.timestamp, tz=timezone.utc)
                 if materialized_at < sla_cutoff:
                     lag_hours = (now - materialized_at).total_seconds() / 3600
                     stale_assets.append(f"{name} (last: {lag_hours:.1f}h ago)")

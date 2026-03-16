@@ -17,36 +17,40 @@ from lakehouse.catalog import get_catalog
 logger = logging.getLogger(__name__)
 
 
-_TRADES_ARROW_SCHEMA = pa.schema([
-    pa.field("trade_id", pa.string(), nullable=False),
-    pa.field("symbol", pa.string(), nullable=False),
-    pa.field("price", pa.float64(), nullable=False),
-    pa.field("quantity", pa.int32(), nullable=False),
-    pa.field("buy_order_id", pa.string(), nullable=False),
-    pa.field("sell_order_id", pa.string(), nullable=False),
-    pa.field("buyer_agent_id", pa.string(), nullable=False),
-    pa.field("seller_agent_id", pa.string(), nullable=False),
-    pa.field("is_aggressive_buy", pa.bool_(), nullable=False),
-    pa.field("event_type", pa.string(), nullable=False),
-    pa.field("timestamp", pa.timestamp("us", tz="UTC"), nullable=False),
-    pa.field("_kafka_topic", pa.string(), nullable=False),
-    pa.field("_kafka_partition", pa.int32(), nullable=False),
-    pa.field("_kafka_offset", pa.int64(), nullable=False),
-    pa.field("_ingested_at", pa.timestamp("us", tz="UTC"), nullable=False),
-])
+_TRADES_ARROW_SCHEMA = pa.schema(
+    [
+        pa.field("trade_id", pa.string(), nullable=False),
+        pa.field("symbol", pa.string(), nullable=False),
+        pa.field("price", pa.float64(), nullable=False),
+        pa.field("quantity", pa.int32(), nullable=False),
+        pa.field("buy_order_id", pa.string(), nullable=False),
+        pa.field("sell_order_id", pa.string(), nullable=False),
+        pa.field("buyer_agent_id", pa.string(), nullable=False),
+        pa.field("seller_agent_id", pa.string(), nullable=False),
+        pa.field("is_aggressive_buy", pa.bool_(), nullable=False),
+        pa.field("event_type", pa.string(), nullable=False),
+        pa.field("timestamp", pa.timestamp("us", tz="UTC"), nullable=False),
+        pa.field("_kafka_topic", pa.string(), nullable=False),
+        pa.field("_kafka_partition", pa.int32(), nullable=False),
+        pa.field("_kafka_offset", pa.int64(), nullable=False),
+        pa.field("_ingested_at", pa.timestamp("us", tz="UTC"), nullable=False),
+    ]
+)
 
-_ORDERBOOK_ARROW_SCHEMA = pa.schema([
-    pa.field("symbol", pa.string(), nullable=False),
-    pa.field("bids_json", pa.string(), nullable=False),
-    pa.field("asks_json", pa.string(), nullable=False),
-    pa.field("sequence_number", pa.int32(), nullable=False),
-    pa.field("event_type", pa.string(), nullable=False),
-    pa.field("timestamp", pa.timestamp("us", tz="UTC"), nullable=False),
-    pa.field("_kafka_topic", pa.string(), nullable=False),
-    pa.field("_kafka_partition", pa.int32(), nullable=False),
-    pa.field("_kafka_offset", pa.int64(), nullable=False),
-    pa.field("_ingested_at", pa.timestamp("us", tz="UTC"), nullable=False),
-])
+_ORDERBOOK_ARROW_SCHEMA = pa.schema(
+    [
+        pa.field("symbol", pa.string(), nullable=False),
+        pa.field("bids_json", pa.string(), nullable=False),
+        pa.field("asks_json", pa.string(), nullable=False),
+        pa.field("sequence_number", pa.int32(), nullable=False),
+        pa.field("event_type", pa.string(), nullable=False),
+        pa.field("timestamp", pa.timestamp("us", tz="UTC"), nullable=False),
+        pa.field("_kafka_topic", pa.string(), nullable=False),
+        pa.field("_kafka_partition", pa.int32(), nullable=False),
+        pa.field("_kafka_offset", pa.int64(), nullable=False),
+        pa.field("_ingested_at", pa.timestamp("us", tz="UTC"), nullable=False),
+    ]
+)
 
 
 class BronzeWriter:
@@ -160,13 +164,9 @@ class BronzeWriter:
 
                 topic = msg.topic()
                 if topic == config.TOPIC_RAW_TRADES:
-                    trade_rows.append(
-                        self._parse_trade(value, topic, msg.partition(), msg.offset())
-                    )
+                    trade_rows.append(self._parse_trade(value, topic, msg.partition(), msg.offset()))
                 elif topic == config.TOPIC_RAW_ORDERBOOK:
-                    orderbook_rows.append(
-                        self._parse_orderbook(value, topic, msg.partition(), msg.offset())
-                    )
+                    orderbook_rows.append(self._parse_orderbook(value, topic, msg.partition(), msg.offset()))
 
             total = len(trade_rows) + len(orderbook_rows)
             elapsed = time.monotonic() - batch_start

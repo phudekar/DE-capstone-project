@@ -1,6 +1,5 @@
 """Tests for Silver processor logic (dedup, enrichment, derived fields)."""
 
-import json
 from datetime import datetime, timezone
 
 import duckdb

@@ -2,11 +2,9 @@
 
 import datetime
 
-import pandas as pd
-import pytest
-
 # Register the custom expectation before importing the suite
 import data_quality.custom_expectations.expect_ohlcv_consistency  # noqa: F401
+import pandas as pd
 from data_quality.runner import validate_dataframe
 from data_quality.suites.gold_suite import build_gold_daily_summary_suite
 
@@ -40,8 +38,7 @@ class TestOhlcvConsistency:
         suite = build_gold_daily_summary_suite()
         result = validate_dataframe(df, suite)
         ohlcv_results = [
-            r for r in result["results"]
-            if r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent"
+            r for r in result["results"] if r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent"
         ]
         assert len(ohlcv_results) == 1
         assert ohlcv_results[0]["success"] is True
@@ -52,8 +49,7 @@ class TestOhlcvConsistency:
         suite = build_gold_daily_summary_suite()
         result = validate_dataframe(df, suite)
         ohlcv_results = [
-            r for r in result["results"]
-            if r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent"
+            r for r in result["results"] if r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent"
         ]
         assert ohlcv_results[0]["success"] is False
 
@@ -63,8 +59,7 @@ class TestOhlcvConsistency:
         suite = build_gold_daily_summary_suite()
         result = validate_dataframe(df, suite)
         ohlcv_results = [
-            r for r in result["results"]
-            if r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent"
+            r for r in result["results"] if r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent"
         ]
         assert ohlcv_results[0]["success"] is False
 
@@ -74,7 +69,6 @@ class TestOhlcvConsistency:
         suite = build_gold_daily_summary_suite()
         result = validate_dataframe(df, suite)
         ohlcv_results = [
-            r for r in result["results"]
-            if r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent"
+            r for r in result["results"] if r["expectation_type"] == "expect_multicolumn_values_to_be_ohlcv_consistent"
         ]
         assert ohlcv_results[0]["success"] is False

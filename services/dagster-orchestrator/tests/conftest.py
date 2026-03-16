@@ -5,7 +5,6 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
-
 from orchestrator.resources.duckdb_resource import DuckDBResource
 from orchestrator.resources.iceberg import IcebergResource
 from orchestrator.resources.kafka import KafkaResource

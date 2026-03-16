@@ -20,7 +20,6 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from statistics import mean, quantiles
 
-
 # ──────────────────────────────────────────────────────────────────────────────
 # Synthetic event factories
 # ──────────────────────────────────────────────────────────────────────────────
@@ -119,9 +118,7 @@ async def test_ingestion_throughput_baseline():
     assert result.errors == 0, f"Load test had {result.errors} errors"
     assert result.total_messages == 10_000
     # In-process (no real network) should be well above 5 k msg/s
-    assert result.throughput_mps > 5_000, (
-        f"Throughput {result.throughput_mps:.0f} msg/s < 5000 threshold"
-    )
+    assert result.throughput_mps > 5_000, f"Throughput {result.throughput_mps:.0f} msg/s < 5000 threshold"
     assert result.p99_ms < 1.0, f"p99 latency {result.p99_ms:.3f}ms >= 1.0ms threshold"
 
 
@@ -140,7 +137,7 @@ def _parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = _parse_args()
     result = asyncio.run(run_load_test(args.messages, args.concurrency))
-    print(f"\n=== Load Test Results ===")
+    print("\n=== Load Test Results ===")
     print(f"Messages : {result.total_messages:,}")
     print(f"Errors   : {result.errors}")
     print(f"Mean     : {result.mean_ms:.3f} ms")

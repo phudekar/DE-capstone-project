@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from app.cache.memory_cache import MemoryCache
 from app.db.iceberg_duckdb import IcebergDuckDB
 from app.resolvers.symbol import SymbolResolver, _row_to_symbol
 from app.schema.inputs import SymbolFilterInput
+
 from tests.conftest import SAMPLE_SYMBOL_ROW
 
 

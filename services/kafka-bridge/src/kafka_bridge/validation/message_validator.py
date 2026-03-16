@@ -3,9 +3,8 @@
 import logging
 from typing import Any
 
-from pydantic import TypeAdapter, ValidationError
-
 from de_common.models.events import MarketEvent
+from pydantic import TypeAdapter, ValidationError
 
 logger = logging.getLogger(__name__)
 

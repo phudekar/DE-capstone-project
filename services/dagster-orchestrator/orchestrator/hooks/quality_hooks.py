@@ -20,9 +20,7 @@ def quality_failure_alert(context: HookContext) -> None:
             import json
             import urllib.request
 
-            payload = json.dumps(
-                {"text": f"Data quality op FAILED: {op_name}"}
-            ).encode()
+            payload = json.dumps({"text": f"Data quality op FAILED: {op_name}"}).encode()
             req = urllib.request.Request(
                 slack_url,
                 data=payload,
@@ -33,6 +31,4 @@ def quality_failure_alert(context: HookContext) -> None:
         except Exception:
             context.log.warning("Failed to send Slack quality alert for op '%s'.", op_name)
     else:
-        context.log.info(
-            "No SLACK_WEBHOOK_URL configured — quality failure alert logged only."
-        )
+        context.log.info("No SLACK_WEBHOOK_URL configured — quality failure alert logged only.")

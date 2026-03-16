@@ -55,24 +55,29 @@ def _seed_conn(conn: duckdb.DuckDBPyConnection) -> None:
             for i in range(30):
                 price *= random.uniform(0.998, 1.002)
                 qty = random.randint(10, 200)
-                rows.append((
-                    f"T-{sym}-{td}-{i:04d}",
-                    sym,
-                    random.choice(["BUY", "SELL"]),
-                    round(price, 4),
-                    qty,
-                    round(price * qty, 2),
-                    f"{td}T{9 + i // 10:02d}:{i % 60:02d}:00",
-                    str(td),
-                    random.choice(ACCOUNTS),
-                    SECTORS[sym],
-                ))
+                rows.append(
+                    (
+                        f"T-{sym}-{td}-{i:04d}",
+                        sym,
+                        random.choice(["BUY", "SELL"]),
+                        round(price, 4),
+                        qty,
+                        round(price * qty, 2),
+                        f"{td}T{9 + i // 10:02d}:{i % 60:02d}:00",
+                        str(td),
+                        random.choice(ACCOUNTS),
+                        SECTORS[sym],
+                    )
+                )
 
-    conn.executemany("""
+    conn.executemany(
+        """
         INSERT INTO trades_enriched VALUES (
             ?, ?, ?, ?, ?, ?, ?::TIMESTAMP, ?::DATE, ?, ?
         )
-    """, rows)
+    """,
+        rows,
+    )
 
     # ── daily_trade_summary (view) ────────────────────────────────────────────
     conn.execute("""
@@ -100,10 +105,10 @@ def _seed_conn(conn: duckdb.DuckDBPyConnection) -> None:
             market_cap  DOUBLE
         )
     """)
-    conn.executemany("INSERT INTO symbol_reference VALUES (?, ?, ?, ?)", [
-        (s, f"{s} Corp", SECTORS[s], round(random.uniform(1e9, 3e12), 0))
-        for s in SYMBOLS
-    ])
+    conn.executemany(
+        "INSERT INTO symbol_reference VALUES (?, ?, ?, ?)",
+        [(s, f"{s} Corp", SECTORS[s], round(random.uniform(1e9, 3e12), 0)) for s in SYMBOLS],
+    )
 
     # ── market_daily_overview (view) ──────────────────────────────────────────
     conn.execute("""

@@ -15,20 +15,24 @@ class TestAnalyzeOrderbook:
         }
 
     def test_basic_spread(self):
-        result = analyze_orderbook(self._snapshot(
-            bids=[{"price": 100.0, "quantity": 10}],
-            asks=[{"price": 101.0, "quantity": 10}],
-        ))
+        result = analyze_orderbook(
+            self._snapshot(
+                bids=[{"price": 100.0, "quantity": 10}],
+                asks=[{"price": 101.0, "quantity": 10}],
+            )
+        )
         assert result["best_bid"] == 100.0
         assert result["best_ask"] == 101.0
         assert result["spread"] == 1.0
         assert result["mid_price"] == 100.5
 
     def test_spread_bps(self):
-        result = analyze_orderbook(self._snapshot(
-            bids=[{"price": 100.0, "quantity": 10}],
-            asks=[{"price": 100.5, "quantity": 10}],
-        ))
+        result = analyze_orderbook(
+            self._snapshot(
+                bids=[{"price": 100.0, "quantity": 10}],
+                asks=[{"price": 100.5, "quantity": 10}],
+            )
+        )
         # spread = 0.5, mid = 100.25, bps = 0.5/100.25 * 10000 ≈ 49.88
         assert 49.0 < result["spread_bps"] < 50.0
 
@@ -43,18 +47,22 @@ class TestAnalyzeOrderbook:
         assert result["ask_depth_5"] == 35
 
     def test_imbalance_calculation(self):
-        result = analyze_orderbook(self._snapshot(
-            bids=[{"price": 100.0, "quantity": 80}],
-            asks=[{"price": 101.0, "quantity": 20}],
-        ))
+        result = analyze_orderbook(
+            self._snapshot(
+                bids=[{"price": 100.0, "quantity": 80}],
+                asks=[{"price": 101.0, "quantity": 20}],
+            )
+        )
         # imbalance = (80 - 20) / (80 + 20) = 0.6
         assert result["imbalance"] == 0.6
 
     def test_imbalance_negative_when_asks_dominate(self):
-        result = analyze_orderbook(self._snapshot(
-            bids=[{"price": 100.0, "quantity": 20}],
-            asks=[{"price": 101.0, "quantity": 80}],
-        ))
+        result = analyze_orderbook(
+            self._snapshot(
+                bids=[{"price": 100.0, "quantity": 20}],
+                asks=[{"price": 101.0, "quantity": 80}],
+            )
+        )
         assert result["imbalance"] == -0.6
 
     def test_empty_orderbook(self):
@@ -86,22 +94,35 @@ class TestAnalyzeOrderbook:
         assert result["best_ask"] == 101.0
 
     def test_output_contains_expected_fields(self):
-        result = analyze_orderbook(self._snapshot(
-            bids=[{"price": 100.0, "quantity": 10}],
-            asks=[{"price": 101.0, "quantity": 10}],
-        ))
+        result = analyze_orderbook(
+            self._snapshot(
+                bids=[{"price": 100.0, "quantity": 10}],
+                asks=[{"price": 101.0, "quantity": 10}],
+            )
+        )
         expected_keys = {
-            "symbol", "timestamp", "sequence_number",
-            "best_bid", "best_ask", "spread", "spread_bps", "mid_price",
-            "bid_depth_5", "ask_depth_5", "imbalance",
-            "bid_levels", "ask_levels",
+            "symbol",
+            "timestamp",
+            "sequence_number",
+            "best_bid",
+            "best_ask",
+            "spread",
+            "spread_bps",
+            "mid_price",
+            "bid_depth_5",
+            "ask_depth_5",
+            "imbalance",
+            "bid_levels",
+            "ask_levels",
         }
         assert set(result.keys()) == expected_keys
 
     def test_symbol_preserved(self):
-        result = analyze_orderbook(self._snapshot(
-            symbol="NVDA",
-            bids=[{"price": 450.0, "quantity": 10}],
-            asks=[{"price": 451.0, "quantity": 10}],
-        ))
+        result = analyze_orderbook(
+            self._snapshot(
+                symbol="NVDA",
+                bids=[{"price": 450.0, "quantity": 10}],
+                asks=[{"price": 451.0, "quantity": 10}],
+            )
+        )
         assert result["symbol"] == "NVDA"

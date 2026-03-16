@@ -38,9 +38,7 @@ def kafka_trades_sensor(
         return
 
     if high_watermark > cursor:
-        context.log.info(
-            "New trades detected: watermark %d > cursor %d", high_watermark, cursor
-        )
+        context.log.info("New trades detected: watermark %d > cursor %d", high_watermark, cursor)
         from datetime import date
 
         partition_key = date.today().isoformat()

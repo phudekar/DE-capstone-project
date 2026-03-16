@@ -10,8 +10,8 @@ Requires:
     SUPERSET_PASS  (default: admin)
 """
 
-import os
 import logging
+import os
 
 import requests
 
@@ -35,20 +35,24 @@ def create_session() -> requests.Session:
     resp.raise_for_status()
     token = resp.json()["access_token"]
 
-    session.headers.update({
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-    })
+    session.headers.update(
+        {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+    )
 
     # Get CSRF token (session cookies are set automatically)
     resp = session.get(f"{SUPERSET_URL}/api/v1/security/csrf_token/")
     resp.raise_for_status()
     csrf_token = resp.json()["result"]
 
-    session.headers.update({
-        "X-CSRFToken": csrf_token,
-        "Referer": SUPERSET_URL,
-    })
+    session.headers.update(
+        {
+            "X-CSRFToken": csrf_token,
+            "Referer": SUPERSET_URL,
+        }
+    )
 
     return session
 
@@ -58,12 +62,12 @@ def run_bootstrap() -> None:
     session = create_session()
     log.info("Authenticated session established.")
 
+    from bootstrap.create_alerts import create_alerts
+    from bootstrap.create_charts import create_charts
     from bootstrap.create_databases import create_databases
     from bootstrap.create_datasets import create_datasets
     from bootstrap.create_roles import create_roles
     from bootstrap.create_saved_queries import create_saved_queries
-    from bootstrap.create_alerts import create_alerts
-    from bootstrap.create_charts import create_charts
     from bootstrap.create_symbol_dashboard import create_symbol_dashboard
 
     log.info("Step 1/7: Creating database connections...")

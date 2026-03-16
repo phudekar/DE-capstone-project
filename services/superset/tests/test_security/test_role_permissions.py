@@ -4,10 +4,8 @@ Verifies that the bootstrap create_roles module defines the correct roles
 with the expected permission sets, without requiring a live Superset instance.
 """
 
-import sys
 import os
-
-import pytest
+import sys
 
 # Allow importing bootstrap modules directly
 _BOOTSTRAP_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "bootstrap")
@@ -21,11 +19,13 @@ sys.path.insert(0, os.path.abspath(_BOOTSTRAP_DIR))
 
 def test_roles_module_importable():
     import create_roles
+
     assert hasattr(create_roles, "ROLES")
 
 
 def test_roles_has_required_entries():
     import create_roles
+
     role_names = {r["name"] for r in create_roles.ROLES}
     required = {"TradeViewer", "TradeAnalyst", "DataEngineer", "Compliance"}
     assert required.issubset(role_names), f"Missing roles: {required - role_names}"
@@ -33,6 +33,7 @@ def test_roles_has_required_entries():
 
 def test_roles_have_permissions_field():
     import create_roles
+
     for role in create_roles.ROLES:
         assert "permissions" in role, f"Role {role['name']} missing 'permissions'"
         assert isinstance(role["permissions"], list)
@@ -40,6 +41,7 @@ def test_roles_have_permissions_field():
 
 def test_trade_viewer_has_dashboard_access():
     import create_roles
+
     viewer = next(r for r in create_roles.ROLES if r["name"] == "TradeViewer")
     perms_str = str(viewer["permissions"]).lower()
     assert "dashboard" in perms_str or len(viewer["permissions"]) > 0
@@ -47,18 +49,21 @@ def test_trade_viewer_has_dashboard_access():
 
 def test_compliance_role_exists():
     import create_roles
+
     names = [r["name"] for r in create_roles.ROLES]
     assert "Compliance" in names
 
 
 def test_data_engineer_role_exists():
     import create_roles
+
     names = [r["name"] for r in create_roles.ROLES]
     assert "DataEngineer" in names
 
 
 def test_all_roles_have_non_empty_name():
     import create_roles
+
     for role in create_roles.ROLES:
         assert role["name"].strip() != "", "Role with empty name found"
 
@@ -93,6 +98,7 @@ def test_rls_account_filter_restricts_to_single_account(duckdb_conn, accounts):
 def test_rls_date_range_filter(duckdb_conn):
     """Time-window filter returns only rows within the requested range."""
     from datetime import date, timedelta
+
     today = date.today()
     three_days_ago = today - timedelta(days=3)
     rows = duckdb_conn.execute(f"""
@@ -143,4 +149,4 @@ def test_account_id_hashing(duckdb_conn):
     """).fetchall()
     for hashed, raw in rows:
         assert hashed != raw
-        assert len(hashed) == 32   # MD5 hex digest
+        assert len(hashed) == 32  # MD5 hex digest

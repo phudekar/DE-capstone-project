@@ -6,10 +6,10 @@ from typing import Iterator
 from strawberry.extensions import SchemaExtension
 
 from app.metrics import (
-    graphql_requests_total,
-    graphql_request_duration_seconds,
-    graphql_errors_total,
     graphql_active_requests,
+    graphql_errors_total,
+    graphql_request_duration_seconds,
+    graphql_requests_total,
 )
 
 
@@ -37,9 +37,7 @@ class MetricsExtension(SchemaExtension):
             if result and result.errors:
                 for err in result.errors:
                     graphql_errors_total.labels(
-                        error_type=type(err.original_error).__name__
-                        if err.original_error
-                        else "GraphQLError"
+                        error_type=type(err.original_error).__name__ if err.original_error else "GraphQLError"
                     ).inc()
         except Exception as exc:
             status = "error"

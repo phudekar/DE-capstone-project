@@ -9,9 +9,10 @@ Usage:
     OM_HOST=http://localhost:8585 OM_TOKEN=<jwt> python pii_classification.py
 """
 
+import logging
 import os
 import re
-import logging
+
 import requests
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -76,8 +77,7 @@ def _apply_pii_tag(table_id: str, columns: list[dict]) -> None:
             continue
         new_tags = existing_tags + [PII_TAG]
         tag_refs = [
-            {"tagFQN": t, "source": "Classification", "labelType": "Manual", "state": "Confirmed"}
-            for t in new_tags
+            {"tagFQN": t, "source": "Classification", "labelType": "Manual", "state": "Confirmed"} for t in new_tags
         ]
         patches.append({"op": "add", "path": f"/columns/{idx}/tags", "value": tag_refs})
         log.info("  → Flagging column '%s' as PII", col["name"])

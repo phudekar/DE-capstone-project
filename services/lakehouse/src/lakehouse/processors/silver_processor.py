@@ -16,38 +16,42 @@ logger = logging.getLogger(__name__)
 TRADE_BATCH_SIZE = 50_000
 
 # Explicit Arrow schemas matching Iceberg table definitions (required = not nullable)
-SILVER_TRADES_ARROW_SCHEMA = pa.schema([
-    pa.field("trade_id", pa.string(), nullable=False),
-    pa.field("symbol", pa.string(), nullable=False),
-    pa.field("price", pa.float64(), nullable=False),
-    pa.field("quantity", pa.int32(), nullable=False),
-    pa.field("buy_order_id", pa.string(), nullable=False),
-    pa.field("sell_order_id", pa.string(), nullable=False),
-    pa.field("buyer_agent_id", pa.string(), nullable=False),
-    pa.field("seller_agent_id", pa.string(), nullable=False),
-    pa.field("is_aggressive_buy", pa.string(), nullable=False),
-    pa.field("timestamp", pa.timestamp("us", tz="UTC"), nullable=False),
-    pa.field("company_name", pa.string(), nullable=True),
-    pa.field("sector", pa.string(), nullable=True),
-    pa.field("_processed_at", pa.timestamp("us", tz="UTC"), nullable=False),
-])
+SILVER_TRADES_ARROW_SCHEMA = pa.schema(
+    [
+        pa.field("trade_id", pa.string(), nullable=False),
+        pa.field("symbol", pa.string(), nullable=False),
+        pa.field("price", pa.float64(), nullable=False),
+        pa.field("quantity", pa.int32(), nullable=False),
+        pa.field("buy_order_id", pa.string(), nullable=False),
+        pa.field("sell_order_id", pa.string(), nullable=False),
+        pa.field("buyer_agent_id", pa.string(), nullable=False),
+        pa.field("seller_agent_id", pa.string(), nullable=False),
+        pa.field("is_aggressive_buy", pa.string(), nullable=False),
+        pa.field("timestamp", pa.timestamp("us", tz="UTC"), nullable=False),
+        pa.field("company_name", pa.string(), nullable=True),
+        pa.field("sector", pa.string(), nullable=True),
+        pa.field("_processed_at", pa.timestamp("us", tz="UTC"), nullable=False),
+    ]
+)
 
-SILVER_ORDERBOOK_ARROW_SCHEMA = pa.schema([
-    pa.field("symbol", pa.string(), nullable=False),
-    pa.field("timestamp", pa.timestamp("us", tz="UTC"), nullable=False),
-    pa.field("best_bid_price", pa.float64(), nullable=True),
-    pa.field("best_bid_qty", pa.int32(), nullable=True),
-    pa.field("best_ask_price", pa.float64(), nullable=True),
-    pa.field("best_ask_qty", pa.int32(), nullable=True),
-    pa.field("bid_depth", pa.int32(), nullable=False),
-    pa.field("ask_depth", pa.int32(), nullable=False),
-    pa.field("spread", pa.float64(), nullable=True),
-    pa.field("mid_price", pa.float64(), nullable=True),
-    pa.field("sequence_number", pa.int32(), nullable=False),
-    pa.field("company_name", pa.string(), nullable=True),
-    pa.field("sector", pa.string(), nullable=True),
-    pa.field("_processed_at", pa.timestamp("us", tz="UTC"), nullable=False),
-])
+SILVER_ORDERBOOK_ARROW_SCHEMA = pa.schema(
+    [
+        pa.field("symbol", pa.string(), nullable=False),
+        pa.field("timestamp", pa.timestamp("us", tz="UTC"), nullable=False),
+        pa.field("best_bid_price", pa.float64(), nullable=True),
+        pa.field("best_bid_qty", pa.int32(), nullable=True),
+        pa.field("best_ask_price", pa.float64(), nullable=True),
+        pa.field("best_ask_qty", pa.int32(), nullable=True),
+        pa.field("bid_depth", pa.int32(), nullable=False),
+        pa.field("ask_depth", pa.int32(), nullable=False),
+        pa.field("spread", pa.float64(), nullable=True),
+        pa.field("mid_price", pa.float64(), nullable=True),
+        pa.field("sequence_number", pa.int32(), nullable=False),
+        pa.field("company_name", pa.string(), nullable=True),
+        pa.field("sector", pa.string(), nullable=True),
+        pa.field("_processed_at", pa.timestamp("us", tz="UTC"), nullable=False),
+    ]
+)
 
 
 def _load_dim_symbol(catalog) -> dict[str, dict]:
@@ -95,22 +99,32 @@ def _process_trades_batch(
         return None
 
     # Vectorized enrichment via merge instead of row-by-row loop
-    dim_df = pa.table({
-        "symbol": [s for s in dim_symbols],
-        "company_name": [d.get("company_name") for d in dim_symbols.values()],
-        "sector": [d.get("sector") for d in dim_symbols.values()],
-    }).to_pandas()
+    dim_df = pa.table(
+        {
+            "symbol": [s for s in dim_symbols],
+            "company_name": [d.get("company_name") for d in dim_symbols.values()],
+            "sector": [d.get("sector") for d in dim_symbols.values()],
+        }
+    ).to_pandas()
     df = df.merge(dim_df, on="symbol", how="left")
 
     df["is_aggressive_buy"] = df["is_aggressive_buy"].astype(str)
     df["_processed_at"] = now
 
     silver_cols = [
-        "trade_id", "symbol", "price", "quantity",
-        "buy_order_id", "sell_order_id",
-        "buyer_agent_id", "seller_agent_id",
-        "is_aggressive_buy", "timestamp",
-        "company_name", "sector", "_processed_at",
+        "trade_id",
+        "symbol",
+        "price",
+        "quantity",
+        "buy_order_id",
+        "sell_order_id",
+        "buyer_agent_id",
+        "seller_agent_id",
+        "is_aggressive_buy",
+        "timestamp",
+        "company_name",
+        "sector",
+        "_processed_at",
     ]
     return pa.Table.from_pandas(df[silver_cols], schema=SILVER_TRADES_ARROW_SCHEMA, preserve_index=False)
 
@@ -220,9 +234,7 @@ def _process_orderbook_batch(
 ) -> pa.Table | None:
     """Process a single batch of Bronze orderbook into Silver format."""
     df = batch_arrow.to_pandas()
-    df = df.sort_values("_kafka_offset").drop_duplicates(
-        subset=["symbol", "timestamp"], keep="first"
-    )
+    df = df.sort_values("_kafka_offset").drop_duplicates(subset=["symbol", "timestamp"], keep="first")
 
     if len(df) == 0:
         return None
@@ -237,19 +249,31 @@ def _process_orderbook_batch(
         df[col] = tob[col]
 
     # Enrich with dim_symbol
-    dim_df = pa.table({
-        "symbol": [s for s in dim_symbols],
-        "company_name": [d.get("company_name") for d in dim_symbols.values()],
-        "sector": [d.get("sector") for d in dim_symbols.values()],
-    }).to_pandas()
+    dim_df = pa.table(
+        {
+            "symbol": [s for s in dim_symbols],
+            "company_name": [d.get("company_name") for d in dim_symbols.values()],
+            "sector": [d.get("sector") for d in dim_symbols.values()],
+        }
+    ).to_pandas()
     df = df.merge(dim_df, on="symbol", how="left")
     df["_processed_at"] = now
 
     silver_cols = [
-        "symbol", "timestamp",
-        "best_bid_price", "best_bid_qty", "best_ask_price", "best_ask_qty",
-        "bid_depth", "ask_depth", "spread", "mid_price",
-        "sequence_number", "company_name", "sector", "_processed_at",
+        "symbol",
+        "timestamp",
+        "best_bid_price",
+        "best_bid_qty",
+        "best_ask_price",
+        "best_ask_qty",
+        "bid_depth",
+        "ask_depth",
+        "spread",
+        "mid_price",
+        "sequence_number",
+        "company_name",
+        "sector",
+        "_processed_at",
     ]
     return pa.Table.from_pandas(df[silver_cols], schema=SILVER_ORDERBOOK_ARROW_SCHEMA, preserve_index=False)
 

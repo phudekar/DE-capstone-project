@@ -17,17 +17,22 @@ from __future__ import annotations
 
 import argparse
 import random
-import sys
 from datetime import date, timedelta
-from pathlib import Path
 
 import duckdb
 
 SYMBOLS = ["AAPL", "MSFT", "GOOG", "AMZN", "META", "TSLA", "NVDA", "JPM", "GS", "BAC"]
 SECTORS = {
-    "AAPL": "Technology", "MSFT": "Technology", "GOOG": "Technology",
-    "AMZN": "Consumer Discretionary", "META": "Technology", "TSLA": "Consumer Discretionary",
-    "NVDA": "Technology", "JPM": "Financials", "GS": "Financials", "BAC": "Financials",
+    "AAPL": "Technology",
+    "MSFT": "Technology",
+    "GOOG": "Technology",
+    "AMZN": "Consumer Discretionary",
+    "META": "Technology",
+    "TSLA": "Consumer Discretionary",
+    "NVDA": "Technology",
+    "JPM": "Financials",
+    "GS": "Financials",
+    "BAC": "Financials",
 }
 BASE_PRICES = {s: round(random.uniform(50, 500), 2) for s in SYMBOLS}
 
@@ -43,18 +48,20 @@ def generate_trades(symbols: list[str], days: int) -> list[dict]:
             for i in range(n_trades):
                 price *= random.uniform(0.995, 1.005)
                 qty = random.randint(10, 500)
-                rows.append({
-                    "trade_id": f"T-{symbol}-{trade_date}-{i:04d}",
-                    "symbol": symbol,
-                    "trade_type": random.choice(["BUY", "SELL"]),
-                    "price": round(price, 4),
-                    "quantity": qty,
-                    "value": round(price * qty, 2),
-                    "traded_at": f"{trade_date}T{9 + i // 10:02d}:{i % 60:02d}:00",
-                    "trade_date": str(trade_date),
-                    "account_id": f"ACC-{random.randint(1000, 9999)}",
-                    "sector": SECTORS.get(symbol, "Other"),
-                })
+                rows.append(
+                    {
+                        "trade_id": f"T-{symbol}-{trade_date}-{i:04d}",
+                        "symbol": symbol,
+                        "trade_type": random.choice(["BUY", "SELL"]),
+                        "price": round(price, 4),
+                        "quantity": qty,
+                        "value": round(price * qty, 2),
+                        "traded_at": f"{trade_date}T{9 + i // 10:02d}:{i % 60:02d}:00",
+                        "trade_date": str(trade_date),
+                        "account_id": f"ACC-{random.randint(1000, 9999)}",
+                        "sector": SECTORS.get(symbol, "Other"),
+                    }
+                )
         BASE_PRICES[symbol] = round(price, 2)
     return rows
 
@@ -82,16 +89,28 @@ def seed(db_path: str, days: int, n_symbols: int) -> None:
             sector      VARCHAR
         )
     """)
-    conn.executemany("""
+    conn.executemany(
+        """
         INSERT INTO trades_enriched VALUES (
             ?, ?, ?, ?, ?, ?, ?::TIMESTAMP, ?::DATE, ?, ?
         )
-    """, [
-        (r["trade_id"], r["symbol"], r["trade_type"], r["price"],
-         r["quantity"], r["value"], r["traded_at"],
-         r["trade_date"], r["account_id"], r["sector"])
-        for r in trades
-    ])
+    """,
+        [
+            (
+                r["trade_id"],
+                r["symbol"],
+                r["trade_type"],
+                r["price"],
+                r["quantity"],
+                r["value"],
+                r["traded_at"],
+                r["trade_date"],
+                r["account_id"],
+                r["sector"],
+            )
+            for r in trades
+        ],
+    )
 
     # daily_trade_summary (aggregated from trades_enriched)
     conn.execute("DROP VIEW IF EXISTS daily_trade_summary")
@@ -121,10 +140,10 @@ def seed(db_path: str, days: int, n_symbols: int) -> None:
             market_cap  DOUBLE
         )
     """)
-    conn.executemany("INSERT INTO symbol_reference VALUES (?, ?, ?, ?)", [
-        (s, f"{s} Corp", SECTORS.get(s, "Other"), round(random.uniform(1e9, 3e12), 0))
-        for s in symbols
-    ])
+    conn.executemany(
+        "INSERT INTO symbol_reference VALUES (?, ?, ?, ?)",
+        [(s, f"{s} Corp", SECTORS.get(s, "Other"), round(random.uniform(1e9, 3e12), 0)) for s in symbols],
+    )
 
     # market_daily_overview
     conn.execute("DROP VIEW IF EXISTS market_daily_overview")
@@ -180,11 +199,16 @@ def seed(db_path: str, days: int, n_symbols: int) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Seed test DuckDB for Superset.")
-    parser.add_argument("--db-path", default=":memory:",
-                        help="DuckDB file path (default: :memory:, prints summary only)")
+    parser.add_argument(
+        "--db-path", default=":memory:", help="DuckDB file path (default: :memory:, prints summary only)"
+    )
     parser.add_argument("--days", type=int, default=7, help="Days of trade history (default: 7)")
-    parser.add_argument("--symbols", type=int, default=len(SYMBOLS),
-                        help=f"Number of symbols to include (max {len(SYMBOLS)}, default: all)")
+    parser.add_argument(
+        "--symbols",
+        type=int,
+        default=len(SYMBOLS),
+        help=f"Number of symbols to include (max {len(SYMBOLS)}, default: all)",
+    )
     args = parser.parse_args()
 
     if args.db_path == ":memory:":

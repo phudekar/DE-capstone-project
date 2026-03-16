@@ -52,23 +52,23 @@ def seed_dim_symbol(catalog) -> int:
         rows["effective_date"].append(today)
         rows["expiry_date"].append(far_future)
         rows["is_current"].append(True)
-        rows["row_hash"].append(
-            _hash_symbol_row(s["symbol"], s["company_name"], s["sector"], s["market_cap_category"])
-        )
+        rows["row_hash"].append(_hash_symbol_row(s["symbol"], s["company_name"], s["sector"], s["market_cap_category"]))
         rows["_updated_at"].append(now)
 
-    arrow_schema = pa.schema([
-        pa.field("symbol_key", pa.int32(), nullable=False),
-        pa.field("symbol", pa.string(), nullable=False),
-        pa.field("company_name", pa.string(), nullable=False),
-        pa.field("sector", pa.string(), nullable=False),
-        pa.field("market_cap_category", pa.string(), nullable=False),
-        pa.field("effective_date", pa.date32(), nullable=False),
-        pa.field("expiry_date", pa.date32(), nullable=False),
-        pa.field("is_current", pa.bool_(), nullable=False),
-        pa.field("row_hash", pa.string(), nullable=False),
-        pa.field("_updated_at", pa.timestamp("us", tz="UTC"), nullable=False),
-    ])
+    arrow_schema = pa.schema(
+        [
+            pa.field("symbol_key", pa.int32(), nullable=False),
+            pa.field("symbol", pa.string(), nullable=False),
+            pa.field("company_name", pa.string(), nullable=False),
+            pa.field("sector", pa.string(), nullable=False),
+            pa.field("market_cap_category", pa.string(), nullable=False),
+            pa.field("effective_date", pa.date32(), nullable=False),
+            pa.field("expiry_date", pa.date32(), nullable=False),
+            pa.field("is_current", pa.bool_(), nullable=False),
+            pa.field("row_hash", pa.string(), nullable=False),
+            pa.field("_updated_at", pa.timestamp("us", tz="UTC"), nullable=False),
+        ]
+    )
     arrow_table = pa.table(rows, schema=arrow_schema)
     table = catalog.load_table(f"{config.NS_DIM}.dim_symbol")
     table.append(arrow_table)
@@ -108,14 +108,16 @@ def seed_dim_time(catalog) -> int:
             rows["trading_session"].append(session)
             rows["is_market_hours"].append(session == "regular")
 
-    arrow_schema = pa.schema([
-        pa.field("time_key", pa.int32(), nullable=False),
-        pa.field("hour", pa.int32(), nullable=False),
-        pa.field("minute", pa.int32(), nullable=False),
-        pa.field("time_of_day", pa.string(), nullable=False),
-        pa.field("trading_session", pa.string(), nullable=False),
-        pa.field("is_market_hours", pa.bool_(), nullable=False),
-    ])
+    arrow_schema = pa.schema(
+        [
+            pa.field("time_key", pa.int32(), nullable=False),
+            pa.field("hour", pa.int32(), nullable=False),
+            pa.field("minute", pa.int32(), nullable=False),
+            pa.field("time_of_day", pa.string(), nullable=False),
+            pa.field("trading_session", pa.string(), nullable=False),
+            pa.field("is_market_hours", pa.bool_(), nullable=False),
+        ]
+    )
     arrow_table = pa.table(rows, schema=arrow_schema)
     table = catalog.load_table(f"{config.NS_DIM}.dim_time")
     table.append(arrow_table)

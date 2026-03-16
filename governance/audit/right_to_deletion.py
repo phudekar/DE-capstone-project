@@ -38,6 +38,7 @@ DELETION_REPORT_DIR = os.environ.get("DELETION_REPORT_DIR", "/var/log/de-capston
 
 Strategy = Literal["pseudonymise", "hard_delete"]
 
+
 @dataclass
 class TableConfig:
     namespace: str
@@ -47,12 +48,13 @@ class TableConfig:
 
 
 TABLES: list[TableConfig] = [
-    TableConfig("bronze", "raw_trades",           "account_id", "pseudonymise"),
-    TableConfig("silver", "trades",               "account_id", "pseudonymise"),
+    TableConfig("bronze", "raw_trades", "account_id", "pseudonymise"),
+    TableConfig("silver", "trades", "account_id", "pseudonymise"),
     # Gold tables are aggregates — account_id is not present
 ]
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
+
 
 def _hash_account(account_id: str) -> str:
     return "DELETED-" + hashlib.sha256(account_id.encode()).hexdigest()[:16]
@@ -181,6 +183,7 @@ class RightToDeletion:
 
     def _save_report(self, result: DeletionResult) -> None:
         import pathlib
+
         report_dir = pathlib.Path(DELETION_REPORT_DIR)
         report_dir.mkdir(parents=True, exist_ok=True)
         ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")

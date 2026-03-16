@@ -30,8 +30,7 @@ def compact_tables(context, iceberg: IcebergResource) -> None:
             snapshots = table.metadata.snapshots
             snapshot_count = len(snapshots) if snapshots else 0
             context.log.info(
-                "MAINTENANCE: %s has %d snapshots. "
-                "Consider compaction if data files are fragmented.",
+                "MAINTENANCE: %s has %d snapshots. Consider compaction if data files are fragmented.",
                 table_name,
                 snapshot_count,
             )
