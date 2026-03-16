@@ -1,6 +1,6 @@
 services:
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-02-28T09-55-16Z
     hostname: minio
     container_name: minio
     ports:
@@ -22,7 +22,7 @@ services:
       start_period: 10s
 
   minio-init:
-    image: minio/mc:latest
+    image: minio/mc:RELEASE.2025-02-28T09-55-16Z
     container_name: minio-init
     depends_on:
       minio:
@@ -44,7 +44,7 @@ services:
       - de-network
 
   iceberg-rest:
-    image: tabulario/iceberg-rest:latest
+    image: tabulario/iceberg-rest:1.6.1
     hostname: iceberg-rest
     container_name: iceberg-rest
     ports:

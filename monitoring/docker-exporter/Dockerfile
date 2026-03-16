@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11.12-slim
 RUN pip install --no-cache-dir prometheus-client docker
 COPY exporter.py /app/exporter.py
 EXPOSE 9417

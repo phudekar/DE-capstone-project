@@ -1,4 +1,4 @@
-FROM rust:1.85-slim AS builder
+FROM rust:1.85.1-slim AS builder
 WORKDIR /app
 RUN apt-get update && apt-get install -y git pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
 RUN git clone https://github.com/dileepbapat/mock-stock.git .
