@@ -85,16 +85,22 @@ def make_orderbook_event(
 ) -> dict:
     """Return a raw DE-Stock WebSocket envelope for an OrderBookSnapshot event."""
     spread = 0.02
-    bids = [{"price": round(mid_price - spread / 2 - i * 0.10, 2), "quantity": 100 + i * 20} for i in range(n_levels)]
-    asks = [{"price": round(mid_price + spread / 2 + i * 0.10, 2), "quantity": 80 + i * 15} for i in range(n_levels)]
+    bids = [
+        {"price": round(mid_price - spread / 2 - i * 0.10, 2), "quantity": 100 + i * 20, "order_count": 1}
+        for i in range(n_levels)
+    ]
+    asks = [
+        {"price": round(mid_price + spread / 2 + i * 0.10, 2), "quantity": 80 + i * 15, "order_count": 1}
+        for i in range(n_levels)
+    ]
     return {
         "event_type": "OrderBookSnapshot",
-        "timestamp": timestamp or _now(),
         "data": {
+            "event_id": f"E-{uuid.uuid4().hex[:12]}",
+            "timestamp": timestamp or _now(),
             "symbol": symbol,
             "bids": bids,
             "asks": asks,
-            "sequence_number": 1001,
         },
     }
 
@@ -153,11 +159,10 @@ def make_market_stats_event(symbol: str = "AAPL", volume: int = 500_000) -> dict
             "open": 180.00,
             "high": 185.00,
             "low": 179.50,
-            "last": 182.50,
+            "close": 182.50,
             "volume": volume,
             "trade_count": 2500,
             "vwap": 182.10,
-            "turnover": volume * 182.10,
         },
     }
 

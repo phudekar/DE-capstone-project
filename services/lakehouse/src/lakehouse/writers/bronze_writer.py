@@ -100,7 +100,7 @@ class BronzeWriter:
             "symbol": value["symbol"],
             "bids_json": json.dumps(value.get("bids", [])),
             "asks_json": json.dumps(value.get("asks", [])),
-            "sequence_number": int(value["sequence_number"]),
+            "sequence_number": int(value["sequence_number"]) if value.get("sequence_number") is not None else 0,
             "event_type": value["event_type"],
             "timestamp": ts,
             "_kafka_topic": topic,

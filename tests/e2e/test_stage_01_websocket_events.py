@@ -164,7 +164,7 @@ def test_market_stats_ohlc_ordering():
     raw = make_market_stats_event()
     event = _parse(raw)
     assert event.data.low <= event.data.open <= event.data.high
-    assert event.data.low <= event.data.last <= event.data.high
+    assert event.data.low <= event.data.close <= event.data.high
 
 
 # ── Validation failures ────────────────────────────────────────────────────────

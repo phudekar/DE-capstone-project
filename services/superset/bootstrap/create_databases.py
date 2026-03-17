@@ -40,7 +40,6 @@ def create_databases(superset_url: str, session) -> None:
                                 "s3_url_style": "path",
                                 "s3_use_ssl": "false",
                                 "s3_region": "us-east-1",
-                                "unsafe_enable_version_guessing": "true",
                             },
                         }
                     },

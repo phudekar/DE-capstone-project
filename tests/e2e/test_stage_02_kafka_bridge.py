@@ -163,7 +163,7 @@ def test_flatten_orderbook_includes_bids_asks():
     flat = _flatten(raw)
     assert "bids" in flat
     assert "asks" in flat
-    assert "sequence_number" in flat
+    assert "event_id" in flat
 
 
 # ── Full bridge pipeline (uses PipelineSimulator) ─────────────────────────────

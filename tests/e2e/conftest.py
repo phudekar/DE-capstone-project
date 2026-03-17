@@ -263,7 +263,7 @@ class PipelineSimulator:
                     flat["symbol"],
                     json.dumps(flat.get("bids", [])),
                     json.dumps(flat.get("asks", [])),
-                    int(flat["sequence_number"]),
+                    int(flat["sequence_number"]) if flat.get("sequence_number") is not None else 0,
                     flat["event_type"],
                     ts,
                     topic,

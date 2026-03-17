@@ -114,6 +114,15 @@ FEATURE_FLAGS = {
     "SQL_VALIDATORS_BY_ENGINE": True,
 }
 
+# ─── Custom Time Grains (DuckDB) ─────────────────────────────────────────────
+
+TIME_GRAIN_ADDONS = {"PT10S": "10 second"}
+TIME_GRAIN_ADDON_EXPRESSIONS = {
+    "duckdb": {
+        "PT10S": "TIME_BUCKET(INTERVAL '10 seconds', {col})",
+    },
+}
+
 # ─── SQL Lab ──────────────────────────────────────────────────────────────────
 
 SQL_MAX_ROW = 100000

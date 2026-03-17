@@ -56,7 +56,7 @@ def _parse_orderbook(flat: dict, topic: str = "raw.orderbook-snapshots", partiti
         "symbol": flat["symbol"],
         "bids_json": json.dumps(flat.get("bids", [])),
         "asks_json": json.dumps(flat.get("asks", [])),
-        "sequence_number": int(flat["sequence_number"]),
+        "sequence_number": int(flat["sequence_number"]) if flat.get("sequence_number") is not None else 0,
         "event_type": flat["event_type"],
         "timestamp": ts,
         "_kafka_topic": topic,
