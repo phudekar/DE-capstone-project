@@ -146,7 +146,7 @@ Run `make help` for a full list. Key commands:
 | Command | Description |
 |---|---|
 | `make up` | Start everything (infra + services, without Flink) |
-| `make down` | Stop everything (preserves data) |
+| `make down` | Stop everything incl. Dagster, Monitoring, Superset, Flink (preserves data) |
 | `make up-infra` | Start Kafka + Storage (Flink is opt-in) |
 | `make up-kafka` | Start Kafka broker + Schema Registry + UI |
 | `make up-storage` | Start MinIO + Iceberg REST catalog |

@@ -77,7 +77,10 @@ up: build-de-stock ## Start everything (infra + services, without Flink)
 	$(COMPOSE_ALL) up -d
 
 down: ## Stop everything (preserves data)
-	$(COMPOSE_ALL) down
+	$(COMPOSE_SUPERSET) down 2>/dev/null || true
+	$(COMPOSE_MONITORING) down 2>/dev/null || true
+	$(COMPOSE_DAGSTER) down 2>/dev/null || true
+	$(COMPOSE_ALL) --profile flink down
 
 ps: ## Show running containers
 	$(COMPOSE_ALL) ps
@@ -217,11 +220,13 @@ health: ## Run health checks for all services
 
 # === Teardown ===
 
-teardown: ## Stop all services (preserves data volumes)
-	$(COMPOSE_ALL) down
+teardown: down ## Stop all services (preserves data volumes)
 
 teardown-destroy: ## Stop all and destroy data volumes
-	$(COMPOSE_ALL) down -v --remove-orphans
+	$(COMPOSE_SUPERSET) down -v 2>/dev/null || true
+	$(COMPOSE_MONITORING) down -v 2>/dev/null || true
+	$(COMPOSE_DAGSTER) down -v 2>/dev/null || true
+	$(COMPOSE_ALL) --profile flink down -v --remove-orphans
 	@echo "All containers stopped and volumes destroyed."
 
 # === Data Cleanup ===
