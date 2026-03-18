@@ -12,7 +12,7 @@ import pyarrow as pa
 from confluent_kafka import Consumer, KafkaError
 
 from lakehouse import config
-from lakehouse.catalog import get_catalog
+from lakehouse.catalog import init_catalog
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class BronzeWriter:
 
     def __init__(self):
         self._running = False
-        self._catalog = get_catalog()
+        self._catalog, _ = init_catalog()
         self._trades_table = self._catalog.load_table(f"{config.NS_BRONZE}.raw_trades")
         self._orderbook_table = self._catalog.load_table(f"{config.NS_BRONZE}.raw_orderbook")
         self._consumer = Consumer(

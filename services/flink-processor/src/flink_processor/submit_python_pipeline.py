@@ -12,7 +12,7 @@ import json
 import logging
 import sys
 
-from pyflink.common import WatermarkStrategy
+from pyflink.common import Types, WatermarkStrategy
 from pyflink.common.serialization import SimpleStringSchema
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import (
@@ -95,7 +95,7 @@ def main() -> None:
         except (json.JSONDecodeError, KeyError):
             pass
 
-    alerts_stream = trades_stream.flat_map(detect_alerts)
+    alerts_stream = trades_stream.flat_map(detect_alerts, output_type=Types.STRING())
     alerts_sink = _build_kafka_sink(TOPIC_PRICE_ALERTS)
     alerts_stream.sink_to(alerts_sink)
 
@@ -117,7 +117,7 @@ def main() -> None:
         except (json.JSONDecodeError, KeyError):
             return None
 
-    metrics_stream = orderbook_stream.map(analyze_snapshot).filter(lambda x: x is not None)
+    metrics_stream = orderbook_stream.map(analyze_snapshot, output_type=Types.STRING()).filter(lambda x: x is not None)
     metrics_sink = _build_kafka_sink(TOPIC_ORDERBOOK_METRICS)
     metrics_stream.sink_to(metrics_sink)
 
