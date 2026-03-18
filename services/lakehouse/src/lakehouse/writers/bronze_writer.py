@@ -1,4 +1,21 @@
-"""Bronze writer: Kafka consumer → Iceberg Bronze tables (micro-batch append)."""
+"""Bronze writer: Kafka consumer → Iceberg Bronze layer (micro-batch append).
+
+This is the ingestion entry point for the medallion architecture. It consumes
+raw trade and orderbook messages from Kafka topics and appends them as-is to
+Bronze Iceberg tables (bronze.raw_trades, bronze.raw_orderbook).
+
+Upstream: Kafka topics (exchange.trades, exchange.orderbook)
+Downstream: bronze.raw_trades, bronze.raw_orderbook (consumed by silver_processor)
+
+Key design decisions:
+- Micro-batch size is controlled by BATCH_MAX_MESSAGES and BATCH_TIMEOUT_SECONDS
+  (from config) to balance write amplification against latency.
+- Messages are parsed and lightly validated but NOT deduplicated — dedup happens
+  in the Silver layer. Bronze preserves the raw Kafka metadata (_kafka_topic,
+  _kafka_partition, _kafka_offset) for traceability.
+- Kafka offsets are committed only after a successful Iceberg append, providing
+  at-least-once delivery semantics.
+"""
 
 from __future__ import annotations
 
@@ -58,6 +75,10 @@ class BronzeWriter:
 
     def __init__(self):
         self._running = False
+        # Use init_catalog() (not get_catalog()) because the Bronze writer is the
+        # first service to start on container boot. init_catalog() creates the
+        # Iceberg namespaces and tables if they don't exist yet, whereas
+        # get_catalog() assumes they already exist and would fail on a fresh cluster.
         self._catalog, _ = init_catalog()
         self._trades_table = self._catalog.load_table(f"{config.NS_BRONZE}.raw_trades")
         self._orderbook_table = self._catalog.load_table(f"{config.NS_BRONZE}.raw_orderbook")
@@ -172,7 +193,16 @@ class BronzeWriter:
             elapsed = time.monotonic() - batch_start
 
             if total >= config.BATCH_MAX_MESSAGES or (total > 0 and elapsed >= config.BATCH_TIMEOUT_SECONDS):
-                self._flush_batch(trade_rows, orderbook_rows)
+                try:
+                    self._flush_batch(trade_rows, orderbook_rows)
+                except Exception:
+                    logger.error(
+                        "Failed to flush batch (%d trades, %d orderbook rows)",
+                        len(trade_rows),
+                        len(orderbook_rows),
+                        exc_info=True,
+                    )
+                    raise
                 self._consumer.commit()
                 trade_rows.clear()
                 orderbook_rows.clear()
@@ -180,7 +210,16 @@ class BronzeWriter:
 
         # Flush remaining on shutdown
         if trade_rows or orderbook_rows:
-            self._flush_batch(trade_rows, orderbook_rows)
+            try:
+                self._flush_batch(trade_rows, orderbook_rows)
+            except Exception:
+                logger.error(
+                    "Failed to flush remaining batch on shutdown (%d trades, %d orderbook rows)",
+                    len(trade_rows),
+                    len(orderbook_rows),
+                    exc_info=True,
+                )
+                raise
             self._consumer.commit()
 
         self._consumer.close()

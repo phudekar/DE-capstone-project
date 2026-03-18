@@ -15,8 +15,10 @@ logger = logging.getLogger(__name__)
 
 TRACKED_COLUMNS = ("company_name", "sector", "market_cap_category")
 
-# Explicit Arrow schema matching Iceberg dim_symbol (all required)
-_DIM_SYMBOL_ARROW_SCHEMA = pa.schema(
+# Explicit Arrow schema matching Iceberg dim_symbol (all required).
+# This schema is shared between SCD2 change detection and initial dimension seeding
+# (seed_dimensions.py). It is the single source of truth for the dim_symbol table shape.
+DIM_SYMBOL_ARROW_SCHEMA = pa.schema(
     [
         pa.field("symbol_key", pa.int32(), nullable=False),
         pa.field("symbol", pa.string(), nullable=False),
@@ -32,8 +34,14 @@ _DIM_SYMBOL_ARROW_SCHEMA = pa.schema(
 )
 
 
-def _hash_row(symbol: str, company_name: str, sector: str, market_cap: str) -> str:
-    """Deterministic hash for change detection on tracked columns."""
+def hash_row(symbol: str, company_name: str, sector: str, market_cap: str) -> str:
+    """Deterministic hash for change detection on tracked columns.
+
+    Shared between initial dimension seeding (seed_dimensions.py) and SCD2
+    change detection. Both callers must produce identical hashes for the same
+    input so that the first SCD2 run after seeding does not falsely detect
+    changes.
+    """
     payload = f"{symbol}|{company_name}|{sector}|{market_cap}"
     return hashlib.sha256(payload.encode()).hexdigest()[:16]
 
@@ -65,8 +73,15 @@ def apply_scd2(incoming_records: list[dict]) -> tuple[int, int]:
             row = {col: current_arrow.column(col)[i].as_py() for col in current_arrow.column_names}
             current_by_symbol[row["symbol"]] = row
 
-    # Determine next surrogate key
-    max_key = max((r["symbol_key"] for r in current_by_symbol.values()), default=0)
+    # Determine next surrogate key by scanning ALL rows (not just current).
+    # After SCD2 updates, expired (is_current=False) rows may hold the highest
+    # symbol_key. Scanning only current rows would reuse those keys, creating
+    # duplicate surrogate keys in the dimension table.
+    all_keys_arrow = table.scan(selected_fields=("symbol_key",)).to_arrow()
+    if len(all_keys_arrow) > 0:
+        max_key = max(all_keys_arrow.column("symbol_key").to_pylist())
+    else:
+        max_key = 0
 
     today = date.today()
     yesterday = date.fromordinal(today.toordinal() - 1)
@@ -77,7 +92,7 @@ def apply_scd2(incoming_records: list[dict]) -> tuple[int, int]:
     new_rows = []
 
     for rec in incoming_records:
-        new_hash = _hash_row(rec["symbol"], rec["company_name"], rec["sector"], rec["market_cap_category"])
+        new_hash = hash_row(rec["symbol"], rec["company_name"], rec["sector"], rec["market_cap_category"])
 
         if rec["symbol"] in current_by_symbol:
             existing = current_by_symbol[rec["symbol"]]
@@ -138,7 +153,7 @@ def apply_scd2(incoming_records: list[dict]) -> tuple[int, int]:
         # Re-insert the expired versions
         expired_table = pa.table(
             {k: [r[k] for r in expired_rows] for k in expired_rows[0]},
-            schema=_DIM_SYMBOL_ARROW_SCHEMA,
+            schema=DIM_SYMBOL_ARROW_SCHEMA,
         )
         table.append(expired_table)
         expired_count = len(expired_rows)
@@ -147,7 +162,7 @@ def apply_scd2(incoming_records: list[dict]) -> tuple[int, int]:
     if new_rows:
         new_table = pa.table(
             {k: [r[k] for r in new_rows] for k in new_rows[0]},
-            schema=_DIM_SYMBOL_ARROW_SCHEMA,
+            schema=DIM_SYMBOL_ARROW_SCHEMA,
         )
         table.append(new_table)
         inserted_count = len(new_rows)

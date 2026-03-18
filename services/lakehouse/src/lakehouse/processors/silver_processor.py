@@ -1,4 +1,21 @@
-"""Silver processor: Bronze → Silver (deduplicate, cast, enrich)."""
+"""Silver processor: Bronze → Silver layer (deduplicate, cast, enrich).
+
+This processor reads raw trade and orderbook records from the Bronze layer,
+deduplicates them, enriches them with dimension data (company name, sector),
+and writes clean records to the Silver layer.
+
+Upstream: bronze.raw_trades, bronze.raw_orderbook (produced by bronze_writer)
+          dim.dim_symbol (for enrichment lookups)
+Downstream: silver.trades, silver.orderbook_snapshots (consumed by gold_aggregator)
+
+Key design decisions:
+- Micro-batch size (TRADE_BATCH_SIZE = 50,000): balances memory usage against
+  Iceberg commit overhead. Smaller batches = more commits but lower peak memory.
+- Dedup strategy: uses trade_id (trades) or symbol+timestamp (orderbook) to
+  detect duplicates. Keeps the earliest Kafka offset when duplicates exist.
+- Streams via Arrow RecordBatchReader to avoid loading entire Bronze tables
+  into memory at once.
+"""
 
 from __future__ import annotations
 
@@ -108,6 +125,11 @@ def _process_trades_batch(
     ).to_pandas()
     df = df.merge(dim_df, on="symbol", how="left")
 
+    # Convert bool to string because PyIceberg's Arrow-to-Iceberg serialization
+    # does not reliably round-trip Python booleans through Parquet for this column.
+    # The Bronze layer stores this as a native bool, but the Silver Arrow schema
+    # declares it as pa.string() to ensure consistent downstream reads. Consumers
+    # of silver.trades should expect "True"/"False" string values here.
     df["is_aggressive_buy"] = df["is_aggressive_buy"].astype(str)
     df["_processed_at"] = now
 

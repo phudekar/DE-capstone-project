@@ -1,13 +1,24 @@
-"""PriceAlertDetector: KeyedProcessFunction that fires alerts on significant price changes.
+"""PriceAlertDetector: stateful operator that fires alerts on significant price changes.
 
-Keyed by symbol. Maintains baseline price + timestamp in state.
-Fires alert when price changes >2% from baseline within a 5-min window.
-60s cooldown between alerts per symbol.
+Detection algorithm:
+  1. For each incoming trade, look up (or initialise) the per-symbol state which
+     tracks a *baseline price*, a *baseline timestamp*, and a *last alert timestamp*.
+  2. If the baseline is older than ALERT_BASELINE_WINDOW_SECONDS (default 5 min),
+     reset it to the current price — this prevents stale baselines from generating
+     spurious alerts after quiet periods.
+  3. Compute the absolute percentage change from baseline. If the change exceeds
+     the MEDIUM threshold (2%), classify severity:
+       - CRITICAL: >= 10% change
+       - HIGH:     >= 5% change
+       - MEDIUM:   >= 2% change
+  4. Enforce a per-symbol cooldown (ALERT_COOLDOWN_SECONDS, default 60s) to avoid
+     flooding downstream consumers with repeated alerts during volatile periods.
+  5. After firing an alert, reset the baseline to the current price so subsequent
+     alerts measure from the new level.
 
-Severity levels:
-  - CRITICAL: >= 10% change
-  - HIGH:     >= 5% change
-  - MEDIUM:   >= 2% change
+State is held in a Python dict (not Flink managed state) because the Python
+DataStream API wrapper does not expose keyed ValueState. This means state is
+lost on job restart — acceptable for alerting but not for exactly-once semantics.
 """
 
 import json

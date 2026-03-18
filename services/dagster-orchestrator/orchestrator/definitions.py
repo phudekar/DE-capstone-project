@@ -1,4 +1,16 @@
-"""Dagster Definitions — wires together all assets, resources, sensors, schedules, and jobs."""
+"""Dagster Definitions — wires together all assets, resources, sensors, schedules, and jobs.
+
+This is the single entry point for the Dagster code location. It assembles:
+- Assets: Bronze (raw ingestion), Silver (cleaned/enriched), Gold (aggregated),
+  Dimension tables, Governance (masked views, PII enforcement), and Maintenance assets.
+- Asset checks: Great Expectations quality checks for Bronze, Silver, and Gold layers.
+- Resources: Kafka, Iceberg, DuckDB, Prometheus, and GX — shared across all assets.
+- Sensors: Kafka polling (Bronze triggers), run-status cascading (Bronze→Silver),
+  freshness SLA monitoring, and Prometheus metrics pushes.
+- Schedules: Silver micro-batch (every 5 min), Gold daily (5 PM weekdays),
+  weekly dimension refresh, weekly maintenance, and monthly Gold recompute.
+- Jobs: maintenance, data quality, and export pipelines.
+"""
 
 from dagster import Definitions
 

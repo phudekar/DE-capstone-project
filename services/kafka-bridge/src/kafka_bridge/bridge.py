@@ -1,4 +1,16 @@
-"""Main orchestrator: WS recv → validate → serialize → produce."""
+"""Main orchestrator for the Kafka Bridge service.
+
+Pipeline flow:
+  1. WebSocket receive — async generator yields raw text from DE-Stock.
+  2. JSON parse       — decode the text; malformed JSON goes to the DLQ.
+  3. Pydantic validate — ``validate_message`` returns a typed ``MarketEvent``
+                         or None (→ DLQ).
+  4. Route             — ``route_event`` maps event_type to a Kafka topic and
+                         partition key; unknown types fall through to the DLQ
+                         topic.
+  5. Serialize         — the validated event is flattened and JSON-encoded.
+  6. Produce           — the bytes are handed to the confluent-kafka producer.
+"""
 
 import json
 import logging
@@ -7,9 +19,10 @@ import time
 from kafka_bridge.config.settings import Settings
 from kafka_bridge.error_handling.dlq import DLQProducer
 from kafka_bridge.kafka_producer import KafkaProducer
-from kafka_bridge.message_router import route_event
+from kafka_bridge.message_router import DLQ_TOPIC, route_event
 from kafka_bridge.metrics.prometheus import (
     BRIDGE_LATENCY,
+    DLQ_PRODUCED_TOTAL,
     VALIDATION_FAILURES,
     WS_MESSAGES_RECEIVED,
     start_metrics_server,
@@ -61,11 +74,19 @@ class Bridge:
                 self._dlq.send(raw_text, "validation_error")
                 continue
 
-            event_type = raw["event_type"]
-            data = raw["data"]
+            # Use the validated model's attributes so that any Pydantic
+            # coercion (e.g. type casting, default population) is respected.
+            event_type = event.event_type
+            data = event.data
 
-            # Route to topic
+            # Route to topic based on event_type
             route = route_event(event_type, data)
+
+            # If the router fell back to the DLQ topic, the event_type is
+            # unrecognised — log a warning and count it before producing.
+            if route.topic == DLQ_TOPIC:
+                logger.warning("Unknown event type routed to DLQ: %s", event_type)
+                DLQ_PRODUCED_TOTAL.inc()
 
             # Flatten: merge envelope fields into data
             flat = {"event_type": event_type, **data}

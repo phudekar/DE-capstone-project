@@ -22,7 +22,7 @@ PYTEST := $(PYTHON) -m pytest
         logs health ps \
         teardown teardown-destroy build-de-stock \
         clean-data clean-kafka clean-lakehouse clean-dagster \
-        lint format test test-unit test-e2e pre-commit-install pre-commit-run \
+        lint format test test-unit test-docker test-e2e pre-commit-install pre-commit-run \
         benchmark benchmark-large load-test
 
 help: ## Show this help
@@ -47,6 +47,24 @@ test-unit: ## Run all per-service unit tests
 	          services/graphql-api/tests \
 	          services/data-quality/tests \
 	          -v --tb=short
+
+test-docker: ## Run unit tests in Python 3.11 Docker (no local venv needed)
+	@echo "=== kafka-bridge ===" && \
+	docker run --rm -v "$(CURDIR)":/app -w /app/services/kafka-bridge python:3.11-slim \
+	  bash -c "pip install -q pytest -e /app/libs/common -e . && python -m pytest tests -v --tb=short" && \
+	echo "=== flink-processor ===" && \
+	docker run --rm -v "$(CURDIR)":/app -w /app/services/flink-processor python:3.11-slim \
+	  bash -c "pip install -q pytest && pip install --no-deps -e . && python -m pytest tests -v --tb=short" && \
+	echo "=== lakehouse ===" && \
+	docker run --rm -v "$(CURDIR)":/app -w /app/services/lakehouse python:3.11-slim \
+	  bash -c "pip install -q pytest -e . && python -m pytest tests -v --tb=short" && \
+	echo "=== graphql-api ===" && \
+	docker run --rm -v "$(CURDIR)":/app -w /app/services/graphql-api python:3.11-slim \
+	  bash -c "pip install -q pytest pytest-asyncio httpx -e . && python -m pytest tests -v --tb=short" && \
+	echo "=== dagster-orchestrator ===" && \
+	docker run --rm -v "$(CURDIR)":/app -w /app/services/dagster-orchestrator python:3.11-slim \
+	  bash -c "pip install -q pytest duckdb -e /app/services/lakehouse -e /app/services/data-quality -e . && python -m pytest tests -v --tb=short" && \
+	echo "=== All tests passed ==="
 
 test-e2e: ## Run end-to-end pipeline tests (no Docker required)
 	$(PYTEST) tests/e2e -v --tb=short

@@ -1,4 +1,12 @@
-"""Retry with exponential backoff for transient Kafka errors."""
+"""Retry with exponential backoff for transient Kafka errors.
+
+NOTE: This module is NOT currently called in the pipeline. The confluent-kafka
+producer's built-in retry mechanism (controlled by ``enable.idempotence=True``
+and ``message.send.max.retries``) handles transient broker errors at the
+librdkafka level. This helper is available for wrapping application-level
+operations (e.g. Schema Registry calls) that need retry logic outside the
+producer's scope.
+"""
 
 import asyncio
 import logging

@@ -1,4 +1,10 @@
-"""Kafka sensors — trigger Bronze ingestion when new messages arrive."""
+"""Kafka sensors — trigger Bronze ingestion when new messages arrive.
+
+Trigger mechanism: each sensor polls the Kafka high watermark offset for its topic
+every 30 seconds. When the watermark exceeds the persisted cursor, the sensor yields
+a RunRequest targeting the corresponding Bronze asset with today's partition key.
+The cursor is then advanced to the new watermark to avoid duplicate triggers.
+"""
 
 import logging
 

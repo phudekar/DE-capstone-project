@@ -1,4 +1,15 @@
-"""Route events to the correct Kafka topic with appropriate partition key."""
+"""Route events to the correct Kafka topic with appropriate partition key.
+
+Routing strategy:
+  - Each recognised ``event_type`` maps to a dedicated ``raw.*`` Kafka topic
+    (e.g. ``TradeExecuted`` → ``raw.trades``).
+  - The partition key is extracted from the event's data payload (typically
+    ``symbol``) so that all events for the same instrument land on the same
+    partition, preserving per-symbol ordering.
+  - Any event_type that does not appear in the routing table is sent to the
+    dead-letter queue (``dlq.raw.failed``) as a catch-all fallback, ensuring
+    no message is silently dropped.
+"""
 
 from dataclasses import dataclass
 

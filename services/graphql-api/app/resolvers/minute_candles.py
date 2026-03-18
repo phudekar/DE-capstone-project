@@ -105,7 +105,9 @@ class MinuteCandleResolver:
                 """,
                 params=[symbol, str(date_range.start), str(date_range.end)],
             )
-            await self.cache.set(cache_ns, cache_key, all_rows, settings.cache_ttl_daily_summary)
+            # Use the candle-specific TTL — shorter than daily_summary because
+            # intraday candle data updates more frequently.
+            await self.cache.set(cache_ns, cache_key, all_rows, settings.cache_ttl_candles)
 
         page = all_rows[offset : offset + first]
         has_next = len(all_rows) > offset + first

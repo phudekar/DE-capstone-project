@@ -1,4 +1,10 @@
-"""Gold layer assets — pre-aggregated business metrics."""
+"""Gold layer assets — pre-aggregated business metrics.
+
+Gold is the final layer in the medallion architecture. These assets consume Silver
+tables and produce pre-aggregated, business-ready datasets (e.g. daily OHLCV summaries,
+trader performance, market overviews). Aggregation is performed via DuckDB SQL against
+Iceberg tables. Gold assets are scheduled daily after market close (5 PM UTC weekdays).
+"""
 
 import logging
 from datetime import date

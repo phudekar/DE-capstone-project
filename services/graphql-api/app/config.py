@@ -27,9 +27,16 @@ class Settings(BaseSettings):
     kafka_bootstrap_servers: str = "kafka-broker-1:29092"
 
     # Cache TTL (seconds)
+    # Symbol dimension data changes rarely; 1 hour is safe.
     cache_ttl_symbols: int = 3600
+    # Daily summary is recomputed once per day; 5 min avoids stale reads
+    # while reducing redundant Iceberg scans.
     cache_ttl_daily_summary: int = 300
+    # Market overview aggregates multiple tables; same reasoning as daily summary.
     cache_ttl_market_overview: int = 300
+    # Intraday candle data updates frequently; shorter TTL (60s) keeps the
+    # dashboard responsive without hammering the Iceberg/DuckDB layer.
+    cache_ttl_candles: int = 60
 
     # DuckDB
     duckdb_threads: int = 4

@@ -1,4 +1,10 @@
-"""Avro serialization via Confluent Schema Registry."""
+"""Avro serialization via Confluent Schema Registry.
+
+NOTE: This module is NOT currently used in the pipeline. The bridge serializes
+all messages as JSON (see bridge.py). It exists as a prepared integration point
+for future Avro / Schema Registry support — when enabled, it will provide
+schema-enforced serialization with automatic subject registration.
+"""
 
 import logging
 import os

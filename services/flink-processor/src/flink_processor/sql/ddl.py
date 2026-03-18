@@ -63,7 +63,7 @@ CREATE TABLE trade_aggregates (
 """
 
 
-def reference_symbols_ddl(symbols_data: list[dict]) -> str:
+def reference_symbols_ddl(symbols_data: list[dict]) -> dict[str, str]:
     """Build a CASE-expression UDF-style enrichment map from reference data.
 
     Instead of a JOIN (which produces update streams incompatible with

@@ -1,4 +1,15 @@
-"""Tumbling window aggregation SQL statements for 1m, 5m, 15m windows."""
+"""Tumbling window aggregation SQL statements for 1m, 5m, 15m windows.
+
+Generates Flink SQL INSERT statements that compute OHLCV-style aggregates
+(trade_count, total_volume, vwap, high_price, low_price) over tumbling
+event-time windows. Each window size produces a separate INSERT into the
+same trade_aggregates sink table, differentiated by the window_size column.
+
+The SQL-based approach (vs. DataStream API) is used here because Flink SQL
+natively supports tumbling windows with event-time watermarks and produces
+efficient query plans with built-in state management and exactly-once
+semantics for Kafka sinks.
+"""
 
 
 def trade_aggregation_insert(window_size: str, interval_expr: str) -> str:
@@ -25,6 +36,9 @@ GROUP BY symbol, TUMBLE(event_time, {interval_expr})
 """
 
 
+# Window configurations are defined here (not in config.py) because they are
+# tightly coupled to the Flink SQL INTERVAL syntax and only used by the SQL
+# pipeline. Each tuple is (label, Flink SQL interval expression).
 WINDOW_CONFIGS = [
     ("1m", "INTERVAL '1' MINUTE"),
     ("5m", "INTERVAL '5' MINUTE"),

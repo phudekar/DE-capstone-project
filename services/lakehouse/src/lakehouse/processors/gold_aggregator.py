@@ -1,9 +1,25 @@
-"""Gold aggregator: Silver → Gold using DuckDB for aggregation."""
+"""Gold aggregator: Silver → Gold layer using DuckDB for daily OHLCV aggregation.
+
+This processor reads deduplicated, enriched trade records from the Silver layer
+(silver.trades) and produces daily trading summaries in the Gold layer
+(gold.daily_trading_summary). Each Gold record contains OHLCV (open, high, low,
+close, volume) data plus VWAP (volume-weighted average price) per symbol per day.
+
+Upstream: silver.trades (produced by silver_processor)
+Downstream: gold.daily_trading_summary (consumed by GraphQL API, Superset dashboards)
+
+Key design decisions:
+- Uses DuckDB for in-process SQL aggregation (no external compute cluster needed).
+- Idempotent: deletes existing Gold records for the target date before writing,
+  so re-runs produce the same result.
+- VWAP is calculated as sum(price * quantity) / sum(quantity), guarded against
+  divide-by-zero.
+"""
 
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 import duckdb
 import pyarrow as pa
@@ -48,9 +64,13 @@ def aggregate_daily_trading_summary(catalog, trading_date: date | None = None) -
     silver_table = catalog.load_table(f"{config.NS_SILVER}.trades")
     gold_table = catalog.load_table(f"{config.NS_GOLD}.daily_trading_summary")
 
-    # Read Silver trades into Arrow — filter to target date to limit memory
+    # Read Silver trades into Arrow — filter to target date to limit memory.
+    # Use start-of-next-day as the upper bound instead of 23:59:59, so that
+    # trades occurring during the last second of the day (23:59:59.000–23:59:59.999)
+    # are not excluded from the aggregation.
     ds = trading_date.isoformat()
-    date_filter = f"timestamp >= '{ds}T00:00:00+00:00' AND timestamp < '{ds}T23:59:59+00:00'"
+    next_day = (trading_date + timedelta(days=1)).isoformat()
+    date_filter = f"timestamp >= '{ds}T00:00:00+00:00' AND timestamp < '{next_day}T00:00:00+00:00'"
     silver_arrow = silver_table.scan(row_filter=date_filter).to_arrow()
 
     if len(silver_arrow) == 0:

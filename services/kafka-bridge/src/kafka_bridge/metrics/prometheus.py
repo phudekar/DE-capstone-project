@@ -1,4 +1,17 @@
-"""Prometheus metrics for the Kafka Bridge."""
+"""Prometheus metrics for the Kafka Bridge.
+
+Metrics exposed on the ``/metrics`` HTTP endpoint (default port 9090):
+
+  WS_MESSAGES_RECEIVED   — counts every raw WebSocket frame received.
+  KAFKA_PRODUCED_TOTAL   — counts successful Kafka produces, labelled by topic.
+  KAFKA_PRODUCE_ERRORS   — counts produce failures, labelled by topic.
+  VALIDATION_FAILURES    — counts Pydantic validation rejects.
+  SERIALIZATION_FAILURES — counts serialization errors (reserved for Avro path).
+  DLQ_PRODUCED_TOTAL     — counts messages routed to the dead-letter queue.
+  WS_RECONNECTS          — counts WebSocket reconnection attempts.
+  BRIDGE_LATENCY         — histogram of end-to-end latency (WS recv → Kafka
+                           produce) in seconds, with sub-millisecond buckets.
+"""
 
 from prometheus_client import Counter, Histogram, start_http_server
 

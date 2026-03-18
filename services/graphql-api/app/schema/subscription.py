@@ -1,6 +1,13 @@
-"""GraphQL Subscription root type — real-time Kafka feeds."""
+"""
+GraphQL Subscription root type — real-time Kafka feeds.
 
-from __future__ import annotations
+Subscriptions use a Kafka-backed WebSocket model: each GraphQL subscription
+maps to a Kafka consumer that streams messages to the client over WebSocket.
+Every WebSocket connection gets its own unique consumer group ID so that
+each client receives all messages independently (no load-balancing across
+subscribers). Messages are filtered server-side before being pushed to the
+client to reduce network overhead.
+"""
 
 import uuid
 from datetime import datetime, timezone
@@ -53,14 +60,16 @@ class Subscription:
         self, info: Info, symbols: Optional[list[str]] = None
     ) -> AsyncGenerator["TradeAlert", None]:
         """
-        Consumes from the 'trade-alerts' Kafka topic.
+        Consumes from the 'alerts.price-movement' Kafka topic.
         Filtered server-side by symbol list if provided.
         """
         connection_id = str(uuid.uuid4())
         group_id = f"gql-alert-sub-{connection_id}"
         factory = info.context.kafka_factory
 
-        async for msg in factory.stream("trade-alerts", group_id):
+        # Topic name must match the Flink Python pipeline output topic
+        # (services/flink-processor alert job writes to 'alerts.price-movement').
+        async for msg in factory.stream("alerts.price-movement", group_id):
             try:
                 sym = msg.get("symbol", "")
                 if symbols is not None and sym not in symbols:

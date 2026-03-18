@@ -1,8 +1,18 @@
 """OrderBookAnalyzer: computes spread, depth, and imbalance from orderbook snapshots.
 
 Input: raw orderbook snapshot JSON with bids/asks arrays of {price, quantity}.
-Output: analytics JSON with best_bid, best_ask, spread, spread_bps, mid_price,
-        bid_depth_5, ask_depth_5, and imbalance metrics.
+Output: analytics JSON with the following metrics:
+
+  - best_bid / best_ask: top-of-book prices
+  - spread: absolute difference between best ask and best bid
+  - spread_bps: spread expressed in basis points relative to mid price
+  - mid_price: arithmetic mean of best bid and best ask
+  - bid_depth_5 / ask_depth_5: total quantity at the top 5 price levels
+  - imbalance: (bid_depth - ask_depth) / total_depth, ranging from -1 (all asks)
+    to +1 (all bids); indicates directional pressure in the order book
+  - bid_levels / ask_levels: total number of price levels on each side
+
+This is a stateless operator — each snapshot is processed independently.
 """
 
 import json

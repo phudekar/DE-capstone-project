@@ -1,6 +1,5 @@
 """Weekly schedules for dimension refresh and maintenance."""
-
-from __future__ import annotations
+# NOTE: Do NOT use 'from __future__ import annotations' — it breaks Dagster decorators
 
 from dagster import (
     AssetKey,

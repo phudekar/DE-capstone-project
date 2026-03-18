@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
 from datetime import date, datetime, timezone
@@ -11,14 +10,9 @@ import pyarrow as pa
 
 from lakehouse import config
 from lakehouse.catalog import get_catalog
+from lakehouse.scd.scd_type2 import DIM_SYMBOL_ARROW_SCHEMA, hash_row
 
 logger = logging.getLogger(__name__)
-
-
-def _hash_symbol_row(symbol: str, company_name: str, sector: str, market_cap: str) -> str:
-    """Deterministic hash for SCD2 change detection."""
-    payload = f"{symbol}|{company_name}|{sector}|{market_cap}"
-    return hashlib.sha256(payload.encode()).hexdigest()[:16]
 
 
 def seed_dim_symbol(catalog) -> int:
@@ -52,24 +46,14 @@ def seed_dim_symbol(catalog) -> int:
         rows["effective_date"].append(today)
         rows["expiry_date"].append(far_future)
         rows["is_current"].append(True)
-        rows["row_hash"].append(_hash_symbol_row(s["symbol"], s["company_name"], s["sector"], s["market_cap_category"]))
+        # Use the same hash function as SCD2 so the first SCD2 run after seeding
+        # does not falsely detect changes due to a hash mismatch.
+        rows["row_hash"].append(hash_row(s["symbol"], s["company_name"], s["sector"], s["market_cap_category"]))
         rows["_updated_at"].append(now)
 
-    arrow_schema = pa.schema(
-        [
-            pa.field("symbol_key", pa.int32(), nullable=False),
-            pa.field("symbol", pa.string(), nullable=False),
-            pa.field("company_name", pa.string(), nullable=False),
-            pa.field("sector", pa.string(), nullable=False),
-            pa.field("market_cap_category", pa.string(), nullable=False),
-            pa.field("effective_date", pa.date32(), nullable=False),
-            pa.field("expiry_date", pa.date32(), nullable=False),
-            pa.field("is_current", pa.bool_(), nullable=False),
-            pa.field("row_hash", pa.string(), nullable=False),
-            pa.field("_updated_at", pa.timestamp("us", tz="UTC"), nullable=False),
-        ]
-    )
-    arrow_table = pa.table(rows, schema=arrow_schema)
+    # Reuse the canonical Arrow schema from scd_type2 to avoid drift between
+    # the initial seed and subsequent SCD2 updates.
+    arrow_table = pa.table(rows, schema=DIM_SYMBOL_ARROW_SCHEMA)
     table = catalog.load_table(f"{config.NS_DIM}.dim_symbol")
     table.append(arrow_table)
     logger.info("Seeded dim_symbol with %d symbols.", len(symbols))

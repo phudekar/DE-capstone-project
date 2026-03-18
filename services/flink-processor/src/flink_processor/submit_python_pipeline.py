@@ -1,14 +1,25 @@
 """Job B entry point: Python Analytics Pipeline (DataStream API).
 
-Runs two sub-pipelines:
-  1. PriceAlertDetector: raw.trades → alerts.price-movement
-  2. OrderBookAnalyzer: raw.orderbook-snapshots → analytics.orderbook-metrics
+Runs two independent sub-pipelines within a single Flink job:
+
+  1. Price Alert Detection (flat_map):
+     raw.trades → PriceAlertDetector → alerts.price-movement
+     Statefully tracks per-symbol price baselines and emits alerts when
+     significant price movements are detected (>2% within a 5-min window).
+
+  2. Orderbook Analytics (map):
+     raw.orderbook-snapshots → OrderBookAnalyzer → analytics.orderbook-metrics
+     Stateless computation of spread, depth, and imbalance metrics from
+     each orderbook snapshot.
+
+Both sub-pipelines consume from Kafka (KafkaSource) and produce to Kafka
+(KafkaSink). They share the same StreamExecutionEnvironment but operate
+on independent data streams.
 
 Usage:
     python -m flink_processor.submit_python_pipeline
 """
 
-import json
 import logging
 import sys
 
@@ -31,8 +42,11 @@ from flink_processor.config import (
     TOPIC_RAW_ORDERBOOK,
     TOPIC_RAW_TRADES,
 )
-from flink_processor.operators.orderbook_analyzer import analyze_orderbook
-from flink_processor.operators.price_alert_detector import PriceAlertDetector
+from flink_processor.operators.orderbook_analyzer import process_orderbook_snapshot
+from flink_processor.operators.price_alert_detector import (
+    PriceAlertDetector,
+    process_trade_for_alert,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -82,19 +96,25 @@ def main() -> None:
 
     detector = PriceAlertDetector()
 
-    def detect_alerts(trade_json: str):
-        try:
-            trade = json.loads(trade_json)
-            result = detector.process(
-                symbol=trade["symbol"],
-                price=trade["price"],
-                timestamp_str=trade["timestamp"],
-            )
-            if result is not None:
-                yield json.dumps(result)
-        except (json.JSONDecodeError, KeyError):
-            pass
+    # NOTE: DLQ topic (dlq.processing-errors) is defined in config but is not yet
+    # wired as a Flink sink. Malformed records are logged as warnings for now.
 
+    def detect_alerts(trade_json: str):
+        """Thin wrapper around process_trade_for_alert for use as a flat_map function.
+
+        Yields alert JSON strings (0 or 1 per trade). Logs warnings on malformed input
+        so bad records are visible in Flink task manager logs.
+        """
+        try:
+            result = process_trade_for_alert(detector, trade_json)
+            if result is not None:
+                yield result
+        except Exception as exc:
+            logger.warning("Unexpected error in detect_alerts: %s — input: %.200s", exc, trade_json)
+
+    # output_type=Types.STRING() is required because PyFlink runs Python UDFs in a
+    # separate process and must serialize results across the JVM boundary. Without an
+    # explicit output type, Flink cannot infer the Java type for downstream operators.
     alerts_stream = trades_stream.flat_map(detect_alerts, output_type=Types.STRING())
     alerts_sink = _build_kafka_sink(TOPIC_PRICE_ALERTS)
     alerts_stream.sink_to(alerts_sink)
@@ -110,13 +130,19 @@ def main() -> None:
     orderbook_stream = env.from_source(orderbook_source, WatermarkStrategy.no_watermarks(), "orderbook-source")
 
     def analyze_snapshot(snapshot_json: str):
+        """Thin wrapper around process_orderbook_snapshot for use as a map function.
+
+        Returns analytics JSON or None for malformed input. Logs warnings on errors
+        so bad records are visible in Flink task manager logs.
+        """
         try:
-            snapshot = json.loads(snapshot_json)
-            result = analyze_orderbook(snapshot)
-            return json.dumps(result)
-        except (json.JSONDecodeError, KeyError):
+            return process_orderbook_snapshot(snapshot_json)
+        except Exception as exc:
+            logger.warning("Unexpected error in analyze_snapshot: %s — input: %.200s", exc, snapshot_json)
             return None
 
+    # output_type=Types.STRING() is required because PyFlink runs Python UDFs in a
+    # separate process and must serialize results across the JVM boundary.
     metrics_stream = orderbook_stream.map(analyze_snapshot, output_type=Types.STRING()).filter(lambda x: x is not None)
     metrics_sink = _build_kafka_sink(TOPIC_ORDERBOOK_METRICS)
     metrics_stream.sink_to(metrics_sink)

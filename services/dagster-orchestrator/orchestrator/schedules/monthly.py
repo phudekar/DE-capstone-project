@@ -1,6 +1,5 @@
 """Monthly schedules for Gold recomputation."""
-
-from __future__ import annotations
+# NOTE: Do NOT use 'from __future__ import annotations' — it breaks Dagster decorators
 
 from dagster import (
     AssetKey,

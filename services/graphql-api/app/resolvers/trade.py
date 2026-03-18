@@ -124,6 +124,10 @@ class TradeResolver:
         return _row_to_trade(rows[0])
 
     async def _count(self, where_clause: str, params: list) -> int:
+        # TODO: Optimise double-scan — resolve() scans the Iceberg table once for
+        # the page rows, then _count() scans it again for the total. Consider
+        # caching the Arrow table across both calls, or using a window function
+        # (COUNT(*) OVER()) in the main query to get the total in a single pass.
         rows = await self.engine.execute(
             namespace="silver",
             table="trades",

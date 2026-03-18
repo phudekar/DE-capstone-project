@@ -1,6 +1,17 @@
-"""Async-compatible DuckDB engine over Iceberg tables via PyIceberg → Arrow → DuckDB."""
+"""
+Async-compatible DuckDB engine over Iceberg tables via PyIceberg -> Arrow -> DuckDB.
 
-from __future__ import annotations
+Architecture (DuckDB-on-Iceberg pattern):
+  1. PyIceberg reads table metadata from the REST catalog and resolves Parquet
+     file locations in S3/MinIO.
+  2. PyIceberg's scan().to_arrow() fetches the Parquet data into an Arrow table
+     (predicate pushdown happens at the Iceberg layer via row_filter).
+  3. The Arrow table is registered into an ephemeral in-process DuckDB connection,
+     which executes the SQL query and returns results as Python dicts.
+
+This approach avoids a persistent DuckDB database file and leverages DuckDB's
+zero-copy Arrow integration for fast analytical queries.
+"""
 
 import asyncio
 import logging
@@ -31,15 +42,19 @@ def _get_catalog() -> RestCatalog:
 
 class IcebergDuckDB:
     """
-    Thread-safe helper that loads Iceberg tables into Arrow and queries with DuckDB.
+    Helper that loads Iceberg tables into Arrow and queries with DuckDB.
 
     DuckDB connections are not async-native, so we delegate blocking work to an
     executor thread to avoid stalling the event loop.
+
+    The Iceberg REST catalog is lazily initialised on first query to avoid
+    network calls during import/startup. This also means the service can
+    start even if the catalog is temporarily unavailable.
     """
 
     def __init__(self) -> None:
+        # Lazy-initialised on first _ensure_catalog() call.
         self._catalog: RestCatalog | None = None
-        self._lock = asyncio.Lock()
 
     def _ensure_catalog(self) -> RestCatalog:
         if self._catalog is None:
@@ -74,7 +89,7 @@ class IcebergDuckDB:
         table_alias: str = "t",
     ) -> list[dict]:
         """Load an Iceberg table and run SQL against it, returning rows as dicts."""
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
 
         def _blocking():
             arrow = self._scan_table(namespace, table, row_filter=row_filter)
@@ -89,7 +104,7 @@ class IcebergDuckDB:
         params: list[Any] | None = None,
     ) -> list[dict]:
         """Load multiple Iceberg tables and run a JOIN/UNION query."""
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
 
         def _blocking():
             arrow_tables: dict[str, pa.Table] = {}

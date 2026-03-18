@@ -1,9 +1,8 @@
 """Relay-style cursor pagination helpers."""
 
-from __future__ import annotations
-
 import base64
 import json
+import logging
 from typing import Optional, TypeVar
 
 import strawberry
@@ -11,6 +10,7 @@ import strawberry
 from app.schema.types import DailySummary, MinuteCandle, Symbol, Trade
 
 T = TypeVar("T")
+logger = logging.getLogger(__name__)
 
 
 def encode_cursor(offset: int) -> str:
@@ -18,8 +18,18 @@ def encode_cursor(offset: int) -> str:
 
 
 def decode_cursor(cursor: str) -> int:
-    data = json.loads(base64.b64decode(cursor.encode()).decode())
-    return data["offset"]
+    """Decode a base64-encoded cursor back to an integer offset.
+
+    Returns 0 as a safe default if the cursor is malformed, expired, or
+    otherwise undecodable — this restarts pagination from the beginning
+    rather than raising a 500 error to the client.
+    """
+    try:
+        data = json.loads(base64.b64decode(cursor.encode()).decode())
+        return data["offset"]
+    except Exception:
+        logger.warning("Malformed pagination cursor, defaulting to offset 0: %r", cursor)
+        return 0
 
 
 @strawberry.type

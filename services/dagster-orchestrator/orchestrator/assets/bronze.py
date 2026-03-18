@@ -1,4 +1,11 @@
-"""Bronze layer assets — raw data ingestion from Kafka to Iceberg."""
+"""Bronze layer assets — raw data ingestion from Kafka to Iceberg.
+
+Bronze is the first layer in the medallion architecture. These assets represent
+raw, unprocessed data landing from Kafka topics into Iceberg tables. Each asset
+corresponds to a single Kafka topic (trades, orderbook, market data). The assets
+use lakehouse.catalog.get_catalog() directly for Iceberg access rather than the
+Dagster KafkaResource — Kafka consumption happens upstream in the Flink bridge.
+"""
 
 import logging
 
@@ -6,7 +13,6 @@ from dagster import AssetExecutionContext, AssetKey, asset
 
 from orchestrator.partitions.daily import daily_partitions
 from orchestrator.resources.iceberg import IcebergResource
-from orchestrator.resources.kafka import KafkaResource
 from orchestrator.resources.prometheus import PrometheusResource
 
 logger = logging.getLogger(__name__)
@@ -21,7 +27,6 @@ logger = logging.getLogger(__name__)
 )
 def bronze_raw_trades(
     context: AssetExecutionContext,
-    kafka: KafkaResource,
     iceberg: IcebergResource,
     prometheus: PrometheusResource,
 ) -> None:
@@ -58,7 +63,6 @@ def bronze_raw_trades(
 )
 def bronze_raw_orderbook(
     context: AssetExecutionContext,
-    kafka: KafkaResource,
     iceberg: IcebergResource,
     prometheus: PrometheusResource,
 ) -> None:
@@ -91,7 +95,6 @@ def bronze_raw_orderbook(
 )
 def bronze_raw_marketdata(
     context: AssetExecutionContext,
-    kafka: KafkaResource,
     iceberg: IcebergResource,
     prometheus: PrometheusResource,
 ) -> None:

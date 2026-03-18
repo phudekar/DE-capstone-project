@@ -12,13 +12,14 @@ from orchestrator.metrics.dagster_metrics import (
 
 logger = logging.getLogger(__name__)
 
-# Map from asset key → layer label for Prometheus
+# Map from asset key → layer label for Prometheus.
+# Only include assets that are registered in definitions.py — do not add asset keys
+# that don't exist (e.g. gold_ohlcv, gold_symbol_performance) or the sensor will
+# query for non-existent materialization events.
 _ASSET_LAYER_MAP = {
     "bronze_raw_trades": "bronze",
     "silver_trades": "silver",
     "gold_daily_trading_summary": "gold",
-    "gold_ohlcv": "gold",
-    "gold_symbol_performance": "gold",
 }
 
 

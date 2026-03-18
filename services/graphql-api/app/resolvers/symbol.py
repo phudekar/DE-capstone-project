@@ -46,7 +46,9 @@ class SymbolResolver:
         params: list = []
 
         if f.is_current is not None:
-            clauses[0] = f"is_current = {str(f.is_current).lower()}"
+            # Use parameterized query to avoid SQL injection via is_current
+            clauses[0] = "is_current = ?"
+            params.insert(0, f.is_current)
         if f.sector:
             clauses.append("sector = ?")
             params.append(f.sector)

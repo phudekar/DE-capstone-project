@@ -1,6 +1,11 @@
-"""Daily schedules for Silver micro-batch and Gold aggregation."""
+"""Daily schedules for Silver micro-batch and Gold aggregation.
 
-from __future__ import annotations
+Orchestration strategy:
+- Silver assets are processed in micro-batches every 5 minutes to keep latency low.
+- Gold assets are aggregated once per weekday at 5 PM UTC after market close.
+- Both jobs use in_process_executor to avoid OOM from multiprocess spawning in Docker.
+"""
+# NOTE: Do NOT use 'from __future__ import annotations' — it breaks Dagster decorators
 
 from datetime import date
 
@@ -15,8 +20,6 @@ from dagster import (
 )
 from dagster._core.definitions.executor_definition import in_process_executor
 
-from orchestrator.partitions.daily import daily_partitions
-
 # Silver micro-batch: every 5 minutes
 # Uses in_process_executor to avoid OOM from multiprocess spawning
 # 4 Arrow-heavy child processes simultaneously in Docker.
@@ -28,7 +31,7 @@ silver_micro_batch_job = define_asset_job(
         AssetKey("silver_market_data"),
         AssetKey("silver_trader_activity"),
     ),
-    partitions_def=daily_partitions,
+    # partitions_def is inferred from the selected assets (deprecated in Dagster 1.12)
     executor_def=in_process_executor,
     description="Process all Silver assets in a micro-batch.",
 )
@@ -54,7 +57,7 @@ gold_daily_job = define_asset_job(
         AssetKey("gold_market_overview"),
         AssetKey("gold_portfolio_positions"),
     ),
-    partitions_def=daily_partitions,
+    # partitions_def is inferred from the selected assets (deprecated in Dagster 1.12)
     executor_def=in_process_executor,
     description="Aggregate all Gold assets for the day.",
 )

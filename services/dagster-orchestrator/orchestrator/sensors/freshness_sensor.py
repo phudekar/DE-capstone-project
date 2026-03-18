@@ -25,6 +25,8 @@ _MONITORED_ASSETS = [
         "monitored asset exceeds the freshness SLA."
     ),
     minimum_interval_seconds=3600,  # Check hourly
+    # job_name tells Dagster which job to target when yielding RunRequest
+    job_name="data_quality_job",
 )
 def freshness_sla_sensor(context: SensorEvaluationContext):
     """Yield a RunRequest for the data_quality_job when SLA is breached."""

@@ -4,6 +4,16 @@ Submits tumbling-window trade aggregation (1m, 5m, 15m) and
 trade enrichment (lookup join with reference symbols) as a
 single Flink SQL statement set.
 
+This pipeline uses the Flink Table/SQL API (vs. the DataStream API used
+by Job B / submit_python_pipeline). The SQL approach is preferred here
+because tumbling-window aggregation and CASE-based enrichment map
+naturally to declarative SQL, and Flink's SQL planner can optimise state
+management and watermark handling automatically.
+
+The pipeline creates a StatementSet with multiple INSERT statements so
+that all outputs (3 window sizes + enriched trades) share a single
+source scan, avoiding redundant Kafka consumption.
+
 Usage:
     python -m flink_processor.submit_sql_pipeline
 """

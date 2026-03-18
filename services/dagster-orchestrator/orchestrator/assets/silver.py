@@ -1,4 +1,10 @@
-"""Silver layer assets — cleaned, deduplicated, enriched data."""
+"""Silver layer assets — cleaned, deduplicated, enriched data.
+
+Silver is the second layer in the medallion architecture. These assets consume
+Bronze tables, apply deduplication, schema validation, and enrichment (e.g. joining
+with dimension tables), then write the results to Silver Iceberg tables. Each asset
+maps 1:1 to a Bronze dependency and delegates processing to lakehouse.processors.
+"""
 
 import logging
 from datetime import date, datetime, time, timezone

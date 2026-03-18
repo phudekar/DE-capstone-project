@@ -53,12 +53,12 @@ interactive dashboards.
 
 | Layer | Technology | Port |
 |---|---|---|
-| Data generation | DE-Stock (Rust exchange simulator) | WebSocket :8080 |
+| Data generation | DE-Stock (Rust exchange simulator) | WebSocket :8765 |
 | Message broker | Apache Kafka (KRaft, single broker) | :9092 |
 | Kafka UI | Kafka-UI | :8089 |
 | Stream processing | Apache Flink | :8082 (UI) |
 | Object storage | MinIO (S3-compatible) | :9000 / :9001 |
-| Table format | Apache Iceberg + REST catalog | :8183 |
+| Table format | Apache Iceberg + REST catalog | :8181 |
 | In-memory analytics | DuckDB | (embedded) |
 | Orchestration | Dagster | :3000 |
 | Data quality | Great Expectations 0.18 | (embedded) |
@@ -124,7 +124,7 @@ make submit-all-flink
 
 | Service | URL |
 |---|---|
-| DE-Stock WebSocket | ws://localhost:8080/ws |
+| DE-Stock WebSocket | ws://localhost:8765 |
 | Kafka UI | http://localhost:8089 |
 | Flink Web UI | http://localhost:8082 |
 | MinIO Console | http://localhost:9001 (minioadmin / minioadmin) |

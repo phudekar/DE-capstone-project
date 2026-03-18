@@ -39,7 +39,11 @@ def test_data_analyst_masks_account_id_as_partial():
 def test_business_user_redacts_account_id():
     rules = MASKING_RULES["business_user"]
     assert "account_id" in rules
-    assert rules["business_user" and "account_id"][0] == "redact"
+    # Fixed: "business_user" and "account_id" evaluates to "account_id" (Python
+    # short-circuit), so the original indexed `rules` with just "account_id" —
+    # making the test always-true since `rules` is already the business_user dict.
+    # We need to index into MASKING_RULES properly to actually test the structure.
+    assert MASKING_RULES["business_user"]["account_id"][0] == "redact"
 
 
 # ─── mask_value ───────────────────────────────────────────────────────────────
